@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\caption{Top 5 Models Parameter Breakdown - Transfer Learning}
+\begin{tabular}{ccccccccc}
+\toprule
+\textbf{Rank} & \textbf{Score} & \textbf{Descriptor} & \textbf{Modality} & \textbf{Scaler} & \textbf{Method} & \textbf{Cross-Domain} & \textbf{Source SMOTE} & \textbf{Target SMOTE} \\
+\midrule
+11.00 & 0.3843 & SOAP & molecule & MinMax & pretrain\_ccsa\_then\_encoder\_task & Yes & Yes & No \\
+15.67 & 0.3583 & SOAP & molecule\_pocket & MinMax & pretrain\_ccsa\_then\_encoder\_task & Yes & Yes & No \\
+37.33 & 0.3383 & SOAP & molecule\_protein & MinMax & pretrain\_ccsa\_then\_encoder\_task & Yes & Yes & No \\
+39.67 & 0.3220 & SOAP & molecule\_protein\_pocket & MinMax & no\_pretrain\_encoder\_task & No & Yes & No \\
+41.00 & 0.3240 & SOAP & molecule & MinMax & pretrain\_ccsa\_then\_encoder\_task & Yes & No & No \\
+\bottomrule
+\end{tabular}
+\label{tab:parameter_breakdown_transfer_learning}
+\end{table}

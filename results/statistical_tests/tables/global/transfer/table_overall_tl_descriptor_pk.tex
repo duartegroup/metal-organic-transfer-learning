@@ -1,0 +1,39 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl descriptor settings within each transfer experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_descriptor_transfer_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Protein} & 0.517 $\pm$ 0.067$^{\textit{\textbf{A}}}$ & 0.281 $\pm$ 0.117 & 0.720 $\pm$ 0.054 & 0.504 $\pm$ 0.130 \\
+        \textbf{Pocket} & 0.540 $\pm$ 0.049 & 0.231 $\pm$ 0.074 & 0.705 $\pm$ 0.040 & 0.435 $\pm$ 0.104 \\
+        \textbf{Molecule+Protein+Pocket} & 0.511 $\pm$ 0.065$^{\textit{\textbf{A}}}$ & 0.283 $\pm$ 0.114 & 0.730 $\pm$ 0.051$^{\textit{\textbf{C}}}$ & 0.526 $\pm$ 0.137 \\
+        \textbf{Molecule} & 0.516 $\pm$ 0.077$^{\textit{\textbf{A}}}$ & 0.272 $\pm$ 0.130 & 0.716 $\pm$ 0.053 & 0.483 $\pm$ 0.145 \\
+        \textbf{Molecule+Protein} & 0.509 $\pm$ 0.067 & 0.301 $\pm$ 0.114$^{\textit{\textbf{B}}}$ & 0.732 $\pm$ 0.052$^{\textit{\textbf{C}}}$ & 0.532 $\pm$ 0.130$^{\textit{\textbf{D}}}$ \\
+        \textbf{Molecule+Pocket} & 0.519 $\pm$ 0.063$^{\textit{\textbf{A}}}$ & 0.265 $\pm$ 0.114 & 0.720 $\pm$ 0.052 & 0.504 $\pm$ 0.137 \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Protein vs Pocket} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Protein vs Molecule+Protein+Pocket} & $< 0.001$ & 0.934 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Protein vs Molecule} & 0.475 & 0.030 & 0.015 & $< 0.001$ \\
+        \textbf{Protein vs Molecule+Protein} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Protein vs Molecule+Pocket} & 0.475 & $< 0.001$ & 0.947 & 0.306 \\
+        \textbf{Pocket vs Molecule+Protein+Pocket} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Pocket vs Molecule} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Pocket vs Molecule+Protein} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Pocket vs Molecule+Pocket} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Molecule+Protein+Pocket vs Molecule} & 0.076 & 0.030 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Molecule+Protein+Pocket vs Molecule+Protein} & 0.475 & $< 0.001$ & 0.102 & 0.034 \\
+        \textbf{Molecule+Protein+Pocket vs Molecule+Pocket} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Molecule vs Molecule+Protein} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Molecule vs Molecule+Pocket} & 0.076 & 0.002 & 0.015 & $< 0.001$ \\
+        \textbf{Molecule+Protein vs Molecule+Pocket} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & 4 groups equiv. & Molecule+Protein sig. better & Molecule+Protein \& Molecule+Protein+Pocket equiv. & Molecule+Protein sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

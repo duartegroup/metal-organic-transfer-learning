@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different target smote settings within each supervised experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_target_smote_supervised_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{No Target Smote} & 0.295 $\pm$ 0.160$^{\textit{\textbf{A}}}$ & 0.716 $\pm$ 0.085$^{\textit{\textbf{B}}}$ & 0.435 $\pm$ 0.145 \\
+        \textbf{Target Smote} & 0.294 $\pm$ 0.168$^{\textit{\textbf{A}}}$ & 0.689 $\pm$ 0.118 & 0.476 $\pm$ 0.138$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & 0.785 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & No sig. difference & No Target Smote sig. better & Target Smote sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

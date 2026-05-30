@@ -1,0 +1,24 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl inhibitor settings within each transfer experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_inhibitor_transfer_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Acsf} & 0.594 $\pm$ 0.075 & 0.198 $\pm$ 0.154 & 0.633 $\pm$ 0.092 & 0.405 $\pm$ 0.201 \\
+        \textbf{Mace} & 0.603 $\pm$ 0.067 & 0.177 $\pm$ 0.141 & 0.628 $\pm$ 0.087 & 0.379 $\pm$ 0.195 \\
+        \textbf{Soap} & 0.581 $\pm$ 0.080$^{\textit{\textbf{A}}}$ & 0.226 $\pm$ 0.170$^{\textit{\textbf{B}}}$ & 0.654 $\pm$ 0.104$^{\textit{\textbf{C}}}$ & 0.439 $\pm$ 0.216$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Acsf vs Mace} & $< 0.001$ & $< 0.001$ & 0.016 & $< 0.001$ \\
+        \textbf{Acsf vs Soap} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Mace vs Soap} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & Soap sig. better & Soap sig. better & Soap sig. better & Soap sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

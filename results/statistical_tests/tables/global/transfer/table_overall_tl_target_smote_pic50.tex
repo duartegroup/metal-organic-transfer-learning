@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl target smote settings within each transfer experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_target_smote_transfer_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{No Target Smote} & 0.544 $\pm$ 0.051$^{\textit{\textbf{A}}}$ & 0.263 $\pm$ 0.095 & 0.703 $\pm$ 0.048 & 0.532 $\pm$ 0.100 \\
+        \textbf{Target Smote} & 0.552 $\pm$ 0.046 & 0.270 $\pm$ 0.082$^{\textit{\textbf{B}}}$ & 0.720 $\pm$ 0.047$^{\textit{\textbf{C}}}$ & 0.576 $\pm$ 0.087$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & No Target Smote sig. better & Target Smote sig. better & Target Smote sig. better & Target Smote sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

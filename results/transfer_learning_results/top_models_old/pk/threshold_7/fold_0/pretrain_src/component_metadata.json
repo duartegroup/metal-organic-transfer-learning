@@ -1,0 +1,32 @@
+{
+  "phase": "pretrain_src",
+  "model_type": "MultiTaskPocket",
+  "has_wrapper": false,
+  "components": {
+    "mol_encoder": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_0/pretrain_src/mol_encoder.pth",
+      "model_path": "mol_encoder",
+      "component_class": "MolecularEncoder",
+      "num_parameters": 1409410
+    },
+    "pocket_encoder": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_0/pretrain_src/pocket_encoder.pth",
+      "model_path": "pocket_encoder",
+      "component_class": "BiologicalEncoder",
+      "num_parameters": 328066
+    },
+    "feature_extractor": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_0/pretrain_src/feature_extractor.pth",
+      "model_path": "feature_extractor",
+      "component_class": "FeatureExtractor",
+      "num_parameters": 99202
+    },
+    "projection_head": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_0/pretrain_src/projection_head.pth",
+      "model_path": "projection_head",
+      "component_class": "ProjectionHead",
+      "num_parameters": 66049
+    }
+  },
+  "timestamp": "2025-09-22T02:03:21.042196"
+}

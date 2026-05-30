@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different target smote settings within each supervised experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_target_smote_supervised_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{No Target Smote} & 0.166 $\pm$ 0.107 & 0.683 $\pm$ 0.045$^{\textit{\textbf{B}}}$ & 0.564 $\pm$ 0.087$^{\textit{\textbf{C}}}$ \\
+        \textbf{Target Smote} & 0.177 $\pm$ 0.112$^{\textit{\textbf{A}}}$ & 0.659 $\pm$ 0.067 & 0.559 $\pm$ 0.094$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & 0.543 \\
+        \textbf{Best performer} & Target Smote sig. better & No Target Smote sig. better & No sig. difference \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

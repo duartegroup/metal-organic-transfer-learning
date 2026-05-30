@@ -1,0 +1,26 @@
+{
+  "phase": "task",
+  "model_type": "MultiTaskPocket",
+  "has_wrapper": false,
+  "components": {
+    "mol_encoder": {
+      "file_path": "results/SOAP/molecule/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/pretrain_task/mol_encoder.pth",
+      "model_path": "mol_encoder",
+      "component_class": "MolecularEncoder",
+      "num_parameters": 1409410
+    },
+    "feature_extractor": {
+      "file_path": "results/SOAP/molecule/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/pretrain_task/feature_extractor.pth",
+      "model_path": "feature_extractor",
+      "component_class": "FeatureExtractor",
+      "num_parameters": 66178
+    },
+    "classification_head": {
+      "file_path": "results/SOAP/molecule/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/pretrain_task/classification_head.pth",
+      "model_path": "classification_head",
+      "component_class": "BindingAffinityHead",
+      "num_parameters": 24835
+    }
+  },
+  "timestamp": "2025-09-21T19:54:12.293759"
+}

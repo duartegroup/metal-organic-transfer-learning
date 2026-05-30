@@ -1,0 +1,24 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different inhibitor settings within each supervised experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_inhibitor_supervised_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Acsf} & 0.111 $\pm$ 0.115 & 0.694 $\pm$ 0.102 & 0.753 $\pm$ 0.121 \\
+        \textbf{Mace} & 0.128 $\pm$ 0.118$^{\textit{\textbf{A}}}$ & 0.707 $\pm$ 0.101$^{\textit{\textbf{B}}}$ & 0.764 $\pm$ 0.118$^{\textit{\textbf{C}}}$ \\
+        \textbf{Soap} & 0.130 $\pm$ 0.112$^{\textit{\textbf{A}}}$ & 0.703 $\pm$ 0.098$^{\textit{\textbf{B}}}$ & 0.759 $\pm$ 0.115$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & 0.005 \\
+        \textbf{Acsf vs Mace} & $< 0.001$ & $< 0.001$ & 0.002 \\
+        \textbf{Acsf vs Soap} & $< 0.001$ & 0.021 & 0.183 \\
+        \textbf{Mace vs Soap} & 0.549 & 0.069 & 0.183 \\
+        \textbf{Best performer} & Mace \& Soap equiv. & Mace \& Soap equiv. & Mace \& Soap equiv. \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

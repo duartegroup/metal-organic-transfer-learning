@@ -1,0 +1,217 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.0686182380300037,
+  "misclassified_sample_analysis": {
+    "compound_76_hA3-29": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.07920514792203903,
+      "avg_dist_to_counterpart_class": 0.0762380063533783,
+      "similarity_ratio": 1.0389194538339244,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.2185837147001398,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_76_hA2B-85",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_76_hA1-96",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_83_hA1-103",
+          "distance": 0.03749705106019974
+        },
+        {
+          "key": "compound_77_hA2B-86",
+          "distance": 0.1530979573726654
+        },
+        {
+          "key": "compound_80_hA1-100",
+          "distance": 0.20543070137500763
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_76_hA2A-74",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_83_hA2B-92",
+          "distance": 0.03749705106019974
+        },
+        {
+          "key": "compound_83_hA2A-81",
+          "distance": 0.03749705106019974
+        },
+        {
+          "key": "compound_77_hA1-97",
+          "distance": 0.1530979573726654
+        },
+        {
+          "key": "compound_77_hA2A-75",
+          "distance": 0.1530979573726654
+        }
+      ]
+    },
+    "compound_80_hA3-33": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.12306358516216279,
+      "avg_dist_to_counterpart_class": 0.040344278514385226,
+      "similarity_ratio": 3.050335504656082,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.25750210841039084,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_80_hA1-100",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_84_hA1-104",
+          "distance": 0.04417333006858826
+        },
+        {
+          "key": "compound_78_hA1-98",
+          "distance": 0.17902441322803497
+        },
+        {
+          "key": "compound_83_hA1-103",
+          "distance": 0.18668946623802185
+        },
+        {
+          "key": "compound_76_hA1-96",
+          "distance": 0.20543070137500763
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_80_hA2B-89",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_80_hA2A-78",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_84_hA2B-93",
+          "distance": 0.04417333006858826
+        },
+        {
+          "key": "compound_84_hA2A-82",
+          "distance": 0.04417333006858826
+        },
+        {
+          "key": "compound_79_hA1-99",
+          "distance": 0.11337470263242722
+        }
+      ]
+    },
+    "compound_81_hA3-34": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.12074064165353775,
+      "avg_dist_to_counterpart_class": 0.3080920912325382,
+      "similarity_ratio": 0.39189789380995993,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 0.3319297170734349,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_81_hA1-101",
+          "distance": 0.0
+        },
+        {
+          "key": "compound_81_hA2B-90",
+          "distance": 0.0
+        },
+        {
+          "key": "compound_85_hA1-105",
+          "distance": 0.05694108083844185
+        },
+        {
+          "key": "compound_85_hA2B-94",
+          "distance": 0.05694108083844185
+        },
+        {
+          "key": "compound_77_hA2B-86",
+          "distance": 0.48982104659080505
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_81_hA2A-79",
+          "distance": 0.0
+        },
+        {
+          "key": "compound_85_hA2A-83",
+          "distance": 0.05694108083844185
+        },
+        {
+          "key": "compound_77_hA1-97",
+          "distance": 0.48982104659080505
+        },
+        {
+          "key": "compound_77_hA2A-75",
+          "distance": 0.48982104659080505
+        },
+        {
+          "key": "compound_76_hA2A-74",
+          "distance": 0.5038772821426392
+        }
+      ]
+    },
+    "compound_85_hA3-38": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.12747520604260884,
+      "avg_dist_to_counterpart_class": 0.32942294080321055,
+      "similarity_ratio": 0.3869651753208029,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 0.3319299013401066,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_85_hA1-105",
+          "distance": 2.107342389479072e-08
+        },
+        {
+          "key": "compound_85_hA2B-94",
+          "distance": 2.107342389479072e-08
+        },
+        {
+          "key": "compound_81_hA1-101",
+          "distance": 0.05694108083844185
+        },
+        {
+          "key": "compound_81_hA2B-90",
+          "distance": 0.05694108083844185
+        },
+        {
+          "key": "compound_77_hA2B-86",
+          "distance": 0.5234938263893127
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_85_hA2A-83",
+          "distance": 2.107342389479072e-08
+        },
+        {
+          "key": "compound_81_hA2A-79",
+          "distance": 0.05694108083844185
+        },
+        {
+          "key": "compound_77_hA1-97",
+          "distance": 0.5234938263893127
+        },
+        {
+          "key": "compound_77_hA2A-75",
+          "distance": 0.5234938263893127
+        },
+        {
+          "key": "compound_76_hA2A-74",
+          "distance": 0.5431859493255615
+        }
+      ]
+    }
+  }
+}

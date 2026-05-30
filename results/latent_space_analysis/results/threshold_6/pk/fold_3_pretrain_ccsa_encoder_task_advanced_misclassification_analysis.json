@@ -1,0 +1,482 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.11364930337835596,
+  "misclassified_sample_analysis": {
+    "compound_105_hsBChE-162": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.5891384690999985,
+      "avg_dist_to_counterpart_class": 0.10621589943766593,
+      "similarity_ratio": 5.5466128161513275,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.9274939411737116,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.1274174004793167
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.13145169615745544
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.7666217684745789
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.9392759799957275
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.9809255003929138
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_99_hrAChE-68",
+          "distance": 0.061117347329854965
+        },
+        {
+          "key": "compound_87_hlGST-0",
+          "distance": 0.10554652661085129
+        },
+        {
+          "key": "compound_87_hrAChE-65",
+          "distance": 0.10554652661085129
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.1274174004793167
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 0.13145169615745544
+        }
+      ]
+    },
+    "compound_106_hsBChE-163": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.5736803144216538,
+      "avg_dist_to_counterpart_class": 0.1107142485678196,
+      "similarity_ratio": 5.181630384911457,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.9584986029820538,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.12026157975196838
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.128611221909523
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.7432498931884766
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.9172393679618835
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.9590395092964172
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_99_hrAChE-68",
+          "distance": 0.04691788926720619
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.12026157975196838
+        },
+        {
+          "key": "compound_88_hGST-211",
+          "distance": 0.128611221909523
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 0.128611221909523
+        },
+        {
+          "key": "compound_87_hlGST-0",
+          "distance": 0.12916933000087738
+        }
+      ]
+    },
+    "compound_107_hsBChE-164": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.5921554058790207,
+      "avg_dist_to_counterpart_class": 0.09324559718370437,
+      "similarity_ratio": 6.350491859818407,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.8116691799975044,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.11249488592147827
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.11749468743801117
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.7789497375488281
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.9546526670455933
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.9971850514411926
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_99_hrAChE-68",
+          "distance": 0.07629471272230148
+        },
+        {
+          "key": "compound_87_hlGST-0",
+          "distance": 0.07997184991836548
+        },
+        {
+          "key": "compound_87_hrAChE-65",
+          "distance": 0.07997184991836548
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.11249488592147827
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 0.11749468743801117
+        }
+      ]
+    },
+    "compound_109_hsBChE-166": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.5189152419567108,
+      "avg_dist_to_counterpart_class": 0.3740043520927429,
+      "similarity_ratio": 1.3874577636680385,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 3.2044823516776924,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.36937451362609863
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.3901558518409729
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.48452964425086975
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.6539170742034912
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.6965991258621216
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_99_hrAChE-68",
+          "distance": 0.30187520384788513
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.36937451362609863
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 0.3901558518409729
+        },
+        {
+          "key": "compound_88_hGST-211",
+          "distance": 0.3901558518409729
+        },
+        {
+          "key": "compound_104_hrAChE-69",
+          "distance": 0.41846033930778503
+        }
+      ]
+    },
+    "compound_110_hsBChE-167": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.5317985594272614,
+      "avg_dist_to_counterpart_class": 0.30366122126579287,
+      "similarity_ratio": 1.7512890095432412,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 2.5997486421986125,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.30134570598602295
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.3233395516872406
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.5425445437431335
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.7235642075538635
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.7681987881660461
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_99_hrAChE-68",
+          "distance": 0.22792759537696838
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.30134570598602295
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 0.3233395516872406
+        },
+        {
+          "key": "compound_88_hGST-211",
+          "distance": 0.3233395516872406
+        },
+        {
+          "key": "compound_104_hrAChE-69",
+          "distance": 0.3423537015914917
+        }
+      ]
+    },
+    "compound_111_hsBChE-168": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.5642684459686279,
+      "avg_dist_to_counterpart_class": 0.1913570210337639,
+      "similarity_ratio": 2.948773151464695,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 1.64857009432236,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.1976095288991928
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.21760042011737823
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.6661651730537415
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.8488906025886536
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.8910765051841736
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_99_hrAChE-68",
+          "distance": 0.1090434268116951
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.1976095288991928
+        },
+        {
+          "key": "compound_104_hrAChE-69",
+          "distance": 0.21493130922317505
+        },
+        {
+          "key": "compound_88_hGST-211",
+          "distance": 0.21760042011737823
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 0.21760042011737823
+        }
+      ]
+    },
+    "compound_88_hsBChE-153": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.57396084938709,
+      "avg_dist_to_counterpart_class": 0.07199787595399343,
+      "similarity_ratio": 7.971913640255866,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.35718319999499676,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 2.107342389479072e-08
+        },
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.1014840230345726
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.8043716549873352
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.9643138647079468
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.9996346831321716
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_88_hGST-211",
+          "distance": 2.107342389479072e-08
+        },
+        {
+          "key": "compound_88_hrAChE-66",
+          "distance": 2.107342389479072e-08
+        },
+        {
+          "key": "compound_94_hGST-213",
+          "distance": 0.1014840230345726
+        },
+        {
+          "key": "compound_87_hlGST-0",
+          "distance": 0.12925265729427338
+        },
+        {
+          "key": "compound_87_hrAChE-65",
+          "distance": 0.12925265729427338
+        }
+      ]
+    },
+    "compound_89_hsBChE-154": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 0.7510262191295624,
+      "avg_dist_to_counterpart_class": 0.03608207702636719,
+      "similarity_ratio": 20.814384343250126,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.3174861257727592,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_94_hlGST-5",
+          "distance": 0.2736123204231262
+        },
+        {
+          "key": "compound_88_hlGST-1",
+          "distance": 0.288426011800766
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 0.9287671446800232
+        },
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 1.1087695360183716
+        },
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 1.155556082725525
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_89_hrAChE-67",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_89_hGST-212",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_89_hlGST-2",
+          "distance": 1.4901161193847656e-08
+        },
+        {
+          "key": "compound_81_hA1-101",
+          "distance": 0.09020517021417618
+        },
+        {
+          "key": "compound_81_hA2A-79",
+          "distance": 0.09020517021417618
+        }
+      ]
+    },
+    "compound_91_hsBChE-156": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.09133308380842209,
+      "avg_dist_to_counterpart_class": 0.08534073084592819,
+      "similarity_ratio": 1.0702167992129377,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.5793242221551861,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_91_hlGST-4",
+          "distance": 0.0
+        },
+        {
+          "key": "compound_13_MLCK-185",
+          "distance": 0.10075583308935165
+        },
+        {
+          "key": "compound_72_CB1-207",
+          "distance": 0.1144852265715599
+        },
+        {
+          "key": "compound_75_CB1-210",
+          "distance": 0.12021028250455856
+        },
+        {
+          "key": "compound_11_MLCK-183",
+          "distance": 0.12121407687664032
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_18_MLCK-190",
+          "distance": 0.07647795975208282
+        },
+        {
+          "key": "compound_18_Pim1-51",
+          "distance": 0.07647795975208282
+        },
+        {
+          "key": "compound_44_MTH1-131",
+          "distance": 0.08150571584701538
+        },
+        {
+          "key": "compound_29_GSK3\u03b2-145",
+          "distance": 0.09473733603954315
+        },
+        {
+          "key": "compound_31_GSK3\u03b2-147",
+          "distance": 0.09750468283891678
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+name: metal-transfer-learning
+channels:
+  - conda-forge
+  - pytorch
+  - cuda
+  - pyg
+  - bioconda
+  - defaults
+
+dependencies:
+  # Python
+  - python=3.11
+
+  # Core ML/DL frameworks
+  - pytorch
+  - pytorch-lightning
+  - torchmetrics
+  # - torch-geometric  # Uncomment if needed
+  - pytorch-cuda  # Adjust CUDA version as needed
+
+  # Scientific computing
+  - numpy
+  - scipy
+  - scikit-learn
+  - pandas
+
+  # Visualization
+  - matplotlib
+  - seaborn
+  - umap-learn
+
+  # Molecular/Chemical libraries
+  - ase
+  - rdkit
+
+  # Biological data processing
+  - biopython
+  - h5py
+
+  # Utilities
+  - tqdm
+  - termcolor
+  - pathlib
+
+  # pip dependencies (for packages not available via conda)
+  - pip
+  - pip:
+    - dscribe
+    - esm
+    - mace-torch
+

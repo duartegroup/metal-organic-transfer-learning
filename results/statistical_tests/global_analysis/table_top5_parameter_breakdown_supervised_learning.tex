@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\caption{Top 5 Models Parameter Breakdown - Supervised Learning}
+\begin{tabular}{cccccccc}
+\toprule
+\textbf{Rank} & \textbf{Score} & \textbf{Descriptor} & \textbf{Modality} & \textbf{Scaler} & \textbf{Method} & \textbf{Target SMOTE} & \textbf{PCA} \\
+\midrule
+29.33 & 0.2507 & MACE & inhibitor & None & RandomForest & No & Yes (50) \\
+30.33 & 0.2390 & SOAP & inhibitor & Standard & MLP & No & No \\
+38.00 & 0.2317 & MACE & inhibitor & None & XGBoost & Yes & Yes (50) \\
+39.33 & 0.2570 & SOAP & inhibitor & Standard & RandomForest & Yes & No \\
+39.33 & 0.2570 & SOAP & inhibitor & None & RandomForest & Yes & No \\
+\bottomrule
+\end{tabular}
+\label{tab:parameter_breakdown_supervised_learning}
+\end{table}

@@ -1,0 +1,24 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different scaler settings within each supervised experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_scaler_supervised_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{None} & 0.144 $\pm$ 0.109 & 0.657 $\pm$ 0.063 & 0.546 $\pm$ 0.092 \\
+        \textbf{MinMax} & 0.183 $\pm$ 0.108$^{\textit{\textbf{A}}}$ & 0.676 $\pm$ 0.055$^{\textit{\textbf{B}}}$ & 0.566 $\pm$ 0.090 \\
+        \textbf{Standard} & 0.187 $\pm$ 0.108$^{\textit{\textbf{A}}}$ & 0.678 $\pm$ 0.054$^{\textit{\textbf{B}}}$ & 0.572 $\pm$ 0.089$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{None vs MinMax} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{None vs Standard} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{MinMax vs Standard} & 0.142 & 0.281 & 0.006 \\
+        \textbf{Best performer} & Standard \& MinMax equiv. & Standard \& MinMax equiv. & Standard sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

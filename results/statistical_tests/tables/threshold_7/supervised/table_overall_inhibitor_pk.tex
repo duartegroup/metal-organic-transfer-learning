@@ -1,0 +1,24 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different inhibitor settings within each supervised experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_inhibitor_supervised_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Acsf} & 0.272 $\pm$ 0.155 & 0.693 $\pm$ 0.103 & 0.444 $\pm$ 0.135 \\
+        \textbf{Mace} & 0.277 $\pm$ 0.165 & 0.694 $\pm$ 0.104 & 0.433 $\pm$ 0.147 \\
+        \textbf{Soap} & 0.335 $\pm$ 0.165$^{\textit{\textbf{A}}}$ & 0.720 $\pm$ 0.102$^{\textit{\textbf{B}}}$ & 0.489 $\pm$ 0.141$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Acsf vs Mace} & 0.194 & 0.373 & 0.031 \\
+        \textbf{Acsf vs Soap} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Mace vs Soap} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & Soap sig. better & Soap sig. better & Soap sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

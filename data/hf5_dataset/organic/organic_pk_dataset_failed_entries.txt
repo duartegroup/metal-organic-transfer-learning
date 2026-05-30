@@ -1,0 +1,252 @@
+Failed Entries Report
+Generated: Fri Aug  8 12:28:48 2025
+Total failed: 49
+
+
+PDB_PROCESSING ERRORS (49 entries):
+----------------------------------------
+Entry: 1a4k_FRA_B_3083
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1a4k/1a4k_FRA_B_3083/1a4k_FRA_B_3083_protein_refined.pdb
+Error: KeyError: 2
+Message: 2
+
+Entry: 1ent_0EM_E_822
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1ent/1ent_0EM_E_822/1ent_0EM_E_822_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 1f8e_49A_A_0
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1f8e/1f8e_49A_A_0/1f8e_49A_A_0_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 1f92_UKP_A_300
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1f92/1f92_UKP_A_300/1f92_UKP_A_300_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 1gi7_120_B_246
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1gi7/1gi7_120_B_246/1gi7_120_B_246_protein_refined.pdb
+Error: KeyError: 2
+Message: 2
+
+Entry: 1mue_CDD_B_248
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1mue/1mue_CDD_B_248/1mue_CDD_B_248_protein_refined.pdb
+Error: KeyError: 2
+Message: 2
+
+Entry: 1swg_BTN_A_600
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1swg/1swg_BTN_A_600/1swg_BTN_A_600_protein_refined.pdb
+Error: KeyError: 3
+Message: 3
+
+Entry: 1xs7_MMI_D_386
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/1xs7/1xs7_MMI_D_386/1xs7_MMI_D_386_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2e27_AB0_H_6001
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2e27/2e27_AB0_H_6001/2e27_AB0_H_6001_protein_refined.pdb
+Error: KeyError: 2
+Message: 2
+
+Entry: 2fdp_FRP_A_386
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2fdp/2fdp_FRP_A_386/2fdp_FRP_A_386_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2g94_ZPQ_A_1001
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2g94/2g94_ZPQ_A_1001/2g94_ZPQ_A_1001_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2p4j_23I_A_501
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2p4j/2p4j_23I_A_501/2p4j_23I_A_501_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2pzn_393_A_320
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2pzn/2pzn_393_A_320/2pzn_393_A_320_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2q0i_BEZ_A_990
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2q0i/2q0i_BEZ_A_990/2q0i_BEZ_A_990_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2qwb_SIA_A_800
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2qwb/2qwb_SIA_A_800/2qwb_SIA_A_800_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2qwc_DAN_A_800
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2qwc/2qwc_DAN_A_800/2qwc_DAN_A_800_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2qwd_4AM_A_800
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2qwd/2qwd_4AM_A_800/2qwd_4AM_A_800_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2qwe_ZMR_A_800
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2qwe/2qwe_ZMR_A_800/2qwe_ZMR_A_800_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2qwf_G20_A_800
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2qwf/2qwf_G20_A_800/2qwf_G20_A_800_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2qwi_G20_A_800
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2qwi/2qwi_G20_A_800/2qwi_G20_A_800_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 2vkm_BSD_A_1386
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/2vkm/2vkm_BSD_A_1386/2vkm_BSD_A_1386_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 3i25_MV7_A_531
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/3i25/3i25_MV7_A_531/3i25_MV7_A_531_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 3qin_P1Y_A_700
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/3qin/3qin_P1Y_A_700/3qin_P1Y_A_700_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 3qio_QID_A_700
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/3qio/3qio_QID_A_700/3qio_QID_A_700_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 3t42_3T4_A_317
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/3t42/3t42_3T4_A_317/3t42_3T4_A_317_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 4b05_32D_A_1391
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/4b05/4b05_32D_A_1391/4b05_32D_A_1391_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 4b73_4VA_A_1721
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/4b73/4b73_4VA_A_1721/4b73_4VA_A_1721_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 4b74_1LH_A_1721
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/4b74/4b74_1LH_A_1721/4b74_1LH_A_1721_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 4b76_PW1_A_1721
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/4b76/4b76_PW1_A_1721/4b76_PW1_A_1721_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 4xnv_BUR_A_1101
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/4xnv/4xnv_BUR_A_1101/4xnv_BUR_A_1101_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5ee7_5MV_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5ee7/5ee7_5MV_A_1201/5ee7_5MV_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5iu4_ZMA_A_2401
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5iu4/5iu4_ZMA_A_2401/5iu4_ZMA_A_2401_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5iu7_6DY_A_2401
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5iu7/5iu7_6DY_A_2401/5iu7_6DY_A_2401_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5iu8_6DZ_A_2401
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5iu8/5iu8_6DZ_A_2401/5iu8_6DZ_A_2401_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5iua_6DX_A_2401
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5iua/5iua_6DX_A_2401/5iua_6DX_A_2401_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5iub_6DV_A_2401
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5iub/5iub_6DV_A_2401/5iub_6DV_A_2401_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5olg_ZMA_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5olg/5olg_ZMA_A_1201/5olg_ZMA_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5olv_9Y2_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5olv/5olv_9Y2_A_1201/5olv_9Y2_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5olz_T4E_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5olz/5olz_T4E_A_1201/5olz_T4E_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5om1_T4E_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5om1/5om1_T4E_A_1201/5om1_T4E_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5om4_T4E_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5om4/5om4_T4E_A_1201/5om4_T4E_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5v54_89F_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5v54/5v54_89F_A_1201/5v54_89F_A_1201_protein_refined.pdb
+Error: KeyError: 2
+Message: 2
+
+Entry: 5yc8_3C0_A_501
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5yc8/5yc8_3C0_A_501/5yc8_3C0_A_501_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 5zkc_3C0_A_501
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/5zkc/5zkc_3C0_A_501/5zkc_3C0_A_501_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 6iiu_A8X_A_9001
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/6iiu/6iiu_A8X_A_9001/6iiu_A8X_A_9001_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 6ps2_JTZ_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/6ps2/6ps2_JTZ_A_1201/6ps2_JTZ_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 6ps3_CVD_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/6ps3/6ps3_CVD_A_1201/6ps3_CVD_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 6qzh_JLW_A_1502
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/6qzh/6qzh_JLW_A_1502/6qzh_JLW_A_1502_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+
+Entry: 6s0l_ZMA_A_1201
+PDB file: /home/mhakkennes/projects/transfer_learning/raw_data/organic/6s0l/6s0l_ZMA_A_1201/6s0l_ZMA_A_1201_protein_refined.pdb
+Error: KeyError: 1
+Message: 1
+

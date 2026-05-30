@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl source smote settings within each transfer experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_source_smote_transfer_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Source Smote} & 0.489 $\pm$ 0.021$^{\textit{\textbf{A}}}$ & 0.285 $\pm$ 0.056$^{\textit{\textbf{B}}}$ & 0.778 $\pm$ 0.029$^{\textit{\textbf{C}}}$ & 0.861 $\pm$ 0.048$^{\textit{\textbf{D}}}$ \\
+        \textbf{No Source Smote} & 0.490 $\pm$ 0.021 & 0.285 $\pm$ 0.054$^{\textit{\textbf{B}}}$ & 0.778 $\pm$ 0.028$^{\textit{\textbf{C}}}$ & 0.860 $\pm$ 0.048$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & 0.689 & 0.356 & 0.917 \\
+        \textbf{Best performer} & Source Smote sig. better & No sig. difference & No sig. difference & No sig. difference \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

@@ -1,0 +1,21 @@
+{
+  "input_files": {
+    "xyz_file": "uncaged_PACT.xyz",
+    "pdb_file": "NAMPT.pdb",
+    "optimized_xyz": "optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.0871572345495224,
+    "ensemble_logit": -2.8063695430755615,
+    "binary_prediction": false,
+    "is_active": false
+  }
+}

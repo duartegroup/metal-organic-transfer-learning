@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl target smote settings within each transfer experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_target_smote_transfer_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{No Target Smote} & 0.514 $\pm$ 0.070$^{\textit{\textbf{A}}}$ & 0.281 $\pm$ 0.127$^{\textit{\textbf{B}}}$ & 0.720 $\pm$ 0.056$^{\textit{\textbf{C}}}$ & 0.485 $\pm$ 0.150 \\
+        \textbf{Target Smote} & 0.523 $\pm$ 0.061 & 0.263 $\pm$ 0.098 & 0.721 $\pm$ 0.046$^{\textit{\textbf{C}}}$ & 0.510 $\pm$ 0.116$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & 0.619 & $< 0.001$ \\
+        \textbf{Best performer} & No Target Smote sig. better & No Target Smote sig. better & No sig. difference & Target Smote sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

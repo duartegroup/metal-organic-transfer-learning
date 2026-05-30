@@ -1,0 +1,24 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different scaler settings within each supervised experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_scaler_supervised_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{None} & 0.203 $\pm$ 0.138 & 0.674 $\pm$ 0.083 & 0.585 $\pm$ 0.084 \\
+        \textbf{MinMax} & 0.245 $\pm$ 0.134$^{\textit{\textbf{A}}}$ & 0.697 $\pm$ 0.080$^{\textit{\textbf{B}}}$ & 0.616 $\pm$ 0.080$^{\textit{\textbf{C}}}$ \\
+        \textbf{Standard} & 0.249 $\pm$ 0.130$^{\textit{\textbf{A}}}$ & 0.688 $\pm$ 0.083 & 0.617 $\pm$ 0.086$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{None vs MinMax} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{None vs Standard} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{MinMax vs Standard} & 0.346 & $< 0.001$ & 0.393 \\
+        \textbf{Best performer} & Standard \& MinMax equiv. & MinMax sig. better & Standard \& MinMax equiv. \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

@@ -1,0 +1,58 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.10250176880420889,
+  "misclassified_sample_analysis": {
+    "compound_20_AGAO-132": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 1.3220036029815674,
+      "avg_dist_to_counterpart_class": 0.9683808565139771,
+      "similarity_ratio": 1.365169080004925,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 9.447455081128451,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_62_CB2-112",
+          "distance": 1.1130160093307495
+        },
+        {
+          "key": "compound_34_PAK1-174",
+          "distance": 1.247208595275879
+        },
+        {
+          "key": "compound_68_CB2-118",
+          "distance": 1.3888496160507202
+        },
+        {
+          "key": "compound_73_CB2-123",
+          "distance": 1.4277459383010864
+        },
+        {
+          "key": "compound_74_CB2-124",
+          "distance": 1.4331978559494019
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_7_Pim1-45",
+          "distance": 0.871566653251648
+        },
+        {
+          "key": "compound_104_eeAChE-10",
+          "distance": 0.9607940912246704
+        },
+        {
+          "key": "compound_104_hsBChE-161",
+          "distance": 0.9607940912246704
+        },
+        {
+          "key": "compound_91_hsBChE-156",
+          "distance": 1.0243747234344482
+        },
+        {
+          "key": "compound_91_hlGST-4",
+          "distance": 1.0243747234344482
+        }
+      ]
+    }
+  }
+}

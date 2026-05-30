@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different ccsa settings within each transfer experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_ccsa_transfer_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{True} & 0.533 $\pm$ 0.021 & 0.252 $\pm$ 0.044 & 0.714 $\pm$ 0.022 & 0.478 $\pm$ 0.060 \\
+        \textbf{False} & 0.489 $\pm$ 0.026$^{\textit{\textbf{A}}}$ & 0.313 $\pm$ 0.055$^{\textit{\textbf{B}}}$ & 0.734 $\pm$ 0.022$^{\textit{\textbf{C}}}$ & 0.537 $\pm$ 0.066$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & False sig. better & False sig. better & False sig. better & False sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

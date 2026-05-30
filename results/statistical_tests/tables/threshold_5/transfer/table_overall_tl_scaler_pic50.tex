@@ -1,0 +1,24 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl scaler settings within each transfer experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_scaler_transfer_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{MinMax} & 0.485 $\pm$ 0.024$^{\textit{\textbf{A}}}$ & 0.294 $\pm$ 0.063$^{\textit{\textbf{B}}}$ & 0.781 $\pm$ 0.026$^{\textit{\textbf{C}}}$ & 0.863 $\pm$ 0.043$^{\textit{\textbf{D}}}$ \\
+        \textbf{Standard} & 0.492 $\pm$ 0.017 & 0.279 $\pm$ 0.049 & 0.777 $\pm$ 0.027 & 0.861 $\pm$ 0.046 \\
+        \textbf{None Scaler} & 0.492 $\pm$ 0.019 & 0.283 $\pm$ 0.052 & 0.776 $\pm$ 0.032 & 0.858 $\pm$ 0.054 \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{MinMax vs Standard} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{MinMax vs None Scaler} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Standard vs None Scaler} & $< 0.001$ & 0.108 & 0.285 & 0.353 \\
+        \textbf{Best performer} & MinMax sig. better & MinMax sig. better & MinMax sig. better & MinMax sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

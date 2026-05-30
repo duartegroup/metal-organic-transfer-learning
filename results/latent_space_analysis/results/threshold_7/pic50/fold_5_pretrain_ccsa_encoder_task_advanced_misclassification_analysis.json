@@ -1,0 +1,58 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.14370826551237623,
+  "misclassified_sample_analysis": {
+    "compound_18_FLT4-100": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.13938647657632827,
+      "avg_dist_to_counterpart_class": 0.09262245893478394,
+      "similarity_ratio": 1.5048885354519812,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.6291492184581136,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.10710696876049042
+        },
+        {
+          "key": "compound_50_S6K1-107",
+          "distance": 0.11187731474637985
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.1421312391757965
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.157676562666893
+        },
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 0.1781402975320816
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_49_S6K1-106",
+          "distance": 0.07706289738416672
+        },
+        {
+          "key": "compound_51_S6K1-108",
+          "distance": 0.08074858039617538
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.09335900843143463
+        },
+        {
+          "key": "compound_18_ZIPK-20",
+          "distance": 0.09379225969314575
+        },
+        {
+          "key": "compound_17_MLCK-184",
+          "distance": 0.11814954876899719
+        }
+      ]
+    }
+  }
+}

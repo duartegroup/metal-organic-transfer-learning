@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different pretrain settings within each transfer experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_pretrain_transfer_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{True} & 0.489 $\pm$ 0.012$^{\textit{\textbf{A}}}$ & 0.285 $\pm$ 0.032$^{\textit{\textbf{B}}}$ & 0.776 $\pm$ 0.011 & 0.858 $\pm$ 0.021 \\
+        \textbf{False} & 0.490 $\pm$ 0.012 & 0.285 $\pm$ 0.030$^{\textit{\textbf{B}}}$ & 0.780 $\pm$ 0.010$^{\textit{\textbf{C}}}$ & 0.864 $\pm$ 0.018$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & 0.008 & 0.345 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & True sig. better & No sig. difference & False sig. better & False sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

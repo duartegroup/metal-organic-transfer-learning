@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different pretrain settings within each transfer experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_pretrain_transfer_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{True} & 0.513 $\pm$ 0.025$^{\textit{\textbf{A}}}$ & 0.280 $\pm$ 0.053$^{\textit{\textbf{B}}}$ & 0.725 $\pm$ 0.024$^{\textit{\textbf{C}}}$ & 0.516 $\pm$ 0.068$^{\textit{\textbf{D}}}$ \\
+        \textbf{False} & 0.526 $\pm$ 0.019 & 0.262 $\pm$ 0.042 & 0.715 $\pm$ 0.021 & 0.475 $\pm$ 0.053 \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & True sig. better & True sig. better & True sig. better & True sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

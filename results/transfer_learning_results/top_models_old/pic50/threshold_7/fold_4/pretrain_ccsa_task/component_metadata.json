@@ -1,0 +1,32 @@
+{
+  "phase": "task",
+  "model_type": "MultiTaskPocket",
+  "has_wrapper": false,
+  "components": {
+    "mol_encoder": {
+      "file_path": "results/SOAP/molecule_protein/minmax_scaler/pic50/separate_domain_source_smote_no_target_smote/fold_4/pretrain_ccsa_task/mol_encoder.pth",
+      "model_path": "mol_encoder",
+      "component_class": "MolecularEncoder",
+      "num_parameters": 1409410
+    },
+    "protein_encoder": {
+      "file_path": "results/SOAP/molecule_protein/minmax_scaler/pic50/separate_domain_source_smote_no_target_smote/fold_4/pretrain_ccsa_task/protein_encoder.pth",
+      "model_path": "protein_encoder",
+      "component_class": "BiologicalEncoder",
+      "num_parameters": 328066
+    },
+    "feature_extractor": {
+      "file_path": "results/SOAP/molecule_protein/minmax_scaler/pic50/separate_domain_source_smote_no_target_smote/fold_4/pretrain_ccsa_task/feature_extractor.pth",
+      "model_path": "feature_extractor",
+      "component_class": "FeatureExtractor",
+      "num_parameters": 99202
+    },
+    "classification_head": {
+      "file_path": "results/SOAP/molecule_protein/minmax_scaler/pic50/separate_domain_source_smote_no_target_smote/fold_4/pretrain_ccsa_task/classification_head.pth",
+      "model_path": "classification_head",
+      "component_class": "BindingAffinityHead",
+      "num_parameters": 24835
+    }
+  },
+  "timestamp": "2025-09-21T23:13:21.823448"
+}

@@ -1,0 +1,1383 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.46281533419258064,
+  "misclassified_sample_analysis": {
+    "compound_11_MLCK-178": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.27996728420257566,
+      "avg_dist_to_counterpart_class": 0.22494757771492005,
+      "similarity_ratio": 1.2445890151232615,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.4708116639516252,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.232329323887825
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.24528543651103973
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.27116090059280396
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.32268866896629333
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.3283720910549164
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.16463050246238708
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.2157910317182541
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.23145799338817596
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.2547647953033447
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.25809356570243835
+        }
+      ]
+    },
+    "compound_130_BRAF-78": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.4132829248905182,
+      "avg_dist_to_counterpart_class": 0.3407022714614868,
+      "similarity_ratio": 1.2130324905604157,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.7361516490283752,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.3996507227420807
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.40267378091812134
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.4054625332355499
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.422697514295578
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.435930073261261
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.3247934579849243
+        },
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.3265026807785034
+        },
+        {
+          "key": "compound_130_Pim1-70",
+          "distance": 0.3473142981529236
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.35015860199928284
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.3547423183917999
+        }
+      ]
+    },
+    "compound_130_PAK1-174": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.46429431438446045,
+      "avg_dist_to_counterpart_class": 0.4144908308982849,
+      "similarity_ratio": 1.1201558147335644,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.8955857774708312,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.43020182847976685
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.45800063014030457
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.46760299801826477
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.4771287143230438
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.48853740096092224
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.4067373275756836
+        },
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.4069172143936157
+        },
+        {
+          "key": "compound_130_Pim1-70",
+          "distance": 0.4151269197463989
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.415657103061676
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.4280155897140503
+        }
+      ]
+    },
+    "compound_130_PAK4-23": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.386104553937912,
+      "avg_dist_to_counterpart_class": 0.30910066366195676,
+      "similarity_ratio": 1.2491223712161594,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.6589926314617187,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.31298649311065674
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.38888809084892273
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.39873847365379333
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.40812236070632935
+        },
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.4217873513698578
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.2948300242424011
+        },
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.2967526912689209
+        },
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.3084300458431244
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.31196022033691406
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.33353033661842346
+        }
+      ]
+    },
+    "compound_130_PI3K\u03b3-191": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.5142113029956817,
+      "avg_dist_to_counterpart_class": 0.44630168080329896,
+      "similarity_ratio": 1.15216080313691,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.8988914589989397,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_131_MST1-162",
+          "distance": 0.4065888524055481
+        },
+        {
+          "key": "compound_19_DAPK1-143",
+          "distance": 0.4687444865703583
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.5634658336639404
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.5637044310569763
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.5685529112815857
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_19_ZIPK-21",
+          "distance": 0.3810062110424042
+        },
+        {
+          "key": "compound_130_MST1-161",
+          "distance": 0.3835926055908203
+        },
+        {
+          "key": "compound_5_MSK1-22",
+          "distance": 0.44017159938812256
+        },
+        {
+          "key": "compound_19_Ret-45",
+          "distance": 0.48011481761932373
+        },
+        {
+          "key": "compound_18_ZIPK-20",
+          "distance": 0.546623170375824
+        }
+      ]
+    },
+    "compound_130_TAO2-199": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.29650219678878786,
+      "avg_dist_to_counterpart_class": 0.20627409517765044,
+      "similarity_ratio": 1.4374184821095923,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.4456941677127283,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.2810077667236328
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.2821647822856903
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.2851385474205017
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.31272444128990173
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.32147544622421265
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_130_Pim1-70",
+          "distance": 0.1920144408941269
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.19464156031608582
+        },
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.2083875983953476
+        },
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.20995748043060303
+        },
+        {
+          "key": "compound_132_Pim1-72",
+          "distance": 0.22636939585208893
+        }
+      ]
+    },
+    "compound_131_BRAF-79": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.42572309970855715,
+      "avg_dist_to_counterpart_class": 0.35189288854599,
+      "similarity_ratio": 1.2098087616025184,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.7603310922268728,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.41334834694862366
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.41634833812713623
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.4173637628555298
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.4347139000892639
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.44684115052223206
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.3361874222755432
+        },
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.33735305070877075
+        },
+        {
+          "key": "compound_130_Pim1-70",
+          "distance": 0.35785865783691406
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.3601135313510895
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.36795178055763245
+        }
+      ]
+    },
+    "compound_131_PAK1-175": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.4776528120040894,
+      "avg_dist_to_counterpart_class": 0.4270617008209229,
+      "similarity_ratio": 1.1184632363096885,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.9227475177890704,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.44300001859664917
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.47239306569099426
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.48183080554008484
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.48946088552474976
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.5015792846679688
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.4190269112586975
+        },
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.41955792903900146
+        },
+        {
+          "key": "compound_130_Pim1-70",
+          "distance": 0.4274403154850006
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.42756199836730957
+        },
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.4417213499546051
+        }
+      ]
+    },
+    "compound_131_PAK4-24": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.39538316130638124,
+      "avg_dist_to_counterpart_class": 0.317889529466629,
+      "similarity_ratio": 1.2437753516757062,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.6785323133195266,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.3218686580657959
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.39901459217071533
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.40880176424980164
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.4160986840724945
+        },
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.43113210797309875
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.30353862047195435
+        },
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.30586156249046326
+        },
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.3172342777252197
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.3216726779937744
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.3411405086517334
+        }
+      ]
+    },
+    "compound_131_PI3K\u03b3-192": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.5321274042129517,
+      "avg_dist_to_counterpart_class": 0.46457467675209047,
+      "similarity_ratio": 1.145407683288147,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.9235312259293472,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_131_MST1-162",
+          "distance": 0.40622881054878235
+        },
+        {
+          "key": "compound_19_DAPK1-143",
+          "distance": 0.4777016341686249
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.5895483493804932
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.591158926486969
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.5959993004798889
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_130_MST1-161",
+          "distance": 0.38635361194610596
+        },
+        {
+          "key": "compound_19_ZIPK-21",
+          "distance": 0.4065955877304077
+        },
+        {
+          "key": "compound_5_MSK1-22",
+          "distance": 0.4602424204349518
+        },
+        {
+          "key": "compound_19_Ret-45",
+          "distance": 0.504836916923523
+        },
+        {
+          "key": "compound_18_ZIPK-20",
+          "distance": 0.5648448467254639
+        }
+      ]
+    },
+    "compound_131_TAO2-200": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.3036747395992279,
+      "avg_dist_to_counterpart_class": 0.21032287776470185,
+      "similarity_ratio": 1.4438502498000394,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.45444232769777904,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.28837087750434875
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.2895970642566681
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.29395365715026855
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.3193713426589966
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.32708075642585754
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_130_Pim1-70",
+          "distance": 0.19648456573486328
+        },
+        {
+          "key": "compound_131_Pim1-71",
+          "distance": 0.1982133388519287
+        },
+        {
+          "key": "compound_130_GSK3\u03b2-138",
+          "distance": 0.21414171159267426
+        },
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.21500365436077118
+        },
+        {
+          "key": "compound_132_Pim1-72",
+          "distance": 0.2277711182832718
+        }
+      ]
+    },
+    "compound_13_MLCK-180": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.4859857618808746,
+      "avg_dist_to_counterpart_class": 0.519716078042984,
+      "similarity_ratio": 0.9350985709560448,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 1.017999796413531,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_8_Pim1-57",
+          "distance": 0.3731732666492462
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.4941733479499817
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.5079569816589355
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.5160795450210571
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.5385456681251526
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.48985692858695984
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.4905690550804138
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.5202175974845886
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.5467638373374939
+        },
+        {
+          "key": "compound_6_Pim1-55",
+          "distance": 0.5511729717254639
+        }
+      ]
+    },
+    "compound_14_MLCK-181": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.3682910084724426,
+      "avg_dist_to_counterpart_class": 0.34100831747055055,
+      "similarity_ratio": 1.0800059400435247,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 0.7097700108116101,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.32839399576187134
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.33808818459510803
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.34816646575927734
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.4097597002983093
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.4170466959476471
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.28636518120765686
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.3414483964443207
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.3505714237689972
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.3571035861968994
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.36955299973487854
+        }
+      ]
+    },
+    "compound_15_FLT4-97": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.5469111859798431,
+      "avg_dist_to_counterpart_class": 0.42617214322090147,
+      "similarity_ratio": 1.2833104994766351,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.9208254604709538,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.4948660433292389
+        },
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.5187273025512695
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.5574394464492798
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.5640724301338196
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.5994507074356079
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_15_GSK3\u03b2-124",
+          "distance": 0.2981964349746704
+        },
+        {
+          "key": "compound_15_Pim1-59",
+          "distance": 0.42230677604675293
+        },
+        {
+          "key": "compound_19_FLT4-101",
+          "distance": 0.4479445815086365
+        },
+        {
+          "key": "compound_17_FLT4-99",
+          "distance": 0.47431036829948425
+        },
+        {
+          "key": "compound_131_GSK3\u03b2-139",
+          "distance": 0.4881025552749634
+        }
+      ]
+    },
+    "compound_16_GSK3a-115": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.9793044209480286,
+      "avg_dist_to_counterpart_class": 0.9002025485038757,
+      "similarity_ratio": 1.0878711936281664,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 1.8931741579033547,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_129_EGFR-40",
+          "distance": 0.9091145992279053
+        },
+        {
+          "key": "compound_27_GSK3\u03b2-129",
+          "distance": 0.976635217666626
+        },
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 0.9883735179901123
+        },
+        {
+          "key": "compound_126_EGFR-37",
+          "distance": 0.9945500493049622
+        },
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 1.027848720550537
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_9_GSK3\u03b2-123",
+          "distance": 0.7379738092422485
+        },
+        {
+          "key": "compound_9_Pim1-58",
+          "distance": 0.822167694568634
+        },
+        {
+          "key": "compound_21_GSK3\u03b2-125",
+          "distance": 0.9350588321685791
+        },
+        {
+          "key": "compound_1_GSK3\u03b2-122",
+          "distance": 1.000954031944275
+        },
+        {
+          "key": "compound_24_GSK3\u03b2-126",
+          "distance": 1.004858374595642
+        }
+      ]
+    },
+    "compound_17_DAPK1-141": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.5809162557125092,
+      "avg_dist_to_counterpart_class": 0.5234912157058715,
+      "similarity_ratio": 1.109696281969519,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.8756863030914563,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_DAPK1-143",
+          "distance": 0.23992761969566345
+        },
+        {
+          "key": "compound_131_MST1-162",
+          "distance": 0.42492812871932983
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.7406543493270874
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.7469196319580078
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.7521515488624573
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_130_MST1-161",
+          "distance": 0.4131406843662262
+        },
+        {
+          "key": "compound_19_ZIPK-21",
+          "distance": 0.47391563653945923
+        },
+        {
+          "key": "compound_18_ZIPK-20",
+          "distance": 0.4744931757450104
+        },
+        {
+          "key": "compound_5_MSK1-22",
+          "distance": 0.6117433309555054
+        },
+        {
+          "key": "compound_19_Ret-45",
+          "distance": 0.6441632509231567
+        }
+      ]
+    },
+    "compound_21_RSK1-188": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 1.32614324092865,
+      "avg_dist_to_counterpart_class": 1.0761230707168579,
+      "similarity_ratio": 1.2323341790686093,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 2.3251672777744994,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_9_Pim1-58",
+          "distance": 1.2627497911453247
+        },
+        {
+          "key": "compound_9_GSK3\u03b2-123",
+          "distance": 1.3126660585403442
+        },
+        {
+          "key": "compound_21_GSK3\u03b2-125",
+          "distance": 1.346068263053894
+        },
+        {
+          "key": "compound_22_Pim1-64",
+          "distance": 1.3519468307495117
+        },
+        {
+          "key": "compound_1_GSK3\u03b2-122",
+          "distance": 1.3572852611541748
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_27_GSK3\u03b2-129",
+          "distance": 1.0196235179901123
+        },
+        {
+          "key": "compound_127_EGFR-38",
+          "distance": 1.0798521041870117
+        },
+        {
+          "key": "compound_91_hlGST-4",
+          "distance": 1.0910389423370361
+        },
+        {
+          "key": "compound_134_Pim2-198",
+          "distance": 1.093326210975647
+        },
+        {
+          "key": "compound_91_hsBChE-148",
+          "distance": 1.0967745780944824
+        }
+      ]
+    },
+    "compound_22_GSK3a-119": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.4611625909805298,
+      "avg_dist_to_counterpart_class": 0.3777033925056458,
+      "similarity_ratio": 1.220964916203755,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.8160995641265438,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.4176099896430969
+        },
+        {
+          "key": "compound_126_EGFR-37",
+          "distance": 0.4301083981990814
+        },
+        {
+          "key": "compound_29_GSK3\u03b2-131",
+          "distance": 0.4546632170677185
+        },
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.4691337049007416
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.5342976450920105
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_120_EGFR-31",
+          "distance": 0.33901315927505493
+        },
+        {
+          "key": "compound_1_GSK3\u03b2-122",
+          "distance": 0.3809519410133362
+        },
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.38867369294166565
+        },
+        {
+          "key": "compound_121_EGFR-32",
+          "distance": 0.38934141397476196
+        },
+        {
+          "key": "compound_21_GSK3\u03b2-125",
+          "distance": 0.39053675532341003
+        }
+      ]
+    },
+    "compound_30_PI3K\u03b3-190": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 1.7758416175842284,
+      "avg_dist_to_counterpart_class": 0.3538378059864044,
+      "similarity_ratio": 5.018801234745566,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.7645334539394714,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_9_Pim1-58",
+          "distance": 1.7228893041610718
+        },
+        {
+          "key": "compound_130_MST1-161",
+          "distance": 1.752608299255371
+        },
+        {
+          "key": "compound_18_ZIPK-20",
+          "distance": 1.7940548658370972
+        },
+        {
+          "key": "compound_9_GSK3\u03b2-123",
+          "distance": 1.795453667640686
+        },
+        {
+          "key": "compound_31_Pim1-65",
+          "distance": 1.8142019510269165
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_21_Abl-26",
+          "distance": 0.31977319717407227
+        },
+        {
+          "key": "compound_21_Lck-42",
+          "distance": 0.3392309844493866
+        },
+        {
+          "key": "compound_21_ZAP-70-110",
+          "distance": 0.34843909740448
+        },
+        {
+          "key": "compound_99_hrBChE-44",
+          "distance": 0.37901806831359863
+        },
+        {
+          "key": "compound_1_Abl-25",
+          "distance": 0.3827276825904846
+        }
+      ]
+    },
+    "compound_41_MTH1-102": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.5801342606544495,
+      "avg_dist_to_counterpart_class": 0.5520129323005676,
+      "similarity_ratio": 1.0509432419213143,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 1.1814279219193238,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.5480403900146484
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.5579218864440918
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.5757167339324951
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.5983874797821045
+        },
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.6206048130989075
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_19_Ret-45",
+          "distance": 0.5302295088768005
+        },
+        {
+          "key": "compound_19_FLT4-101",
+          "distance": 0.5358275175094604
+        },
+        {
+          "key": "compound_6_Pim1-55",
+          "distance": 0.561895489692688
+        },
+        {
+          "key": "compound_15_GSK3\u03b2-124",
+          "distance": 0.5631533265113831
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.5689588189125061
+        }
+      ]
+    },
+    "compound_43_MTH1-104": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 1.4680538892745971,
+      "avg_dist_to_counterpart_class": 1.0174413681030274,
+      "similarity_ratio": 1.442887949417386,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 2.1983743686410855,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_9_GSK3\u03b2-123",
+          "distance": 1.4387935400009155
+        },
+        {
+          "key": "compound_21_GSK3\u03b2-125",
+          "distance": 1.448161244392395
+        },
+        {
+          "key": "compound_25_GSK3\u03b2-127",
+          "distance": 1.4691531658172607
+        },
+        {
+          "key": "compound_1_GSK3\u03b2-122",
+          "distance": 1.4843485355377197
+        },
+        {
+          "key": "compound_9_Pim1-58",
+          "distance": 1.4998129606246948
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_21_Lck-42",
+          "distance": 0.997042179107666
+        },
+        {
+          "key": "compound_21_Abl-26",
+          "distance": 1.0107033252716064
+        },
+        {
+          "key": "compound_1_Lck-41",
+          "distance": 1.014084815979004
+        },
+        {
+          "key": "compound_1_Abl-25",
+          "distance": 1.0298415422439575
+        },
+        {
+          "key": "compound_91_hsBChE-148",
+          "distance": 1.0355349779129028
+        }
+      ]
+    },
+    "compound_44_MTH1-105": {
+      "true_label": 1,
+      "predicted_label": 0,
+      "avg_dist_to_correct_class": 1.223833155632019,
+      "avg_dist_to_counterpart_class": 1.2384197473526002,
+      "similarity_ratio": 0.9882216092308256,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 2.5604783610807638,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_21_GSK3\u03b2-125",
+          "distance": 1.1838181018829346
+        },
+        {
+          "key": "compound_25_GSK3\u03b2-127",
+          "distance": 1.2046488523483276
+        },
+        {
+          "key": "compound_1_GSK3\u03b2-122",
+          "distance": 1.221313714981079
+        },
+        {
+          "key": "compound_9_GSK3\u03b2-123",
+          "distance": 1.222621202468872
+        },
+        {
+          "key": "compound_22_Pim1-64",
+          "distance": 1.2867639064788818
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 1.1286011934280396
+        },
+        {
+          "key": "compound_129_EGFR-40",
+          "distance": 1.1867613792419434
+        },
+        {
+          "key": "compound_27_GSK3\u03b2-129",
+          "distance": 1.2681022882461548
+        },
+        {
+          "key": "compound_29_GSK3\u03b2-131",
+          "distance": 1.2989813089370728
+        },
+        {
+          "key": "compound_127_EGFR-38",
+          "distance": 1.30965256690979
+        }
+      ]
+    },
+    "compound_46_PAK1-171": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.8086039423942566,
+      "avg_dist_to_counterpart_class": 0.8272958874702454,
+      "similarity_ratio": 0.9774059736557543,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 1.7270473759870948,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_8_Pim1-57",
+          "distance": 0.7587074637413025
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.796249270439148
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.813612699508667
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.832758367061615
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.8416919112205505
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.8088976740837097
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.8190529346466064
+        },
+        {
+          "key": "compound_6_Pim1-55",
+          "distance": 0.8270217776298523
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.8347596526145935
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.8467473983764648
+        }
+      ]
+    },
+    "compound_47_PAK1-172": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.5817379117012024,
+      "avg_dist_to_counterpart_class": 0.5736655354499817,
+      "similarity_ratio": 1.0140715726366387,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 1.2229701843799523,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.5633522868156433
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.5677505135536194
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.5760177969932556
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.5988113284111023
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.6027576327323914
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.5551038384437561
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.5678223371505737
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.5799540877342224
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.5807391405105591
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.5847082734107971
+        }
+      ]
+    },
+    "compound_48_PAK1-173": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.6337785601615906,
+      "avg_dist_to_counterpart_class": 0.6235014438629151,
+      "similarity_ratio": 1.0164829069761305,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 1.3290687065160054,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.6102344393730164
+        },
+        {
+          "key": "compound_4_Pim1-53",
+          "distance": 0.6194711327552795
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.6324018239974976
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.648189127445221
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.6585962772369385
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.6025148630142212
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.6160761117935181
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.6272703409194946
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.6285153031349182
+        },
+        {
+          "key": "compound_19_MLCK-186",
+          "distance": 0.6431306004524231
+        }
+      ]
+    },
+    "compound_50_S6K1-107": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.253582039475441,
+      "avg_dist_to_counterpart_class": 0.2339789539575577,
+      "similarity_ratio": 1.0837814050636332,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 0.45476170038797764,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.18823255598545074
+        },
+        {
+          "key": "compound_18_Pim1-62",
+          "distance": 0.2341572344303131
+        },
+        {
+          "key": "compound_19_Pim1-63",
+          "distance": 0.27310532331466675
+        },
+        {
+          "key": "compound_5_Pim1-54",
+          "distance": 0.2858022153377533
+        },
+        {
+          "key": "compound_3_Pim1-52",
+          "distance": 0.286612868309021
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_51_S6K1-108",
+          "distance": 0.15069101750850677
+        },
+        {
+          "key": "compound_19_FLT4-101",
+          "distance": 0.23797756433486938
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.24129506945610046
+        },
+        {
+          "key": "compound_17_FLT4-99",
+          "distance": 0.26186078786849976
+        },
+        {
+          "key": "compound_2_Pim1-51",
+          "distance": 0.278070330619812
+        }
+      ]
+    }
+  }
+}

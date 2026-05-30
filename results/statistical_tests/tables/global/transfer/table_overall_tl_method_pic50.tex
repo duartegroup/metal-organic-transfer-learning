@@ -1,0 +1,63 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl method settings within each transfer experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_method_transfer_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{S1} & 0.517 $\pm$ 0.029 & 0.314 $\pm$ 0.064 & 0.728 $\pm$ 0.036 & 0.572 $\pm$ 0.085 \\
+        \textbf{S2A} & 0.511 $\pm$ 0.028 & 0.320 $\pm$ 0.069 & 0.726 $\pm$ 0.034 & 0.580 $\pm$ 0.086 \\
+        \textbf{S2B} & 0.540 $\pm$ 0.021 & 0.266 $\pm$ 0.057 & 0.709 $\pm$ 0.034 & 0.546 $\pm$ 0.084 \\
+        \textbf{S3A} & 0.617 $\pm$ 0.009 & 0.148 $\pm$ 0.052 & 0.650 $\pm$ 0.051 & 0.505 $\pm$ 0.049 \\
+        \textbf{S3B} & 0.586 $\pm$ 0.019 & 0.205 $\pm$ 0.044 & 0.693 $\pm$ 0.035 & 0.432 $\pm$ 0.082 \\
+        \textbf{S3C} & 0.512 $\pm$ 0.029 & 0.328 $\pm$ 0.063 & 0.746 $\pm$ 0.026 & 0.586 $\pm$ 0.088 \\
+        \textbf{S4A} & 0.611 $\pm$ 0.013 & 0.193 $\pm$ 0.060 & 0.672 $\pm$ 0.043 & 0.573 $\pm$ 0.072 \\
+        \textbf{S4B} & 0.538 $\pm$ 0.028 & 0.275 $\pm$ 0.054 & 0.727 $\pm$ 0.027 & 0.574 $\pm$ 0.086 \\
+        \textbf{S4C} & 0.501 $\pm$ 0.028$^{\textit{\textbf{A}}}$ & 0.350 $\pm$ 0.067$^{\textit{\textbf{B}}}$ & 0.753 $\pm$ 0.024$^{\textit{\textbf{C}}}$ & 0.619 $\pm$ 0.088$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S1 vs S2A} & $< 0.001$ & 0.079 & 0.635 & 0.167 \\
+        \textbf{S1 vs S2B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S1 vs S3A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S1 vs S3B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S1 vs S3C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S1 vs S4A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & 1.000 \\
+        \textbf{S1 vs S4B} & $< 0.001$ & $< 0.001$ & 0.947 & 1.000 \\
+        \textbf{S1 vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2A vs S2B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2A vs S3A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2A vs S3B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2A vs S3C} & 0.326 & 0.013 & $< 0.001$ & 0.332 \\
+        \textbf{S2A vs S4A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & 0.864 \\
+        \textbf{S2A vs S4B} & $< 0.001$ & $< 0.001$ & 0.947 & 1.000 \\
+        \textbf{S2A vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2B vs S3A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2B vs S3B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2B vs S3C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2B vs S4A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2B vs S4B} & 0.208 & 0.018 & $< 0.001$ & $< 0.001$ \\
+        \textbf{S2B vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3A vs S3B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3A vs S3C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3A vs S4A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3A vs S4B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3A vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3B vs S3C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3B vs S4A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3B vs S4B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3B vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S3C vs S4A} & $< 0.001$ & $< 0.001$ & $< 0.001$ & 0.064 \\
+        \textbf{S3C vs S4B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & 0.938 \\
+        \textbf{S3C vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S4A vs S4B} & $< 0.001$ & $< 0.001$ & $< 0.001$ & 1.000 \\
+        \textbf{S4A vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{S4B vs S4C} & $< 0.001$ & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & S4C sig. better & S4C sig. better & S4C sig. better & S4C sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

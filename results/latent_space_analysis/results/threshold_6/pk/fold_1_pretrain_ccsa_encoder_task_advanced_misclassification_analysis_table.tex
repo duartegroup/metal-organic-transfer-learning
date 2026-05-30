@@ -1,0 +1,16 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Analysis of misclassified compounds in fold 1 (baseline average kNN distance for correctly classified samples: 0.273).}
+    \label{tab:misclassified_compounds_1}
+    \begin{smarttabular}{clcccc}
+        \toprule
+        \textbf{Compound ID} & \textbf{Protein} & \textbf{Similarity Ratio} & \textbf{Purity} & \textbf{Outlier Score} & \textbf{Error Type} \\
+        \midrule
+        20 & AGAO & 0.981 & 60\% & 1.46 & False Negative \\
+        88 & hGST & 1.125 & 0\% & 1.48 & False Positive \\
+        94 & hGST & 1.121 & 0\% & 1.82 & False Positive \\
+        115 & hCA XII & 0.964 & 100\% & 3.39 & False Negative \\
+        \bottomrule
+    \end{smarttabular}
+\end{table}

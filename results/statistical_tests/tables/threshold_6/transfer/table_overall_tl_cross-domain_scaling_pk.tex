@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different tl cross-domain scaling settings within each transfer experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_tl_cross-domain_scaling_transfer_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lllll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{LOSS}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Cross Domain} & 0.594 $\pm$ 0.075 & 0.196 $\pm$ 0.154 & 0.636 $\pm$ 0.095 & 0.405 $\pm$ 0.203$^{\textit{\textbf{D}}}$ \\
+        \textbf{Separate Domain} & 0.592 $\pm$ 0.074$^{\textit{\textbf{A}}}$ & 0.205 $\pm$ 0.159$^{\textit{\textbf{B}}}$ & 0.640 $\pm$ 0.095$^{\textit{\textbf{C}}}$ & 0.410 $\pm$ 0.208$^{\textit{\textbf{D}}}$ \\
+        \midrule
+        \multicolumn{5}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & 0.009 & $< 0.001$ & 0.004 & 0.132 \\
+        \textbf{Best performer} & Separate Domain sig. better & Separate Domain sig. better & Separate Domain sig. better & No sig. difference \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

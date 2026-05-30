@@ -1,0 +1,39 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different method settings within each supervised experiment on the pK dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_method_supervised_pk}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{Knn} & 0.218 $\pm$ 0.129 & 0.625 $\pm$ 0.102 & 0.578 $\pm$ 0.091 \\
+        \textbf{Mlp} & 0.245 $\pm$ 0.126 & 0.708 $\pm$ 0.062 & 0.621 $\pm$ 0.082 \\
+        \textbf{Xgboost} & 0.219 $\pm$ 0.151 & 0.687 $\pm$ 0.079 & 0.623 $\pm$ 0.076 \\
+        \textbf{Randomforest} & 0.224 $\pm$ 0.145 & 0.700 $\pm$ 0.081 & 0.585 $\pm$ 0.096 \\
+        \textbf{Logisticregression} & 0.282 $\pm$ 0.095$^{\textit{\textbf{A}}}$ & 0.727 $\pm$ 0.036$^{\textit{\textbf{B}}}$ & 0.641 $\pm$ 0.055$^{\textit{\textbf{C}}}$ \\
+        \textbf{Gradientboosting} & 0.206 $\pm$ 0.148 & 0.671 $\pm$ 0.081 & 0.589 $\pm$ 0.081 \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Knn vs Mlp} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Knn vs Xgboost} & 0.299 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Knn vs Randomforest} & 0.495 & $< 0.001$ & 0.765 \\
+        \textbf{Knn vs Logisticregression} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Knn vs Gradientboosting} & 0.019 & $< 0.001$ & 0.737 \\
+        \textbf{Mlp vs Xgboost} & 0.003 & 0.004 & 1.000 \\
+        \textbf{Mlp vs Randomforest} & 0.014 & 0.775 & $< 0.001$ \\
+        \textbf{Mlp vs Logisticregression} & $< 0.001$ & $< 0.001$ & 0.001 \\
+        \textbf{Mlp vs Gradientboosting} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Xgboost vs Randomforest} & 0.194 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Xgboost vs Logisticregression} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Xgboost vs Gradientboosting} & 0.029 & $< 0.001$ & $< 0.001$ \\
+        \textbf{Randomforest vs Logisticregression} & $< 0.001$ & 0.004 & $< 0.001$ \\
+        \textbf{Randomforest vs Gradientboosting} & 0.003 & $< 0.001$ & 1.000 \\
+        \textbf{Logisticregression vs Gradientboosting} & $< 0.001$ & $< 0.001$ & $< 0.001$ \\
+        \textbf{Best performer} & Logisticregression sig. better & Logisticregression sig. better & Logisticregression sig. better \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

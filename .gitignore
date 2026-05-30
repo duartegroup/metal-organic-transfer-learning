@@ -1,0 +1,40 @@
+# Ignore compiled Python
+*.pyc
+__pycache__/
+
+# Ignore large data and model files
+*.h5
+*.ckpt
+*.pt
+*.pth
+*.pkl
+*.npz
+*.npy
+*.model
+
+# Ignore figures and images
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Ignore logs and output files
+*.log
+*.out
+slurm*.out
+
+# Ignore tabular outputs (large CSVs regenerable from results)
+*.csv
+
+# Ignore archives and scripts
+*.zip
+*.tar.gz
+*.sh
+
+# Ignore folders
+models/
+logs/
+results/loss_curves
+
+# Ignore OS files
+.DS_Store

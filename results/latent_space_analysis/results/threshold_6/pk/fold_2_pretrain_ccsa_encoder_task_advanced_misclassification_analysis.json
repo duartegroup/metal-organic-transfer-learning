@@ -1,0 +1,217 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.050654657866289365,
+  "misclassified_sample_analysis": {
+    "compound_11_MLCK-183": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.13041988238692284,
+      "avg_dist_to_counterpart_class": 0.04427876397967338,
+      "similarity_ratio": 2.945427348577151,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.8741301559385493,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_48_PAK1-179",
+          "distance": 0.057928528636693954
+        },
+        {
+          "key": "compound_47_PAK1-178",
+          "distance": 0.07021333277225494
+        },
+        {
+          "key": "compound_75_CB1-210",
+          "distance": 0.13307856023311615
+        },
+        {
+          "key": "compound_12_MLCK-184",
+          "distance": 0.13763205707073212
+        },
+        {
+          "key": "compound_33_PAK1-173",
+          "distance": 0.253246933221817
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_45_PAK1-176",
+          "distance": 0.03260590881109238
+        },
+        {
+          "key": "compound_3_Pim1-41",
+          "distance": 0.04314470663666725
+        },
+        {
+          "key": "compound_2_Pim1-40",
+          "distance": 0.04823070764541626
+        },
+        {
+          "key": "compound_17_Pim1-50",
+          "distance": 0.04870624840259552
+        },
+        {
+          "key": "compound_17_PAK1-170",
+          "distance": 0.04870624840259552
+        }
+      ]
+    },
+    "compound_13_MLCK-185": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.1765192538499832,
+      "avg_dist_to_counterpart_class": 0.03545163460075855,
+      "similarity_ratio": 4.9791569793006465,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.6998691945435404,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_48_PAK1-179",
+          "distance": 0.1250556856393814
+        },
+        {
+          "key": "compound_75_CB1-210",
+          "distance": 0.13003572821617126
+        },
+        {
+          "key": "compound_47_PAK1-178",
+          "distance": 0.13680356740951538
+        },
+        {
+          "key": "compound_12_MLCK-184",
+          "distance": 0.18274366855621338
+        },
+        {
+          "key": "compound_33_PAK1-173",
+          "distance": 0.30795761942863464
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_8_Pim1-46",
+          "distance": 0.02924247831106186
+        },
+        {
+          "key": "compound_18_Pim1-51",
+          "distance": 0.0304799173027277
+        },
+        {
+          "key": "compound_4_Pim1-42",
+          "distance": 0.03611934185028076
+        },
+        {
+          "key": "compound_2_Pim1-40",
+          "distance": 0.04012444615364075
+        },
+        {
+          "key": "compound_3_Pim1-41",
+          "distance": 0.041291989386081696
+        }
+      ]
+    },
+    "compound_14_MLCK-186": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.1631428822875023,
+      "avg_dist_to_counterpart_class": 0.07737821713089943,
+      "similarity_ratio": 2.1083825440371187,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 1.518385056961624,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_75_CB1-210",
+          "distance": 0.08199956268072128
+        },
+        {
+          "key": "compound_48_PAK1-179",
+          "distance": 0.1431690752506256
+        },
+        {
+          "key": "compound_47_PAK1-178",
+          "distance": 0.1522931158542633
+        },
+        {
+          "key": "compound_12_MLCK-184",
+          "distance": 0.15360704064369202
+        },
+        {
+          "key": "compound_33_PAK1-173",
+          "distance": 0.28464561700820923
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_46_PAK1-177",
+          "distance": 0.05963381752371788
+        },
+        {
+          "key": "compound_1_GSK3a-135",
+          "distance": 0.08046671748161316
+        },
+        {
+          "key": "compound_1_GSK3\u03b2-136",
+          "distance": 0.08046671748161316
+        },
+        {
+          "key": "compound_75_CB2-125",
+          "distance": 0.08199956268072128
+        },
+        {
+          "key": "compound_22_Pim1-53",
+          "distance": 0.08432427048683167
+        }
+      ]
+    },
+    "compound_64_CB2-114": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.16432974934577943,
+      "avg_dist_to_counterpart_class": 0.15212290734052658,
+      "similarity_ratio": 1.080243286291708,
+      "neighborhood_purity_correct_class": 0.4,
+      "outlier_score": 2.0843535291583803,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_64_CB1-199",
+          "distance": 2.9802322387695312e-08
+        },
+        {
+          "key": "compound_91_hlGST-4",
+          "distance": 0.1959322988986969
+        },
+        {
+          "key": "compound_91_hsBChE-156",
+          "distance": 0.1959322988986969
+        },
+        {
+          "key": "compound_109_eeAChE-15",
+          "distance": 0.20438314974308014
+        },
+        {
+          "key": "compound_65_CB1-200",
+          "distance": 0.22540096938610077
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_62_CB1-197",
+          "distance": 0.07587133347988129
+        },
+        {
+          "key": "compound_61_CB1-196",
+          "distance": 0.12311763316392899
+        },
+        {
+          "key": "compound_60_CB1-195",
+          "distance": 0.1329897791147232
+        },
+        {
+          "key": "compound_109_hsBChE-166",
+          "distance": 0.20438314974308014
+        },
+        {
+          "key": "compound_68_CB1-203",
+          "distance": 0.2242526412010193
+        }
+      ]
+    }
+  }
+}

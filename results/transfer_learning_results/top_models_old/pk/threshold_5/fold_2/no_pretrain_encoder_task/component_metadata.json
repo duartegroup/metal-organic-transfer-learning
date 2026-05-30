@@ -1,0 +1,32 @@
+{
+  "phase": "no_pretrain_encoder_task",
+  "model_type": "MultiTaskPocket",
+  "has_wrapper": false,
+  "components": {
+    "mol_encoder": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/no_pretrain_encoder_task/mol_encoder.pth",
+      "model_path": "mol_encoder",
+      "component_class": "MolecularEncoder",
+      "num_parameters": 1409410
+    },
+    "pocket_encoder": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/no_pretrain_encoder_task/pocket_encoder.pth",
+      "model_path": "pocket_encoder",
+      "component_class": "BiologicalEncoder",
+      "num_parameters": 328066
+    },
+    "feature_extractor": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/no_pretrain_encoder_task/feature_extractor.pth",
+      "model_path": "feature_extractor",
+      "component_class": "FeatureExtractor",
+      "num_parameters": 99202
+    },
+    "classification_head": {
+      "file_path": "results/SOAP/molecule_pocket/minmax_scaler/pk/cross_domain_source_smote_no_target_smote/fold_2/no_pretrain_encoder_task/classification_head.pth",
+      "model_path": "classification_head",
+      "component_class": "BindingAffinityHead",
+      "num_parameters": 24835
+    }
+  },
+  "timestamp": "2025-09-21T20:32:45.449077"
+}

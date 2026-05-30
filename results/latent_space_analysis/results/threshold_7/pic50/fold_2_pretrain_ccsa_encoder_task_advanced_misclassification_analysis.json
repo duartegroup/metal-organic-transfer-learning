@@ -1,0 +1,376 @@
+{
+  "baseline_avg_knn_dist_for_correct_samples": 0.3851867591792887,
+  "misclassified_sample_analysis": {
+    "compound_18_Pim1-62": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.1205703392624855,
+      "avg_dist_to_counterpart_class": 0.08812027126550674,
+      "similarity_ratio": 1.3682474818899113,
+      "neighborhood_purity_correct_class": 0.0,
+      "outlier_score": 0.22877284632852699,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.09507351368665695
+        },
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 0.12242700159549713
+        },
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.12363169342279434
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.12399817258119583
+        },
+        {
+          "key": "compound_50_S6K1-107",
+          "distance": 0.13772131502628326
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_51_S6K1-108",
+          "distance": 0.08366718143224716
+        },
+        {
+          "key": "compound_49_S6K1-106",
+          "distance": 0.08825484663248062
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.08895707875490189
+        },
+        {
+          "key": "compound_121_EGFR-32",
+          "distance": 0.08984558284282684
+        },
+        {
+          "key": "compound_119_EGFR-30",
+          "distance": 0.08987666666507721
+        }
+      ]
+    },
+    "compound_19_Pim1-63": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.08046363741159439,
+      "avg_dist_to_counterpart_class": 0.06742090210318566,
+      "similarity_ratio": 1.1934523997980213,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.1735226038652669,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_126_EGFR-37",
+          "distance": 0.06757807731628418
+        },
+        {
+          "key": "compound_129_EGFR-40",
+          "distance": 0.07540461421012878
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.07853654772043228
+        },
+        {
+          "key": "compound_127_EGFR-38",
+          "distance": 0.08501263707876205
+        },
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.09578631073236465
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_117_EGFR-28",
+          "distance": 0.06091618910431862
+        },
+        {
+          "key": "compound_122_EGFR-33",
+          "distance": 0.06613454967737198
+        },
+        {
+          "key": "compound_124_EGFR-35",
+          "distance": 0.06912883371114731
+        },
+        {
+          "key": "compound_128_EGFR-39",
+          "distance": 0.07043539732694626
+        },
+        {
+          "key": "compound_119_EGFR-30",
+          "distance": 0.0704895406961441
+        }
+      ]
+    },
+    "compound_3_Pim1-52": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.1929865449666977,
+      "avg_dist_to_counterpart_class": 0.16166920959949493,
+      "similarity_ratio": 1.1937124295021024,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.4172124721075698,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.16809116303920746
+        },
+        {
+          "key": "compound_50_S6K1-107",
+          "distance": 0.17254070937633514
+        },
+        {
+          "key": "compound_22_GSK3a-119",
+          "distance": 0.19600535929203033
+        },
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 0.21131396293640137
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.21698153018951416
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.15461869537830353
+        },
+        {
+          "key": "compound_125_EGFR-36",
+          "distance": 0.15655517578125
+        },
+        {
+          "key": "compound_121_EGFR-32",
+          "distance": 0.16049012541770935
+        },
+        {
+          "key": "compound_120_EGFR-31",
+          "distance": 0.1637684404850006
+        },
+        {
+          "key": "compound_116_EGFR-27",
+          "distance": 0.17291361093521118
+        }
+      ]
+    },
+    "compound_4_Pim1-53": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.22924162447452545,
+      "avg_dist_to_counterpart_class": 0.2055576354265213,
+      "similarity_ratio": 1.1152182403677737,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.5288365285096202,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.20486725866794586
+        },
+        {
+          "key": "compound_22_GSK3a-119",
+          "distance": 0.2279534935951233
+        },
+        {
+          "key": "compound_127_EGFR-38",
+          "distance": 0.23653732240200043
+        },
+        {
+          "key": "compound_50_S6K1-107",
+          "distance": 0.23695266246795654
+        },
+        {
+          "key": "compound_126_EGFR-37",
+          "distance": 0.23989738523960114
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_120_EGFR-31",
+          "distance": 0.1990053802728653
+        },
+        {
+          "key": "compound_125_EGFR-36",
+          "distance": 0.1993144005537033
+        },
+        {
+          "key": "compound_121_EGFR-32",
+          "distance": 0.20443879067897797
+        },
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.21087831258773804
+        },
+        {
+          "key": "compound_116_EGFR-27",
+          "distance": 0.2141512930393219
+        }
+      ]
+    },
+    "compound_5_Pim1-54": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.11021751016378403,
+      "avg_dist_to_counterpart_class": 0.11090669929981231,
+      "similarity_ratio": 0.9937858655935183,
+      "neighborhood_purity_correct_class": 0.6,
+      "outlier_score": 0.2707344654234371,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_127_EGFR-38",
+          "distance": 0.0983276441693306
+        },
+        {
+          "key": "compound_126_EGFR-37",
+          "distance": 0.10010264068841934
+        },
+        {
+          "key": "compound_129_EGFR-40",
+          "distance": 0.11122157424688339
+        },
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.1195799857378006
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.1218557059764862
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_117_EGFR-28",
+          "distance": 0.10267886519432068
+        },
+        {
+          "key": "compound_120_EGFR-31",
+          "distance": 0.10908593237400055
+        },
+        {
+          "key": "compound_119_EGFR-30",
+          "distance": 0.11183422803878784
+        },
+        {
+          "key": "compound_123_EGFR-34",
+          "distance": 0.11440558731555939
+        },
+        {
+          "key": "compound_128_EGFR-39",
+          "distance": 0.11652888357639313
+        }
+      ]
+    },
+    "compound_7_Pim1-56": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.1830831527709961,
+      "avg_dist_to_counterpart_class": 0.15476942658424378,
+      "similarity_ratio": 1.1829413393306116,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.39829877457242846,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 0.15999312698841095
+        },
+        {
+          "key": "compound_50_S6K1-107",
+          "distance": 0.18534600734710693
+        },
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.18683896958827972
+        },
+        {
+          "key": "compound_129_EGFR-40",
+          "distance": 0.18956533074378967
+        },
+        {
+          "key": "compound_22_GSK3a-119",
+          "distance": 0.1936723291873932
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_17_MLCK-184",
+          "distance": 0.1459372341632843
+        },
+        {
+          "key": "compound_25_GSK3\u03b2-127",
+          "distance": 0.15174131095409393
+        },
+        {
+          "key": "compound_17_GSK3a-116",
+          "distance": 0.1528407335281372
+        },
+        {
+          "key": "compound_17_FLT4-99",
+          "distance": 0.15658466517925262
+        },
+        {
+          "key": "compound_2_GSK3a-112",
+          "distance": 0.1667431890964508
+        }
+      ]
+    },
+    "compound_8_Pim1-57": {
+      "true_label": 0,
+      "predicted_label": 1,
+      "avg_dist_to_correct_class": 0.11807922124862671,
+      "avg_dist_to_counterpart_class": 0.08902363628149032,
+      "similarity_ratio": 1.326380567911913,
+      "neighborhood_purity_correct_class": 0.2,
+      "outlier_score": 0.23038350754979892,
+      "neighbors_in_correct_class": [
+        {
+          "key": "compound_118_EGFR-29",
+          "distance": 0.09352238476276398
+        },
+        {
+          "key": "compound_30_GSK3\u03b2-132",
+          "distance": 0.10943733900785446
+        },
+        {
+          "key": "compound_19_GSK3a-117",
+          "distance": 0.11793474107980728
+        },
+        {
+          "key": "compound_50_S6K1-107",
+          "distance": 0.13189643621444702
+        },
+        {
+          "key": "compound_18_FLT4-100",
+          "distance": 0.1376052051782608
+        }
+      ],
+      "neighbors_in_counterpart_class": [
+        {
+          "key": "compound_121_EGFR-32",
+          "distance": 0.08383085578680038
+        },
+        {
+          "key": "compound_124_EGFR-35",
+          "distance": 0.08459323644638062
+        },
+        {
+          "key": "compound_119_EGFR-30",
+          "distance": 0.08786509186029434
+        },
+        {
+          "key": "compound_18_MLCK-185",
+          "distance": 0.09389181435108185
+        },
+        {
+          "key": "compound_116_EGFR-27",
+          "distance": 0.09493718296289444
+        }
+      ]
+    }
+  }
+}

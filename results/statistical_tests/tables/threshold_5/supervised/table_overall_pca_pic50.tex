@@ -1,0 +1,20 @@
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Overall performance comparison for different pca settings within each supervised experiment on the pIC\textsubscript{50} dataset. Values are mean $\pm$ standard deviation. For each metric, statistically equivalent best performing variables are denoted with the same superscript letter.}
+    \label{tab:overall_pca_supervised_pic50}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llll}
+        \toprule
+        \multicolumn{1}{c}{\textbf{Variable}} & \multicolumn{1}{c}{\textbf{MCC}} & \multicolumn{1}{c}{\textbf{ACCURACY}} & \multicolumn{1}{c}{\textbf{F1}} \\
+        \midrule
+        \textbf{With Pca 50Components} & 0.100 $\pm$ 0.110 & 0.692 $\pm$ 0.106 & 0.752 $\pm$ 0.125$^{\textit{\textbf{C}}}$ \\
+        \textbf{No Pca} & 0.145 $\pm$ 0.116$^{\textit{\textbf{A}}}$ & 0.711 $\pm$ 0.093$^{\textit{\textbf{B}}}$ & 0.766 $\pm$ 0.111$^{\textit{\textbf{C}}}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Statistical Test Results}} \\
+        \midrule
+        \textbf{Overall p-value} & $< 0.001$ & $< 0.001$ & 0.058 \\
+        \textbf{Best performer} & No Pca sig. better & No Pca sig. better & No sig. difference \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

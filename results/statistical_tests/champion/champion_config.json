@@ -1,0 +1,194 @@
+{
+  "pic50": {
+    "tl": {
+      "exp_id": "SOAP_molecule_protein_minmax_scaler_pretrain_ccsa_then_encoder_task_separate_domain_source_smote_no_target_smote",
+      "inhibitor": "SOAP",
+      "modality": "molecule_protein",
+      "scaler": "minmax",
+      "method": "pretrain_ccsa_then_encoder_task",
+      "phase": "pretrain_ccsa_encoder_task",
+      "cross_domain": false,
+      "source_smote": true,
+      "target_smote": false,
+      "cross_domain_flag": "--separate_domains",
+      "source_smote_flag": "--source_smote",
+      "target_smote_flag": ""
+    },
+    "sl": {
+      "exp_id": "SOAP_inhibitor_protein_standard_scaler_KNN_target_smote_no_pca",
+      "inhibitor": "SOAP",
+      "modality": "inhibitor_protein",
+      "scaler": "standard",
+      "method": "KNN",
+      "target_smote": true,
+      "pca": false
+    },
+    "performance": {
+      "sl": {
+        "mcc": {
+          "mean_t5": 0.2929,
+          "mean_t6": 0.4783,
+          "mean_t7": 0.5357,
+          "global_mean": 0.4356,
+          "global_std": 0.1036
+        },
+        "accuracy": {
+          "mean_t5": 0.6934,
+          "mean_t6": 0.7713,
+          "mean_t7": 0.7504,
+          "global_mean": 0.7384,
+          "global_std": 0.0329
+        },
+        "f1": {
+          "mean_t5": 0.7021,
+          "mean_t6": 0.7444,
+          "mean_t7": 0.7071,
+          "global_mean": 0.7179,
+          "global_std": 0.0189
+        }
+      },
+      "tl": {
+        "mcc": {
+          "mean_t5": 0.4293,
+          "mean_t6": 0.6218,
+          "mean_t7": 0.5174,
+          "global_mean": 0.5228,
+          "global_std": 0.0787
+        },
+        "accuracy": {
+          "mean_t5": 0.8028,
+          "mean_t6": 0.8374,
+          "mean_t7": 0.7643,
+          "global_mean": 0.8015,
+          "global_std": 0.0299
+        },
+        "f1": {
+          "mean_t5": 0.866,
+          "mean_t6": 0.8022,
+          "mean_t7": 0.6584,
+          "global_mean": 0.7755,
+          "global_std": 0.0868
+        }
+      },
+      "max": {
+        "mcc": {
+          "mean_t5": 0.5816,
+          "mean_t6": 0.7108,
+          "mean_t7": 0.6882,
+          "global_mean": 0.6602,
+          "global_std": 0.0563
+        },
+        "accuracy": {
+          "mean_t5": 0.8719,
+          "mean_t6": 0.8754,
+          "mean_t7": 0.88,
+          "global_mean": 0.8758,
+          "global_std": 0.0033
+        },
+        "f1": {
+          "mean_t5": 0.9133,
+          "mean_t6": 0.8496,
+          "mean_t7": 0.7834,
+          "global_mean": 0.8488,
+          "global_std": 0.053
+        }
+      }
+    }
+  },
+  "pk": {
+    "tl": {
+      "exp_id": "SOAP_molecule_minmax_scaler_pretrain_ccsa_then_encoder_task_cross_domain_source_smote_no_target_smote",
+      "inhibitor": "SOAP",
+      "modality": "molecule",
+      "scaler": "minmax",
+      "method": "pretrain_ccsa_then_encoder_task",
+      "phase": "pretrain_ccsa_encoder_task",
+      "cross_domain": true,
+      "source_smote": true,
+      "target_smote": false,
+      "cross_domain_flag": "--cross_domain",
+      "source_smote_flag": "--source_smote",
+      "target_smote_flag": ""
+    },
+    "sl": {
+      "exp_id": "MACE_inhibitor_none_scaler_RandomForest_no_target_smote_with_pca_50components",
+      "inhibitor": "MACE",
+      "modality": "inhibitor",
+      "scaler": "none",
+      "method": "RandomForest",
+      "target_smote": false,
+      "pca": true
+    },
+    "performance": {
+      "sl": {
+        "mcc": {
+          "mean_t5": 0.3881,
+          "mean_t6": 0.4987,
+          "mean_t7": 0.5408,
+          "global_mean": 0.4759,
+          "global_std": 0.0644
+        },
+        "accuracy": {
+          "mean_t5": 0.824,
+          "mean_t6": 0.7253,
+          "mean_t7": 0.8157,
+          "global_mean": 0.7883,
+          "global_std": 0.0447
+        },
+        "f1": {
+          "mean_t5": 0.8893,
+          "mean_t6": 0.636,
+          "mean_t7": 0.6235,
+          "global_mean": 0.7163,
+          "global_std": 0.1225
+        }
+      },
+      "tl": {
+        "mcc": {
+          "mean_t5": 0.6084,
+          "mean_t6": 0.5828,
+          "mean_t7": 0.7151,
+          "global_mean": 0.6354,
+          "global_std": 0.0573
+        },
+        "accuracy": {
+          "mean_t5": 0.8854,
+          "mean_t6": 0.8312,
+          "mean_t7": 0.8785,
+          "global_mean": 0.865,
+          "global_std": 0.0241
+        },
+        "f1": {
+          "mean_t5": 0.9113,
+          "mean_t6": 0.7935,
+          "mean_t7": 0.8166,
+          "global_mean": 0.8405,
+          "global_std": 0.051
+        }
+      },
+      "max": {
+        "mcc": {
+          "mean_t5": 0.5317,
+          "mean_t6": 0.6777,
+          "mean_t7": 0.736,
+          "global_mean": 0.6485,
+          "global_std": 0.0859
+        },
+        "accuracy": {
+          "mean_t5": 0.8466,
+          "mean_t6": 0.8581,
+          "mean_t7": 0.9026,
+          "global_mean": 0.8691,
+          "global_std": 0.0241
+        },
+        "f1": {
+          "mean_t5": 0.8911,
+          "mean_t6": 0.8274,
+          "mean_t7": 0.7991,
+          "global_mean": 0.8392,
+          "global_std": 0.0385
+        }
+      }
+    }
+  }
+}

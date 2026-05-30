@@ -1,0 +1,69 @@
+{
+  "total_experiments": 39744,
+  "unique_inhibitors": [
+    "ACSF",
+    "MACE",
+    "SOAP"
+  ],
+  "unique_biological_targets": [
+    "molecule",
+    "molecule_pocket",
+    "molecule_protein",
+    "molecule_protein_pocket",
+    "pocket",
+    "protein"
+  ],
+  "unique_scalers": [
+    "None_scaler",
+    "minmax_scaler",
+    "standard_scaler"
+  ],
+  "unique_affinity_types": [
+    "pic50",
+    "pk"
+  ],
+  "unique_methods": [
+    "no_pretrain_ccsa",
+    "no_pretrain_ccsa_then_encoder_task",
+    "no_pretrain_ccsa_then_task",
+    "no_pretrain_encoder_task",
+    "pretrain_ccsa",
+    "pretrain_ccsa_then_encoder_task",
+    "pretrain_ccsa_then_task",
+    "pretrain_encoder_task",
+    "pretrain_src",
+    "pretrain_task"
+  ],
+  "val/accuracy_stats": {
+    "mean": 0.6595168751505115,
+    "std": 0.2025549123546362,
+    "min": 0.0769230797886848,
+    "max": 1.0,
+    "median": 0.7222222089767456,
+    "count": 39744
+  },
+  "val/f1_stats": {
+    "mean": 0.47637264997658624,
+    "std": 0.360845934811026,
+    "min": 0.0,
+    "max": 1.0,
+    "median": 0.6000000238418579,
+    "count": 39744
+  },
+  "val/auroc_stats": {
+    "mean": 0.6446763940271077,
+    "std": 0.1968647379465849,
+    "min": 0.0,
+    "max": 1.0,
+    "median": 0.6666666269302368,
+    "count": 39744
+  },
+  "val/mcc_stats": {
+    "mean": 0.22495933443307245,
+    "std": 0.2880992556138283,
+    "min": -0.7784989476203918,
+    "max": 1.0,
+    "median": 0.2022599577903747,
+    "count": 39744
+  }
+}

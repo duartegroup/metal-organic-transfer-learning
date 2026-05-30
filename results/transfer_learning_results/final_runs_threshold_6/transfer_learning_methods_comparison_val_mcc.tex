@@ -1,0 +1,29 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=1in}
+\begin{document}
+
+\begin{table}[h!]
+\centering
+\caption{Transfer Learning Methods Comparison (val/mcc)}
+\begin{tabular}{lcccccc}
+\toprule
+Method & Mean & Std & Min & Max & Count \\
+\midrule
+pretrain\_ccsa\_then\_encoder\_task & 0.374 & 0.291 & -0.620 & 1.000 & 4320 \\
+no\_pretrain\_encoder\_task & 0.338 & 0.302 & -0.505 & 1.000 & 4320 \\
+no\_pretrain\_ccsa\_then\_encoder\_task & 0.335 & 0.302 & -0.487 & 1.000 & 4320 \\
+pretrain\_encoder\_task & 0.335 & 0.310 & -0.495 & 1.000 & 4320 \\
+pretrain\_ccsa\_then\_task & 0.225 & 0.258 & -0.620 & 1.000 & 4320 \\
+pretrain\_task & 0.193 & 0.276 & -0.778 & 1.000 & 4320 \\
+pretrain\_ccsa & 0.118 & 0.220 & -0.616 & 0.921 & 4320 \\
+no\_pretrain\_ccsa\_then\_task & 0.102 & 0.223 & -0.616 & 0.921 & 4320 \\
+no\_pretrain\_ccsa & 0.050 & 0.178 & -0.659 & 0.776 & 4320 \\
+pretrain\_src & 0.000 & 0.000 & 0.000 & 0.000 & 864 \\
+\bottomrule
+\end{tabular}
+\label{tab:transfer_learning_methods_val_mcc}
+\end{table}
+
+\end{document}
