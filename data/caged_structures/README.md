@@ -18,8 +18,3 @@ coordination is represented by the bonds of the drawn structure.
 Formal charges and bond orders around the metal are therefore not
 chemically exact, and the files should be read without sanitization
 (e.g. `Chem.MolFromMolFile(path, sanitize=False, removeHs=False)` in RDKit).
-
-Two optimized structures differ from their drawn input:
-
-- compound 34: NH2 on C35 in place of H, and a formyl H on the Ru-bound C32
-- compound 59: no H on the Ru-bound cyclopentadienyl carbon C27
