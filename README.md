@@ -125,6 +125,7 @@ python data/hf5_dataset/inspect_h5.py --dataset_path data/hf5_dataset/caged/cage
 Raw input files (PDB structures, SDF ligands, Excel metadata) go in:
 - Protein/ligand structures: see paths inside the creation scripts
 - Binding affinity metadata: `data/excel/`
+- Combined metadata workbook (molecules, measurements, column descriptions): `data/excel/metadata.xlsx`
 - Optimized caged compound structures (SDF and PDB): `data/caged_structures/`
 
 ### Data Analysis & Splitting
@@ -301,6 +302,7 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 .
 ├── data/
 │   ├── excel/                          # Binding affinity metadata (Excel)
+│   │   ├── metadata.xlsx
 │   │   ├── caged/{pic50,pk}/
 │   │   └── organic/{pic50,pk,total_dataset}/
 │   ├── caged_structures/{sdf,pdb}/     # Optimized caged compound structures
