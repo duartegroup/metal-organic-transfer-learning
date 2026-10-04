@@ -42,3 +42,4 @@ results/loss_curves
 # Local tooling
 .claude/
 CLAUDE.md
+!data/excel/caged/*/caged_*.csv
