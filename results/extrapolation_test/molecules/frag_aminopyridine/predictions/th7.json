@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_aminopyridine/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_aminopyridine/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.09229286760091782,
+    "ensemble_logit": -2.753197193145752,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.13789533078670502,
+      0.05425078049302101,
+      0.21372637152671814,
+      0.04714934527873993,
+      0.008442508988082409
+    ]
+  }
+}

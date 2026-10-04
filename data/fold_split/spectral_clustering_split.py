@@ -936,7 +936,7 @@ def main() -> None:
         comp_names_pki, cluster_labels_pki, binding_array_pki, n_folds=args.n_clusters
     )
 
-    # 6. Save fold indices (NEW - following optimize_stratified_split.py structure)
+    # 6. Save fold indices
     logger.info("Saving fold indices...")
     fold_indices_pic50 = save_fold_indices(
         folds_pic50,
@@ -950,7 +950,7 @@ def main() -> None:
         folds_pki, comp_names_pki, args.output_dir, args.dataset, "pk", args.n_clusters
     )
 
-    # 7. Save complete optimization results (NEW - following optimize_stratified_split.py structure)
+    # 7. Save complete optimization results
     logger.info("Saving optimization results...")
     save_optimization_results(
         fold_indices_pic50,

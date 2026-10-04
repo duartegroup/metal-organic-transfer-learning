@@ -1,0 +1,11 @@
+{
+  "name": "frag_tail_half",
+  "series": "fragment",
+  "parent": "stf_31",
+  "motif": "sulfonamide + tert-butylphenyl",
+  "charge": 0,
+  "formula": "C11H17NO2S",
+  "n_atoms": 32,
+  "n_heavy": 15,
+  "source": "built by scripts/build_molecules.py from stf_31"
+}

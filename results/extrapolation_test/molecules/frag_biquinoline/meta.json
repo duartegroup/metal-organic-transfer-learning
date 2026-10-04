@@ -1,0 +1,11 @@
+{
+  "name": "frag_biquinoline",
+  "series": "fragment",
+  "parent": "caged_PACT",
+  "motif": "CONTROL: spectator ligand, no expected NAMPT activity",
+  "charge": 0,
+  "formula": "C18H12N2",
+  "n_atoms": 32,
+  "n_heavy": 20,
+  "source": "built by scripts/build_molecules.py from caged_PACT"
+}

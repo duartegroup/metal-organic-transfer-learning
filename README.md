@@ -36,7 +36,7 @@ This section maps each figure in the paper to the exact script and output file t
 | Figure | Description | Script | Key arguments | Output location |
 |--------|-------------|--------|---------------|-----------------|
 | Fig 3 | PCA scatter plot of dataset clusters | `data/data_comparison/dataset_split/clustering_affinity_distribution.py` | `--dim_reduction pca --output_dir ./mace_analysis` | `data/data_comparison/dataset_split/mace_analysis/` |
-| Fig 4 | Champion model bar chart (SL vs TL, per threshold) | `src/statistical_tests/main.py` | `--champion` | `results/statistical_tests/champion/fig_champion_comparison_threshold_{N}.png` |
+| Fig 4 | Champion bar chart (B vs S1 vs TL, per threshold) | `src/statistical_tests/main.py` | `--champion` | `results/statistical_tests/champion/fig_champion_comparison_threshold_{N}_{mcc,accuracy,f1}.png` |
 | Fig 5 | Latent space visualisation | `src/transfer_learning_src/visualize/embedding_visualization.py` | `--model_path <path> --output_dir <path> --phase pretrain_ccsa_encoder_task` | `results/latent_space_analysis/threshold_{N}/{affinity_type}/` |
 
 ### Figure 3 — PCA clustering plot
@@ -60,7 +60,20 @@ Run from `src/statistical_tests/`:
 python main.py --champion
 ```
 
-Champions are selected automatically by cross-threshold `mean_mcc − std` ranking across all three thresholds (5, 6, 7). The bar chart is saved as a PNG to `results/statistical_tests/champion/`. **All three thresholds must be loaded** — passing `--thresholds 6` alone will abort with a warning because cross-threshold ranking is meaningless with a single threshold.
+**How the champion is chosen.** Within each threshold every configuration is scored by `mean MCC − SD` across the five cross-validation folds and ranked; those per-threshold ranks are averaged over θ ∈ {5, 6, 7}, and the configuration with the lowest average rank is the champion. Ranking within a threshold before averaging keeps a threshold where MCC happens to run high from dominating the selection, and averaging ranks across all three rewards configurations that hold up at every activity cut-off rather than winning once. Both champions in Table 1 come out of this procedure — there are no hardcoded model IDs.
+
+One PNG per metric (MCC, accuracy, F1) per threshold is saved to `results/statistical_tests/champion/`. **All three thresholds must be loaded** — passing `--thresholds 6` alone will abort with a warning, because cross-threshold ranking is meaningless with a single threshold.
+
+Each panel carries up to four bars:
+
+| Bar | What it is |
+|-----|------------|
+| `B` | supervised learning champion |
+| `S1` | **transfer learning baseline** — the TL champion's own configuration (same descriptor, modality, scaler, SMOTE and scaling settings) trained with strategy S1: plain fine-tuning, no pretraining, no domain adaptation |
+| `TL` | transfer learning champion |
+| `Max` | noise ceiling from `results/noise_estimation/` — not the best observed score |
+
+`S1` is the *matched sibling* rather than the best-ranked S1 model on purpose: it differs from the TL champion in exactly one factor, so the `TL − S1` gap is attributable to pretraining and domain adaptation alone. Without it, a `TL > B` result cannot distinguish "transfer learning helps" from "this descriptor and modality happen to be good". The arm is resolved automatically; if the champion is already an S1 model or the sibling was never run, it is skipped and the chart falls back to three bars.
 
 ### Figure 5 — Latent space visualisation
 
@@ -234,11 +247,28 @@ python main.py --tables -v
 | Flag | Output | Location |
 |------|--------|----------|
 | `--scatter` | Mean-vs-std scatter plots (SL and TL, per threshold) | `results/statistical_tests/scatter/threshold_{N}/` |
-| `--champion` | Champion comparison bar chart (PNG) | `results/statistical_tests/champion/fig_champion_comparison_threshold_{N}.png` |
+| `--champion` | Champion comparison bar chart, one per metric (PNG) | `results/statistical_tests/champion/fig_champion_comparison_threshold_{N}_{mcc,accuracy,f1}.png` |
+| `--champion` | Champion + S1 baseline configurations and global means (JSON) | `results/statistical_tests/champion/champion_config.json` |
 | `--tables` | LaTeX factor-analysis tables (PCA, Scaler, Descriptor, …) | `results/statistical_tests/tables/threshold_{N}/{supervised,transfer}/` |
 | `--tables` | Same tables using all thresholds combined (cross-threshold) | `results/statistical_tests/tables/global/{supervised,transfer}/` |
 
 Champion models are selected **automatically** by averaging per-threshold `mean_mcc − std` ranks across all three thresholds — there are no hardcoded model IDs. The console prints a full top-10 leaderboard, per-threshold best models, and a pooled Wilcoxon comparison whenever `--champion` is run.
+
+**Reading the champion statistics.** A summary table is printed per threshold, then one pooled across all three. Two comparisons are pre-specified — `TL vs B` and `TL vs S1` — and are Holm-corrected within each metric; both raw and corrected p-values are printed. The `S1 − B` gap is shown as a descriptive delta with no p-value, because it is determined by the other two and testing it as well would dress two degrees of freedom up as three.
+
+Only the **pooled** test (n = 15 fold pairs) can reach significance: **at n = 5 the smallest two-sided Wilcoxon p is 0.0625**, already above 0.05, so no per-threshold test can clear α = 0.05 no matter how large the effect. The per-threshold tables are therefore read as effect sizes (Δ and Δ%) and are left uncorrected.
+
+### Input and output paths
+
+All reads are rooted at `--results-base` and all writes at `--output-base`, so the pipeline can analyse a results tree without writing anywhere near it:
+
+```bash
+python main.py --champion \
+    --results-base /path/to/results \
+    --output-base  /scratch/my_analysis
+```
+
+Defaults are `./../../results` and `<results-base>/statistical_tests`; `--noise-results-dir` defaults to `<results-base>/noise_estimation`. Every artefact is written to a temporary sibling and renamed into place (`io_utils.atomic_write`), so a run that dies part-way — out of disk, over quota, cancelled — leaves the previous version intact rather than a truncated file.
 
 ### Latent Space Analysis
 
@@ -306,12 +336,14 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 │   │   ├── inference/inference.py      # Inference on novel compounds
 │   │   └── visualize/
 │   │       ├── embedding_visualization.py   # Latent space plots (→ Figure 5)
+│   │       ├── plot_loss_curves.py          # Training/validation loss curves
 │   │       └── misclassification_to_latex.py
 │   └── statistical_tests/              # Statistical analysis pipeline
 │       ├── main.py                     # Entry point — --scatter / --champion / --tables
 │       ├── analysis.py                 # MainAnalysisController; dynamic champion ranking
 │       ├── reporting.py                # LaTeX table output
 │       ├── plot.py                     # Figure generation (→ Figure 4)
+│       ├── io_utils.py                 # Atomic write / savefig helpers
 │       ├── statistical_tests.py        # Wilcoxon, Friedman, ModelRanker
 │       ├── data_loader.py
 │       ├── data_quality.py
@@ -330,8 +362,9 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 │   ├── statistical_tests/
 │   │   ├── scatter/
 │   │   │   └── threshold_{5,6,7}/      # Mean-vs-std scatter plots (--scatter)
-│   │   ├── champion/                   # Figure 4 PNG (--champion)
-│   │   │   └── fig_champion_comparison_threshold_{N}.png
+│   │   ├── champion/                   # Figure 4 PNGs (--champion)
+│   │   │   ├── fig_champion_comparison_threshold_{N}_{mcc,accuracy,f1}.png
+│   │   │   └── champion_config.json    # Champion + S1 baseline configs
 │   │   └── tables/                     # LaTeX factor tables (--tables)
 │   │       ├── threshold_{5,6,7}/
 │   │       │   ├── supervised/

@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/photo_pyridines/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/photo_pyridines/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.14347034692764282,
+    "ensemble_logit": -2.669830799102783,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.38237643241882324,
+      0.07701889425516129,
+      0.10285637527704239,
+      0.001480716047808528,
+      0.15361934900283813
+    ]
+  }
+}

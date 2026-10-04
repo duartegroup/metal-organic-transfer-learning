@@ -1,0 +1,11 @@
+{
+  "name": "photo_pyridines",
+  "series": "photoproduct",
+  "parent": "deriv_8",
+  "motif": "photoproduct of deriv_8: Ru(pyridine)5(H2O)",
+  "charge": 2,
+  "formula": "C25H27N5ORu",
+  "n_atoms": 59,
+  "n_heavy": 32,
+  "source": "built by scripts/build_molecules.py from deriv_8"
+}

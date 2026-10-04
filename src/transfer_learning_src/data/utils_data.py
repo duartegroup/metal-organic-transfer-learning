@@ -508,7 +508,7 @@ def prepare_datasets(
             src_train["pocket_feats"],
             src_train["binding_affs"],
             modality,
-            apply_smote=source_smote,  # NEW: Use source_smote parameter
+            apply_smote=source_smote,
             scaler_stats=src_scaling_stats,
         )
     if src_val is not None:

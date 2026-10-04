@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M5_sulfonamideNH_to_NMe/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M5_sulfonamideNH_to_NMe/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.15880325436592102,
+    "ensemble_logit": -2.533367872238159,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.3907919228076935,
+      0.12005624175071716,
+      0.11108104884624481,
+      0.0013992071617394686,
+      0.17068780958652496
+    ]
+  }
+}

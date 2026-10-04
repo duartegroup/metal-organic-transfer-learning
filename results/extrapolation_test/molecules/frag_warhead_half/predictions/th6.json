@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_warhead_half/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_warhead_half/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.1352575719356537,
+    "ensemble_logit": -2.7506611347198486,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.36802393198013306,
+      0.07591027021408081,
+      0.1025746539235115,
+      0.0013187332078814507,
+      0.12846021354198456
+    ]
+  }
+}

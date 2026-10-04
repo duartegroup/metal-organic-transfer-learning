@@ -38,3 +38,7 @@ results/loss_curves
 
 # Ignore OS files
 .DS_Store
+
+# Local tooling
+.claude/
+CLAUDE.md

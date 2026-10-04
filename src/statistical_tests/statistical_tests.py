@@ -6,6 +6,8 @@ from typing import Dict, Any, Tuple, List, Optional
 from statsmodels.stats.multitest import multipletests
 import statsmodels.formula.api as smf
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from constants import BASELINE_STRATEGY
+from io_utils import atomic_write
 from console import (
     printer,
     print_champion_showdown,
@@ -79,7 +81,7 @@ def perform_friedman_test(
     groups = list(data.columns)
     if verbose:
         printer.info(
-            f"🔬 Performing Friedman test on metric '{metric}' for groups: {groups}"
+            f"Performing Friedman test on metric '{metric}' for groups: {groups}"
         )
 
     try:
@@ -91,9 +93,8 @@ def perform_friedman_test(
         if verbose:
             printer.info(f"   Friedman χ² = {friedman_stat:.4f}, p = {friedman_p:.6f}")
             conclusion = "REJECT" if is_significant else "FAIL TO REJECT"
-            status_symbol = "✅" if is_significant else "❌"
             printer.info(
-                f"   {status_symbol} Conclusion: We {conclusion} the null hypothesis at α=0.05"
+                f"   Conclusion: We {conclusion} the null hypothesis at α=0.05"
             )
 
         return {
@@ -144,7 +145,7 @@ def perform_pairwise_wilcoxon(
     comparisons = list(combinations(groups, 2))
     if verbose:
         printer.info(
-            f"🔬 Performing {len(comparisons)} pairwise Wilcoxon tests with '{correction}' correction"
+            f"Performing {len(comparisons)} pairwise Wilcoxon tests with '{correction}' correction"
         )
 
     raw_pvals, results_tmp = [], []
@@ -241,7 +242,7 @@ def perform_wilcoxon_test(
 
     if verbose:
         printer.info(
-            f"🔬 Performing Wilcoxon test on '{metric}' between '{group1_name}' and '{group2_name}'"
+            f"Performing Wilcoxon test on '{metric}' between '{group1_name}' and '{group2_name}'"
         )
         printer.info(f"   H₀: Median difference between paired values is zero")
 
@@ -253,7 +254,7 @@ def perform_wilcoxon_test(
             printer.info(f"   Wilcoxon W = {stat:.4f}, p = {p_val:.6f}")
             conclusion = "REJECT" if is_significant else "FAIL TO REJECT"
             printer.info(
-                f"   ✅ Conclusion: We {conclusion} the null hypothesis at α=0.05"
+                f"   Conclusion: We {conclusion} the null hypothesis at α=0.05"
             )
 
         mean1, mean2 = data1.mean(), data2.mean()
@@ -324,7 +325,7 @@ class ModelRanker:
         from analysis import calculate_ranking_score  # Import the centralized function
 
         if df.empty:
-            printer.warning(f"⚠️ No data found for {label}, skipping.")
+            printer.warning(f"No data found for {label}, skipping.")
             return pd.DataFrame(), pd.DataFrame()
 
         df = df.copy()
@@ -674,9 +675,8 @@ class ModelRanker:
 
         # Write to file
         try:
-            with open(filepath, "w") as f:
-                f.write(latex_content)
-            printer.info(f"📄 LaTeX parameter breakdown table saved to: {filepath}")
+            atomic_write(filepath, latex_content)
+            printer.info(f"LaTeX parameter breakdown table saved to: {filepath}")
         except Exception as e:
             printer.error(f"Failed to save LaTeX parameter breakdown table: {e}")
 
@@ -829,6 +829,7 @@ class ModelRanker:
         sl_avg_ranks_df: pd.DataFrame,
         tl_avg_ranks_df: pd.DataFrame,
         metric: str = "val/mcc",
+        tl_baseline_exp_id: Optional[str] = None,
     ) -> None:
         """
         Compare the most robust supervised learning and transfer learning models.
@@ -854,6 +855,12 @@ class ModelRanker:
             DataFrame with average ranks for transfer learning models.
         metric : str, optional
             The performance metric to compare. Default is 'val/mcc'.
+        tl_baseline_exp_id : str, optional
+            exp_id of the transfer learning baseline: the champion's own
+            configuration trained with the baseline strategy. When given it is
+            joined onto the same (threshold, fold) pairs and tested against the
+            TL champion as well, so the gap attributable to the training
+            strategy alone can be read off next to the SL comparison.
         """
         from scipy.stats import wilcoxon as wilcoxon_test
 
@@ -902,6 +909,21 @@ class ModelRanker:
             how="inner",
         )
 
+        # Optional third arm: joined left so a missing baseline can never shrink
+        # the SL/TL pair set that the primary comparison depends on.
+        if tl_baseline_exp_id:
+            bl_raw = df_tl[df_tl["exp_id"] == tl_baseline_exp_id][
+                ["threshold", "fold", metric]
+            ].dropna().copy()
+            bl_raw["threshold"] = bl_raw["threshold"].astype(str)
+            bl_raw["fold"] = bl_raw["fold"].astype(str)
+            paired = pd.merge(
+                paired,
+                bl_raw.rename(columns={metric: "bl"}),
+                on=["threshold", "fold"],
+                how="left",
+            )
+
         printer.info(
             f"Paired scores: {len(paired)} (SL raw: {len(sl_raw)}, TL raw: {len(tl_raw)})"
         )
@@ -917,6 +939,25 @@ class ModelRanker:
             statistic, p_value = wilcoxon_test(
                 paired["sl"], paired["tl"], alternative="two-sided"
             )
+
+            bl_statistic = bl_p_value = None
+            if "bl" in paired.columns:
+                usable = paired.dropna(subset=["bl", "tl"])
+                if usable.empty:
+                    printer.warning(
+                        f"Baseline '{tl_baseline_exp_id}' overlaps no folds with the "
+                        "TL champion — skipping the baseline test."
+                    )
+                elif (usable["tl"] - usable["bl"]).abs().sum() == 0:
+                    printer.warning(
+                        "TL champion and baseline scores are identical on every "
+                        "fold — no baseline test to run."
+                    )
+                else:
+                    bl_statistic, bl_p_value = wilcoxon_test(
+                        usable["bl"], usable["tl"], alternative="two-sided"
+                    )
+
             print_champion_showdown(
                 paired=paired,
                 sl_champion_id=sl_champion_id,
@@ -926,6 +967,10 @@ class ModelRanker:
                 statistic=statistic,
                 p_value=p_value,
                 metric=metric,
+                bl_champion_id=tl_baseline_exp_id,
+                bl_label=BASELINE_STRATEGY,
+                bl_statistic=bl_statistic,
+                bl_p_value=bl_p_value,
             )
         except Exception as e:
             printer.error(f"Error during Wilcoxon signed-rank test: {e}")

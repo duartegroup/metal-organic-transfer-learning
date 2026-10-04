@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/deriv_11/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/deriv_11/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.5935326218605042,
+    "ensemble_logit": 0.46597710251808167,
+    "binary_prediction": true,
+    "is_active": true,
+    "fold_probabilities": [
+      0.21193869411945343,
+      0.7332611680030823,
+      0.3878635764122009,
+      0.7618809342384338,
+      0.8727188110351562
+    ]
+  }
+}

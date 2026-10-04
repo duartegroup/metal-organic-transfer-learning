@@ -332,7 +332,7 @@ def main() -> None:
         print_summary_statistics(comparison_results, tolerance)
         print_significant_differences(comparison_results, tolerance)
 
-        # NEW: show all columns for the differing pairs
+        # Show all columns for the differing pairs
         print_full_row_differences(df_original, df_new, comparison_results)
 
         # columns that should be replaced if a significant pIC50 difference is found

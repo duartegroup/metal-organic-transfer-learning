@@ -1,0 +1,11 @@
+{
+  "name": "uncaged_PACT_H2O",
+  "series": "reaction",
+  "parent": null,
+  "motif": null,
+  "charge": 2,
+  "source": "original input structure",
+  "formula": "C33H25N5ORu",
+  "n_atoms": 65,
+  "n_heavy": 40
+}

@@ -707,7 +707,7 @@ def run_hyperparameter_search(args: argparse.Namespace) -> Dict:
 
                 y_pred = best_model.predict(X_test)
 
-                ## NEW/MODIFIED ## - Calculate accuracy and F1 score
+                # Classification metrics on the outer test fold
                 mcc = matthews_corrcoef(y_test_class, y_pred)
                 accuracy = accuracy_score(y_test_class, y_pred)
                 f1 = f1_score(y_test_class, y_pred, zero_division=0)
@@ -717,7 +717,7 @@ def run_hyperparameter_search(args: argparse.Namespace) -> Dict:
                     f"    MCC: {mcc:.4f}, Accuracy: {accuracy:.4f}, F1-score: {f1:.4f}"
                 )
 
-                ## NEW/MODIFIED ## - Store new metrics
+                # Store metrics for this fold
                 if model_name not in all_results["classification"]:
                     all_results["classification"][model_name] = []
                 all_results["classification"][model_name].append(

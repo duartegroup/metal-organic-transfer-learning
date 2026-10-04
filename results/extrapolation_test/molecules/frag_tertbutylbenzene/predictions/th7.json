@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_tertbutylbenzene/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_tertbutylbenzene/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.08782751858234406,
+    "ensemble_logit": -2.801436185836792,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.1170678436756134,
+      0.05252830311655998,
+      0.2145266830921173,
+      0.04668816179037094,
+      0.008326603099703789
+    ]
+  }
+}

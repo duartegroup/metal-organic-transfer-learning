@@ -1,0 +1,11 @@
+{
+  "name": "frag_terpyridine",
+  "series": "fragment",
+  "parent": "caged_PACT",
+  "motif": "CONTROL: spectator ligand, no expected NAMPT activity",
+  "charge": 0,
+  "formula": "C15H11N3",
+  "n_atoms": 29,
+  "n_heavy": 18,
+  "source": "built by scripts/build_molecules.py from caged_PACT"
+}

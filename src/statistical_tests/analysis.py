@@ -19,7 +19,10 @@ from console import (
     print_multi_group_result,
 )
 from scipy.stats import wilcoxon
+from statsmodels.stats.multitest import multipletests
 import numpy as np
+
+from constants import BASELINE_METHOD, BASELINE_STRATEGY
 
 
 
@@ -89,6 +92,25 @@ def _strip_prefix(s: str, candidates: tuple) -> tuple[str, str]:
     raise ValueError(f"No known prefix from {candidates} found in '{s}'")
 
 
+def _split_on_scaler(s: str, candidates: tuple, exp_id: str) -> tuple[str, str, str]:
+    """Split an exp_id remainder into (modality, method, scaler).
+
+    Matching is case-insensitive because the scaler column is normalised with
+    ``str()``, which turns a missing scaler into "None" -- so the token in the
+    exp_id reads "None_scaler" while the candidate list is lowercase. A
+    case-sensitive test silently fails to parse every unscaled model.
+    """
+    lowered = s.lower()
+    for sc in candidates:
+        token = f"_{sc}_"
+        if token in lowered:
+            idx = lowered.index(token)
+            return s[:idx], s[idx + len(token):], sc
+        if lowered.endswith(f"_{sc}"):
+            return s[:len(s) - len(sc) - 1], "", sc
+    raise ValueError(f"Could not find scaler token in '{s}' for exp_id '{exp_id}'")
+
+
 def parse_tl_exp_id(exp_id: str) -> Dict[str, Any]:
     """Parse a TL exp_id string into a structured configuration dictionary.
 
@@ -106,21 +128,7 @@ def parse_tl_exp_id(exp_id: str) -> Dict[str, Any]:
     s, inhibitor     = _strip_prefix(s, _TL_INHIBITORS)
 
     # Find scaler — it always ends with "_scaler"
-    scaler = None
-    for sc in _TL_SCALERS:
-        if f"_{sc}_" in s:
-            idx = s.index(f"_{sc}_")
-            modality = s[:idx]
-            method   = s[idx + len(sc) + 2:]
-            scaler   = sc
-            break
-        if s.endswith(f"_{sc}"):
-            modality = s[:s.rindex(f"_{sc}")]
-            method   = ""
-            scaler   = sc
-            break
-    if scaler is None:
-        raise ValueError(f"Could not find scaler token in '{s}' for exp_id '{exp_id}'")
+    modality, method, scaler = _split_on_scaler(s, _TL_SCALERS, exp_id)
 
     # phase = method name as used in checkpoint directories ("then_" is dropped)
     phase = method.replace("_then_", "_")
@@ -153,21 +161,7 @@ def parse_sl_exp_id(exp_id: str) -> Dict[str, Any]:
     s, target_smote = _strip_suffix(s, _SL_TARGET_SMOTE)
     s, inhibitor    = _strip_prefix(s, _SL_INHIBITORS)
 
-    scaler = None
-    for sc in _SL_SCALERS:
-        if f"_{sc}_" in s:
-            idx = s.index(f"_{sc}_")
-            modality = s[:idx]
-            method   = s[idx + len(sc) + 2:]
-            scaler   = sc
-            break
-        if s.endswith(f"_{sc}"):
-            modality = s[:s.rindex(f"_{sc}")]
-            method   = ""
-            scaler   = sc
-            break
-    if scaler is None:
-        raise ValueError(f"Could not find scaler token in '{s}' for exp_id '{exp_id}'")
+    modality, method, scaler = _split_on_scaler(s, _SL_SCALERS, exp_id)
 
     return {
         "exp_id":       exp_id,
@@ -178,6 +172,60 @@ def parse_sl_exp_id(exp_id: str) -> Dict[str, Any]:
         "target_smote": target_smote == "target_smote",
         "pca":          pca_status != "no_pca",
     }
+
+
+def resolve_baseline_exp_id(
+    champion_exp_id: str,
+    champion_method: str,
+    available_exp_ids: set,
+) -> Optional[str]:
+    """Return the champion's own configuration trained with the baseline strategy.
+
+    The TL champion and this sibling differ in exactly one factor -- the training
+    strategy -- so the gap between them is attributable to pretraining and domain
+    adaptation rather than to a different descriptor, modality or scaler. That is
+    what makes it the right reference; the *best* baseline model would be a
+    different question, since it is free to change every other factor too.
+
+    Parameters
+    ----------
+    champion_exp_id : str
+        exp_id of the top-ranked transfer learning model.
+    champion_method : str
+        The champion's training strategy -- the token swapped out for the baseline.
+    available_exp_ids : set
+        exp_ids present in the data, used to verify the sibling was actually run.
+
+    Returns
+    -------
+    str or None
+        The sibling exp_id, or None if the champion already is the baseline or
+        the sibling is absent from the results.
+    """
+    if champion_method == BASELINE_METHOD:
+        printer.info(
+            f"TL champion already uses the {BASELINE_STRATEGY} baseline strategy "
+            "-- no separate baseline arm."
+        )
+        return None
+
+    token = f"_{champion_method}_"
+    if champion_exp_id.count(token) != 1:
+        printer.warning(
+            f"Could not locate a unique '{champion_method}' token in "
+            f"'{champion_exp_id}' -- skipping the {BASELINE_STRATEGY} baseline arm."
+        )
+        return None
+
+    baseline_exp_id = champion_exp_id.replace(token, f"_{BASELINE_METHOD}_")
+    if baseline_exp_id not in available_exp_ids:
+        printer.warning(
+            f"{BASELINE_STRATEGY} sibling '{baseline_exp_id}' is not present in the "
+            "results -- skipping the baseline arm."
+        )
+        return None
+
+    return baseline_exp_id
 
 
 class BaseAnalyzer:
@@ -691,7 +739,7 @@ class GlobalAnalysis(BaseAnalyzer):
         """
         if self.log_global_headers:
             printer.info("=" * 60)
-            printer.info(f"🌍 RUNNING GLOBAL ANALYSIS for {method.upper()}")
+            printer.info(f"RUNNING GLOBAL ANALYSIS for {method.upper()}")
             printer.info("=" * 60)
 
         df_temp = df.copy()  # Always work with a copy
@@ -765,7 +813,7 @@ class GlobalAnalysis(BaseAnalyzer):
 
             if self.verbose_analysis:
                 printer.info(
-                    f"🏆 Selected best (statistically tied or top-5) for {metric}: {len(best_exps)} experiments."
+                    f"Selected best (statistically tied or top-5) for {metric}: {len(best_exps)} experiments."
                 )
                 max_len = max(len(exp) for exp in best_exps) if best_exps else 0
                 for exp in best_exps:
@@ -1289,10 +1337,16 @@ class MainAnalysisController:
         df_tl: pd.DataFrame,
         sl_avg_ranks: pd.DataFrame,
         tl_avg_ranks: pd.DataFrame,
+        tl_baseline_exp_id: Optional[str] = None,
     ) -> None:
         """
         Extract per-fold values for MCC, accuracy and F1 for the top-ranked SL
         and TL models, split by threshold.
+
+        When ``tl_baseline_exp_id`` is given, a third arm is collected under the
+        ``bl_`` prefix: the champion's own configuration trained with the
+        baseline strategy. Everything downstream treats it as optional, so
+        omitting it reproduces the two-arm output exactly.
 
         The Max column is the noise ceiling (mean of noise distribution) loaded
         from the noise estimation pkl files via MaxValueExtractor — not the best
@@ -1329,6 +1383,28 @@ class MainAnalysisController:
             how="inner",
         )
 
+        # Optional third arm: the baseline sibling, joined on the same folds so
+        # all three stay paired. An inner join would silently drop folds from the
+        # SL/TL comparison if the baseline were missing any, so join left and let
+        # the gaps surface as NaN.
+        if tl_baseline_exp_id:
+            bl_rows = _fold_values(df_tl, tl_baseline_exp_id, all_metrics)
+            bl_rename = {
+                m: f"bl_{short[m]}" for m in all_metrics if m in bl_rows.columns
+            }
+            paired_all = pd.merge(
+                paired_all,
+                bl_rows.rename(columns=bl_rename),
+                on=merge_cols,
+                how="left",
+            )
+            n_missing = int(paired_all["bl_mcc"].isna().sum()) if "bl_mcc" in paired_all else len(paired_all)
+            if n_missing:
+                printer.warning(
+                    f"{BASELINE_STRATEGY} baseline '{tl_baseline_exp_id}' is missing "
+                    f"{n_missing} of {len(paired_all)} (threshold, fold) pairs."
+                )
+
         noise_extractor = MaxValueExtractor(self.noise_results_dir)
 
         for threshold, grp in paired_all.groupby("threshold"):
@@ -1357,6 +1433,10 @@ class MainAnalysisController:
                 out[:len(vals)] = vals
                 return out
 
+            def _arm(col: str) -> np.ndarray:
+                """Per-fold values for one arm, or all-NaN when the arm is absent."""
+                return grp[col].values if col in grp else np.full(n_folds, np.nan)
+
             fold_labels = [f"Fold {i+1}" for i in range(n_folds)]
             key = (affinity_type, threshold)
             self._champion_data[key] = {
@@ -1374,14 +1454,23 @@ class MainAnalysisController:
                 "sl_f1":      grp["sl_f1"].values if "sl_f1" in grp else np.full(n_folds, np.nan),
                 "tl_f1":      grp["tl_f1"].values if "tl_f1" in grp else np.full(n_folds, np.nan),
                 "max_f1":     _noise_vals("f1"),
+                # Baseline arm — populated only when tl_baseline_exp_id was given
+                "bl_vals":     _arm("bl_mcc"),
+                "bl_mcc":      _arm("bl_mcc"),
+                "bl_accuracy": _arm("bl_accuracy"),
+                "bl_f1":       _arm("bl_f1"),
                 "fold_labels": fold_labels,
                 "sl_exp_id":  sl_exp_id,
                 "tl_exp_id":  tl_exp_id,
+                "bl_exp_id":  tl_baseline_exp_id,
                 "threshold":  threshold,
             }
+        baseline_note = (
+            f"  {BASELINE_STRATEGY}={tl_baseline_exp_id}" if tl_baseline_exp_id else ""
+        )
         printer.info(
             f"Champion data collected for {affinity_type}: "
-            f"SL={sl_exp_id}  TL={tl_exp_id}"
+            f"SL={sl_exp_id}  TL={tl_exp_id}{baseline_note}"
         )
 
     def _compute_global_performance(self, affinity_type: str) -> Dict[str, Any]:
@@ -1405,7 +1494,7 @@ class MainAnalysisController:
         Dict[str, Any]
             Nested dict: source → metric → {mean_t<N>, …, global_mean, global_std}.
         """
-        sources = ["sl", "tl", "max"]
+        sources = ["sl", "tl", "bl", "max"]
         metrics = ["mcc", "accuracy", "f1"]
 
         thresholds = sorted(
@@ -1422,8 +1511,12 @@ class MainAnalysisController:
                     data = self._champion_data.get((affinity_type, t))
                     if data is None or key_name not in data:
                         continue
-                    mean_t = float(np.nanmean(data[key_name]))
-                    per_threshold[f"mean_t{t}"] = round(mean_t, 4)
+                    vals_t = np.asarray(data[key_name], dtype=float)
+                    # An absent arm (e.g. no baseline sibling) is all-NaN; skip it
+                    # rather than writing NaN into the JSON.
+                    if vals_t.size == 0 or np.all(np.isnan(vals_t)):
+                        continue
+                    per_threshold[f"mean_t{t}"] = round(float(np.nanmean(vals_t)), 4)
 
                 if not per_threshold:
                     continue
@@ -1435,22 +1528,87 @@ class MainAnalysisController:
                     "global_std":  round(float(np.std(vals)), 4),
                 }
 
+            if not result[src]:
+                del result[src]
+
         return result
 
     @staticmethod
-    def _wilcoxon_p(a: np.ndarray, b: np.ndarray) -> str:
-        """Run a paired Wilcoxon signed-rank test and return a formatted p-value string."""
-        from scipy.stats import wilcoxon as _wilcoxon
-        diffs = a - b
-        if np.all(diffs == 0):
-            return "n/a (all equal)"
+    def _wilcoxon_raw(a: np.ndarray, b: np.ndarray) -> Optional[float]:
+        """Two-sided paired Wilcoxon p-value, or None when it cannot be computed.
+
+        Pairs where either arm is NaN are dropped first, so a baseline that is
+        missing a few folds is still tested on the folds it does cover rather
+        than collapsing the whole comparison.
+        """
+        a = np.asarray(a, dtype=float)
+        b = np.asarray(b, dtype=float)
+        mask = ~(np.isnan(a) | np.isnan(b))
+        a, b = a[mask], b[mask]
+        if a.size == 0 or np.all(a - b == 0):
+            return None
         try:
-            _, p = _wilcoxon(a, b, alternative="two-sided")
-            sig = "***" if p < 0.001 else "**" if p < 0.01 else "*" if p < 0.05 else "ns"
-            colour = "green" if p < 0.05 else "yellow"
-            return f"[{colour}]p={p:.3f} {sig}[/{colour}]"
+            _, p = wilcoxon(a, b, alternative="two-sided")
+            return float(p)
         except Exception as e:
-            return f"err ({e})"
+            printer.warning(f"Wilcoxon test failed: {e}")
+            return None
+
+    @staticmethod
+    def _holm(p_values: Dict[str, Optional[float]]) -> Dict[str, Optional[float]]:
+        """Holm-correct the pre-specified champion comparisons.
+
+        The family is the two hypotheses this comparison actually poses: TL
+        against the supervised champion, and TL against the baseline strategy.
+        The baseline-vs-supervised contrast is reported as a descriptive delta
+        instead — it is determined by the other two, so testing it as well would
+        dress two degrees of freedom up as three.
+        """
+        keys = [k for k, p in p_values.items() if p is not None]
+        out: Dict[str, Optional[float]] = {k: None for k in p_values}
+        if not keys:
+            return out
+        _, corrected, _, _ = multipletests(
+            [p_values[k] for k in keys], alpha=0.05, method="holm"
+        )
+        for k, p in zip(keys, corrected):
+            out[k] = float(p)
+        return out
+
+    @staticmethod
+    def _format_p(p: Optional[float]) -> str:
+        """Render a p-value with a significance marker and colour."""
+        if p is None:
+            return "n/a"
+        sig = "***" if p < 0.001 else "**" if p < 0.01 else "*" if p < 0.05 else "ns"
+        colour = "green" if p < 0.05 else "yellow"
+        shown = "<0.001" if p < 0.001 else f"{p:.3f}"
+        return f"[{colour}]{shown} {sig}[/{colour}]"
+
+    @staticmethod
+    def _format_pct(reference: float, value: float) -> str:
+        """Percentage change of ``value`` relative to ``reference``."""
+        if not np.isfinite(reference) or not np.isfinite(value) or reference == 0:
+            return "n/a"
+        pct = (value - reference) / abs(reference) * 100
+        colour = "green" if pct >= 0 else "red"
+        sign = "+" if pct >= 0 else ""
+        return f"[{colour}]{sign}{pct:.1f}%[/{colour}]"
+
+    @staticmethod
+    def _format_delta(delta: float) -> str:
+        """Render an absolute difference with sign colouring."""
+        if not np.isfinite(delta):
+            return "n/a"
+        return (
+            f"[green]+{delta:.3f}[/green]" if delta >= 0 else f"[red]{delta:.3f}[/red]"
+        )
+
+    @staticmethod
+    def _has_baseline(data: dict) -> bool:
+        """True when a baseline arm was collected and is not entirely missing."""
+        vals = np.asarray(data.get("bl_mcc", []), dtype=float)
+        return vals.size > 0 and not np.all(np.isnan(vals))
 
     def _print_champion_summary(
         self, affinity_type: str, threshold: str, data: dict
@@ -1459,11 +1617,16 @@ class MainAnalysisController:
         Print two rich tables summarising the champion comparison for one
         (affinity_type, threshold) combination:
 
-        1. Per-fold MCC table  — B / TL / Max / Δ TL−B per fold + mean row.
+        1. Per-fold MCC table  — B / S1 / TL / Max per fold, with Δ TL−B and
+                                 Δ TL−S1, plus a mean row.
         2. Metric summary      — mean ± std, Max mean, Δ%, and per-threshold
-                                 Wilcoxon p-value (n=5) for MCC / accuracy / F1.
-                                 Note: minimum achievable two-sided p with n=5
-                                 is 0.0625.
+                                 Wilcoxon p-values for MCC / accuracy / F1.
+
+        The S1 columns appear only when a baseline arm was collected. Note that
+        at n=5 the smallest two-sided Wilcoxon p is 0.0625, so no per-threshold
+        test can reach α=0.05 — these tables are descriptive, and the pooled
+        cross-threshold test is where the comparison is decided. For that reason
+        no multiplicity correction is applied here.
         """
         from console import _console
         from rich.table import Table
@@ -1476,92 +1639,121 @@ class MainAnalysisController:
 
         fold_labels = data["fold_labels"]
         n = len(fold_labels)
+        has_bl = self._has_baseline(data)
 
         # ── Table 1: per-fold MCC ────────────────────────────────────────
         t1 = Table(box=box.SIMPLE_HEAVY, show_header=True, header_style="bold")
         t1.add_column("Fold", style="dim")
         t1.add_column("B (MCC)",   justify="right")
+        if has_bl:
+            t1.add_column(f"{BASELINE_STRATEGY} (MCC)", justify="right")
         t1.add_column("TL (MCC)",  justify="right")
         t1.add_column("Max (MCC)", justify="right")
         t1.add_column("Δ TL−B",   justify="right")
+        if has_bl:
+            t1.add_column(f"Δ TL−{BASELINE_STRATEGY}", justify="right")
 
-        sl_mcc  = data["sl_mcc"]
-        tl_mcc  = data["tl_mcc"]
-        max_mcc = data["max_mcc"]
+        sl_mcc  = np.asarray(data["sl_mcc"],  dtype=float)
+        tl_mcc  = np.asarray(data["tl_mcc"],  dtype=float)
+        max_mcc = np.asarray(data["max_mcc"], dtype=float)
+        bl_mcc  = np.asarray(
+            data.get("bl_mcc", np.full(n, np.nan)), dtype=float
+        )
 
         for i, lbl in enumerate(fold_labels):
-            delta = tl_mcc[i] - sl_mcc[i]
-            delta_str = f"[green]+{delta:.3f}[/green]" if delta >= 0 else f"[red]{delta:.3f}[/red]"
-            t1.add_row(
-                lbl,
-                f"{sl_mcc[i]:.3f}",
-                f"{tl_mcc[i]:.3f}",
-                f"{max_mcc[i]:.3f}" if not np.isnan(max_mcc[i]) else "n/a",
-                delta_str,
-            )
+            row = [lbl, f"{sl_mcc[i]:.3f}"]
+            if has_bl:
+                row.append(f"{bl_mcc[i]:.3f}" if np.isfinite(bl_mcc[i]) else "n/a")
+            row.append(f"{tl_mcc[i]:.3f}")
+            row.append(f"{max_mcc[i]:.3f}" if np.isfinite(max_mcc[i]) else "n/a")
+            row.append(self._format_delta(tl_mcc[i] - sl_mcc[i]))
+            if has_bl:
+                row.append(self._format_delta(tl_mcc[i] - bl_mcc[i]))
+            t1.add_row(*row)
 
         sl_mean_mcc  = float(np.nanmean(sl_mcc))
         tl_mean_mcc  = float(np.nanmean(tl_mcc))
         max_mean_mcc = float(np.nanmean(max_mcc))
         sl_std_mcc   = float(np.nanstd(sl_mcc))
         tl_std_mcc   = float(np.nanstd(tl_mcc))
-        delta_mean   = tl_mean_mcc - sl_mean_mcc
-        delta_str    = f"[green]+{delta_mean:.3f}[/green]" if delta_mean >= 0 else f"[red]{delta_mean:.3f}[/red]"
-        t1.add_row(
+
+        mean_row = [
             "[bold]Mean ± std[/bold]",
             f"[bold]{sl_mean_mcc:.3f} ± {sl_std_mcc:.3f}[/bold]",
-            f"[bold]{tl_mean_mcc:.3f} ± {tl_std_mcc:.3f}[/bold]",
-            f"[bold]{max_mean_mcc:.3f}[/bold]" if not np.isnan(max_mean_mcc) else "[bold]n/a[/bold]",
-            delta_str,
+        ]
+        if has_bl:
+            mean_row.append(
+                f"[bold]{np.nanmean(bl_mcc):.3f} ± {np.nanstd(bl_mcc):.3f}[/bold]"
+            )
+        mean_row.append(f"[bold]{tl_mean_mcc:.3f} ± {tl_std_mcc:.3f}[/bold]")
+        mean_row.append(
+            f"[bold]{max_mean_mcc:.3f}[/bold]"
+            if np.isfinite(max_mean_mcc)
+            else "[bold]n/a[/bold]"
         )
+        mean_row.append(self._format_delta(tl_mean_mcc - sl_mean_mcc))
+        if has_bl:
+            mean_row.append(
+                self._format_delta(tl_mean_mcc - float(np.nanmean(bl_mcc)))
+            )
+        t1.add_row(*mean_row)
         _console.print(t1)
 
-        # ── Table 2: metric summary + per-threshold Wilcoxon (n=5) ──────
+        if has_bl:
+            _console.print(
+                f"  [dim]B  = {data.get('sl_exp_id')}\n"
+                f"  TL = {data.get('tl_exp_id')}\n"
+                f"  {BASELINE_STRATEGY} = {data.get('bl_exp_id')}[/dim]"
+            )
+
+        # ── Table 2: metric summary + per-threshold Wilcoxon ─────────────
         metrics_info = [
-            ("MCC",      "sl_mcc",      "tl_mcc",      "max_mcc"),
-            ("Accuracy", "sl_accuracy", "tl_accuracy", "max_accuracy"),
-            ("F1",       "sl_f1",       "tl_f1",       "max_f1"),
+            ("MCC",      "sl_mcc",      "tl_mcc",      "bl_mcc",      "max_mcc"),
+            ("Accuracy", "sl_accuracy", "tl_accuracy", "bl_accuracy", "max_accuracy"),
+            ("F1",       "sl_f1",       "tl_f1",       "bl_f1",       "max_f1"),
         ]
 
         t2 = Table(
             box=box.SIMPLE_HEAVY, show_header=True, header_style="bold",
             title=f"Metric summary  [dim](per-threshold Wilcoxon, n={n}; "
-                  f"min achievable p = {1/2**(n-1):.4f})[/dim]",
+                  f"min achievable p = {1/2**(n-1):.4f} — descriptive only, "
+                  f"uncorrected)[/dim]",
         )
         t2.add_column("Metric")
         t2.add_column("B  mean ± std",  justify="right")
+        if has_bl:
+            t2.add_column(f"{BASELINE_STRATEGY} mean ± std", justify="right")
         t2.add_column("TL mean ± std",  justify="right")
         t2.add_column("Max mean",        justify="right")
-        t2.add_column("Δ%",             justify="right")
-        t2.add_column("Wilcoxon p",      justify="right")
+        t2.add_column("Δ% TL−B",        justify="right")
+        if has_bl:
+            t2.add_column(f"Δ% TL−{BASELINE_STRATEGY}", justify="right")
+        t2.add_column("p TL−B",          justify="right")
+        if has_bl:
+            t2.add_column(f"p TL−{BASELINE_STRATEGY}", justify="right")
 
-        for metric_label, sl_key, tl_key, max_key in metrics_info:
-            sl_v  = np.array(data.get(sl_key,  [np.nan] * n), dtype=float)
-            tl_v  = np.array(data.get(tl_key,  [np.nan] * n), dtype=float)
-            max_v = np.array(data.get(max_key, [np.nan] * n), dtype=float)
+        for metric_label, sl_key, tl_key, bl_key, max_key in metrics_info:
+            sl_v  = np.asarray(data.get(sl_key,  [np.nan] * n), dtype=float)
+            tl_v  = np.asarray(data.get(tl_key,  [np.nan] * n), dtype=float)
+            bl_v  = np.asarray(data.get(bl_key,  [np.nan] * n), dtype=float)
+            max_v = np.asarray(data.get(max_key, [np.nan] * n), dtype=float)
 
-            sl_m,  sl_s  = float(np.nanmean(sl_v)),  float(np.nanstd(sl_v))
-            tl_m,  tl_s  = float(np.nanmean(tl_v)),  float(np.nanstd(tl_v))
-            max_m         = float(np.nanmean(max_v))
+            sl_m, sl_s = float(np.nanmean(sl_v)), float(np.nanstd(sl_v))
+            tl_m, tl_s = float(np.nanmean(tl_v)), float(np.nanstd(tl_v))
+            max_m      = float(np.nanmean(max_v))
 
-            pct_str = (
-                f"[green]+{(tl_m - sl_m)/abs(sl_m)*100:.1f}%[/green]"
-                if sl_m > 0 and tl_m >= sl_m
-                else f"[red]{(tl_m - sl_m)/abs(sl_m)*100:.1f}%[/red]"
-                if sl_m != 0
-                else "n/a"
-            )
-
-            p_str = self._wilcoxon_p(tl_v, sl_v)
-
-            t2.add_row(
-                metric_label,
-                f"{sl_m:.3f} ± {sl_s:.3f}",
-                f"{tl_m:.3f} ± {tl_s:.3f}",
-                f"{max_m:.3f}" if not np.isnan(max_m) else "n/a",
-                pct_str,
-                p_str,
-            )
+            row = [metric_label, f"{sl_m:.3f} ± {sl_s:.3f}"]
+            if has_bl:
+                row.append(f"{np.nanmean(bl_v):.3f} ± {np.nanstd(bl_v):.3f}")
+            row.append(f"{tl_m:.3f} ± {tl_s:.3f}")
+            row.append(f"{max_m:.3f}" if np.isfinite(max_m) else "n/a")
+            row.append(self._format_pct(sl_m, tl_m))
+            if has_bl:
+                row.append(self._format_pct(float(np.nanmean(bl_v)), tl_m))
+            row.append(self._format_p(self._wilcoxon_raw(tl_v, sl_v)))
+            if has_bl:
+                row.append(self._format_p(self._wilcoxon_raw(tl_v, bl_v)))
+            t2.add_row(*row)
         _console.print(t2)
 
     def _print_pooled_champion_summary(
@@ -1569,7 +1761,14 @@ class MainAnalysisController:
     ) -> None:
         """
         Print a pooled Wilcoxon signed-rank test (n = n_folds × n_thresholds)
-        for each metric, comparing the cross-threshold SL and TL champions.
+        for each metric, comparing the cross-threshold TL champion against the
+        supervised champion and, when collected, against the baseline strategy.
+
+        This is the test that decides both comparisons: at n=5 a per-threshold
+        test cannot reach α=0.05, whereas pooling across thresholds gives enough
+        pairs for a real verdict. The two comparisons form the pre-specified
+        family and are Holm-corrected within each metric; the baseline-vs-
+        supervised gap is shown as a descriptive delta only.
         """
         from console import _console
         from rich.table import Table
@@ -1583,57 +1782,87 @@ class MainAnalysisController:
             for t in thresholds
             if (affinity_type, t) in self._champion_data
         )
+        has_bl = any(
+            self._has_baseline(self._champion_data[(affinity_type, t)])
+            for t in thresholds
+            if (affinity_type, t) in self._champion_data
+        )
+
         _console.print(Rule(
             f"[bold]Pooled cross-threshold Wilcoxon — {label} "
             f"(n={n_total} fold pairs)[/bold]"
         ))
 
         metrics_info = [
-            ("MCC",      "sl_mcc",      "tl_mcc"),
-            ("Accuracy", "sl_accuracy", "tl_accuracy"),
-            ("F1",       "sl_f1",       "tl_f1"),
+            ("MCC",      "sl_mcc",      "tl_mcc",      "bl_mcc"),
+            ("Accuracy", "sl_accuracy", "tl_accuracy", "bl_accuracy"),
+            ("F1",       "sl_f1",       "tl_f1",       "bl_f1"),
         ]
 
-        t = Table(box=box.SIMPLE_HEAVY, show_header=True, header_style="bold")
+        t = Table(
+            box=box.SIMPLE_HEAVY, show_header=True, header_style="bold",
+            title=(
+                f"[dim]p raw (Holm-corrected over the {'two' if has_bl else 'one'} "
+                f"pre-specified comparison{'s' if has_bl else ''} per metric)[/dim]"
+                if has_bl else None
+            ),
+        )
         t.add_column("Metric")
         t.add_column("B  mean ± std",  justify="right")
+        if has_bl:
+            t.add_column(f"{BASELINE_STRATEGY} mean ± std", justify="right")
         t.add_column("TL mean ± std",  justify="right")
-        t.add_column("Δ%",             justify="right")
-        t.add_column("Wilcoxon p",      justify="right")
+        t.add_column("Δ% TL−B",       justify="right")
+        if has_bl:
+            t.add_column(f"Δ% TL−{BASELINE_STRATEGY}", justify="right")
+            t.add_column(f"Δ {BASELINE_STRATEGY}−B [dim](descr.)[/dim]", justify="right")
+        t.add_column("p TL−B",         justify="right")
+        if has_bl:
+            t.add_column(f"p TL−{BASELINE_STRATEGY}", justify="right")
 
-        for metric_label, sl_key, tl_key in metrics_info:
-            sl_all, tl_all = [], []
+        for metric_label, sl_key, tl_key, bl_key in metrics_info:
+            sl_all, tl_all, bl_all = [], [], []
             for thresh in thresholds:
                 key = (affinity_type, thresh)
                 if key not in self._champion_data:
                     continue
                 d = self._champion_data[key]
-                sl_all.extend(d.get(sl_key, []))
-                tl_all.extend(d.get(tl_key, []))
+                n_d = len(d["fold_labels"])
+                sl_all.extend(d.get(sl_key, [np.nan] * n_d))
+                tl_all.extend(d.get(tl_key, [np.nan] * n_d))
+                bl_all.extend(d.get(bl_key, [np.nan] * n_d))
 
-            sl_v = np.array(sl_all, dtype=float)
-            tl_v = np.array(tl_all, dtype=float)
+            sl_v = np.asarray(sl_all, dtype=float)
+            tl_v = np.asarray(tl_all, dtype=float)
+            bl_v = np.asarray(bl_all, dtype=float)
 
             sl_m, sl_s = float(np.nanmean(sl_v)), float(np.nanstd(sl_v))
             tl_m, tl_s = float(np.nanmean(tl_v)), float(np.nanstd(tl_v))
 
-            pct_str = (
-                f"[green]+{(tl_m - sl_m)/abs(sl_m)*100:.1f}%[/green]"
-                if sl_m > 0 and tl_m >= sl_m
-                else f"[red]{(tl_m - sl_m)/abs(sl_m)*100:.1f}%[/red]"
-                if sl_m != 0
-                else "n/a"
-            )
+            raw = {"tl_vs_sl": self._wilcoxon_raw(tl_v, sl_v)}
+            if has_bl:
+                raw["tl_vs_bl"] = self._wilcoxon_raw(tl_v, bl_v)
+            corrected = self._holm(raw)
 
-            p_str = self._wilcoxon_p(tl_v, sl_v)
-
-            t.add_row(
-                metric_label,
-                f"{sl_m:.3f} ± {sl_s:.3f}",
-                f"{tl_m:.3f} ± {tl_s:.3f}",
-                pct_str,
-                p_str,
+            row = [metric_label, f"{sl_m:.3f} ± {sl_s:.3f}"]
+            if has_bl:
+                row.append(f"{np.nanmean(bl_v):.3f} ± {np.nanstd(bl_v):.3f}")
+            row.append(f"{tl_m:.3f} ± {tl_s:.3f}")
+            row.append(self._format_pct(sl_m, tl_m))
+            if has_bl:
+                bl_m = float(np.nanmean(bl_v))
+                row.append(self._format_pct(bl_m, tl_m))
+                row.append(self._format_delta(bl_m - sl_m))
+            row.append(
+                f"{self._format_p(raw['tl_vs_sl'])}"
+                + (f" [dim]({self._format_p(corrected['tl_vs_sl'])})[/dim]" if has_bl else "")
             )
+            if has_bl:
+                row.append(
+                    f"{self._format_p(raw['tl_vs_bl'])} "
+                    f"[dim]({self._format_p(corrected['tl_vs_bl'])})[/dim]"
+                )
+            t.add_row(*row)
         _console.print(t)
 
     def generate_champion_comparison_plot(
@@ -1763,20 +1992,53 @@ class MainAnalysisController:
                 df_tl_aff, affinity_type=affinity_type, label="Transfer Learning"
             )
 
+            # The baseline arm is the champion's own configuration retrained with
+            # the S1 strategy, so the gap between them isolates pretraining and
+            # domain adaptation from every other design choice.
+            tl_baseline_exp_id = None
+            if not tl_avg_ranks.empty:
+                tl_baseline_exp_id = resolve_baseline_exp_id(
+                    champion_exp_id=tl_avg_ranks.iloc[0]["exp_id"],
+                    champion_method=tl_avg_ranks.iloc[0]["method"],
+                    available_exp_ids=set(df_tl_aff["exp_id"]),
+                )
+
             ranker.compare_robust_champions(
-                df_sl_aff, df_tl_aff, sl_avg_ranks, tl_avg_ranks
+                df_sl_aff,
+                df_tl_aff,
+                sl_avg_ranks,
+                tl_avg_ranks,
+                tl_baseline_exp_id=tl_baseline_exp_id,
             )
 
             if not sl_avg_ranks.empty and not tl_avg_ranks.empty:
                 self._collect_champion_data(
-                    affinity_type, df_sl_aff, df_tl_aff, sl_avg_ranks, tl_avg_ranks
+                    affinity_type,
+                    df_sl_aff,
+                    df_tl_aff,
+                    sl_avg_ranks,
+                    tl_avg_ranks,
+                    tl_baseline_exp_id=tl_baseline_exp_id,
                 )
                 try:
-                    champion_configs[affinity_type] = {
+                    config: Dict[str, Any] = {
                         "tl": parse_tl_exp_id(tl_avg_ranks.iloc[0]["exp_id"]),
                         "sl": parse_sl_exp_id(sl_avg_ranks.iloc[0]["exp_id"]),
-                        "performance": self._compute_global_performance(affinity_type),
                     }
+                    if tl_baseline_exp_id:
+                        # Parsed separately: the baseline is auxiliary, so a parse
+                        # failure here must not discard the champion config itself.
+                        try:
+                            config["tl_baseline"] = parse_tl_exp_id(tl_baseline_exp_id)
+                        except ValueError as e:
+                            printer.warning(
+                                f"Could not parse {BASELINE_STRATEGY} baseline exp_id "
+                                f"'{tl_baseline_exp_id}': {e}"
+                            )
+                    config["performance"] = self._compute_global_performance(
+                        affinity_type
+                    )
+                    champion_configs[affinity_type] = config
                 except ValueError as e:
                     printer.warning(f"Could not parse champion exp_id for {affinity_type}: {e}")
 

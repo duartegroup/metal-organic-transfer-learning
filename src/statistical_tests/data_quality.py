@@ -53,7 +53,7 @@ class DataQuality:
             "target_smote",
         ]
 
-        # NEW: Definitions for a "submission" (excludes method)
+        # Definitions for a "submission" (excludes method)
         self.sl_submission_vars = [
             "inhibitor",
             "modality",
@@ -78,17 +78,17 @@ class DataQuality:
         unique parameter value counts for both supervised and transfer learning.
         """
         printer.info("=" * 60)
-        printer.info("📊 DATA LOADING COMPLETE: SUMMARY")
+        printer.info("DATA LOADING COMPLETE: SUMMARY")
         printer.info("=" * 60)
 
-        printer.info("🔬 Supervised Learning Data Counts:")
+        printer.info("Supervised Learning Data Counts:")
         printer.info("-" * 40)
         sl_counts = self.df_sl.groupby(["threshold", "affinity_type"]).size()
         for (threshold, affinity), count in sl_counts.items():
             printer.info(f"  • Threshold {threshold}, {affinity:5}: {count} entries")
 
         printer.info("\n")
-        printer.info("🔄 Transfer Learning Data Counts:")
+        printer.info("Transfer Learning Data Counts:")
         printer.info("-" * 40)
         tl_counts = self.df_tl.groupby(["threshold", "affinity_type"]).size()
         for (threshold, affinity), count in tl_counts.items():
@@ -98,7 +98,7 @@ class DataQuality:
         # Supervised Learning unique combinations
         # Supervised Learning unique combinations
         printer.info("=" * 60)
-        printer.info("🔬 SUPERVISED LEARNING EXPERIMENT COUNTS")
+        printer.info("SUPERVISED LEARNING EXPERIMENT COUNTS")
         printer.info("=" * 60)
 
         sl_columns = [
@@ -117,12 +117,12 @@ class DataQuality:
 
         total_sl_experiments = unique_counts_sl.product()
         printer.info("-" * 60)
-        printer.info(f"📊 Total possible SL experiments: {total_sl_experiments}")
+        printer.info(f"Total possible SL experiments: {total_sl_experiments}")
         printer.info("\n")
 
         # Transfer Learning unique combinations
         printer.info("=" * 60)
-        printer.info("🔄 TRANSFER LEARNING EXPERIMENT COUNTS")
+        printer.info("TRANSFER LEARNING EXPERIMENT COUNTS")
         printer.info("=" * 60)
 
         tl_columns = [
@@ -142,7 +142,7 @@ class DataQuality:
 
         total_tl_experiments = unique_counts_tl.product()
         printer.info("-" * 60)
-        printer.info(f"📊 Total possible TL experiments: {total_tl_experiments}")
+        printer.info(f"Total possible TL experiments: {total_tl_experiments}")
 
     def _prepare_dataframe(self, df: pd.DataFrame, method_type: str) -> pd.DataFrame:
         """
@@ -280,7 +280,7 @@ class DataQuality:
                 # Generate bash array format for this threshold
                 printer.info("=" * 60)
                 printer.info(
-                    f"📋 MISSING RUNS FOR THRESHOLD {threshold} - BASH ARRAY FORMAT"
+                    f"MISSING RUNS FOR THRESHOLD {threshold} - BASH ARRAY FORMAT"
                 )
                 printer.info("=" * 60)
                 print(f"\n# Missing runs for threshold {threshold}")
@@ -293,7 +293,7 @@ class DataQuality:
                 printer.info("=" * 60)
 
         if not any_missing:
-            printer.info("✅ No missing submissions found for any threshold.")
+            printer.info("No missing submissions found for any threshold.")
 
     def _analyze_dataframe_quality(self, df: pd.DataFrame) -> Dict[str, Any]:
         """
@@ -334,7 +334,7 @@ class DataQuality:
         )
 
         if quality_report["with_missing_folds"] > 0:
-            printer.warning("⚠️ Experiments with incomplete folds:")
+            printer.warning("Experiments with incomplete folds:")
             for exp_id, num_folds in missing_folds.items():
                 printer.warning(f"  - {exp_id} has {num_folds}/{expected_folds} folds")
 
@@ -373,7 +373,7 @@ class DataQuality:
                 )
 
         if is_consistent:
-            printer.info("✅ All thresholds have a consistent set of experiments.")
+            printer.info("All thresholds have a consistent set of experiments.")
 
     def _get_expected_experiment_count(
         self, df: pd.DataFrame, id_vars: List[str]
@@ -467,7 +467,7 @@ class DataQuality:
             The affinity type being analyzed.
         """
         printer.info("=" * 60)
-        printer.info(f"📊 DATA QUALITY SUMMARY FOR {affinity_type.upper()}")
+        printer.info(f"DATA QUALITY SUMMARY FOR {affinity_type.upper()}")
         printer.info("=" * 60)
 
         complete_sl = sl_quality.get("with_complete_folds", 0)
@@ -482,22 +482,22 @@ class DataQuality:
             f"Transfer Learning: {complete_tl}/{tl_expected} complete ({tl_completeness:.1f}%)"
         )
 
-        printer.info("🔧 RECOMMENDATIONS:")
+        printer.info("RECOMMENDATIONS:")
         missing_sl = sl_expected - complete_sl
         if missing_sl > 0:
             printer.error(
-                f"🔴 Address the {missing_sl} missing or incomplete supervised experiments."
+                f"Address the {missing_sl} missing or incomplete supervised experiments."
             )
 
         missing_tl = tl_expected - complete_tl
         if missing_tl > 0:
             printer.error(
-                f"🔴 Address the {missing_tl} missing or incomplete transfer learning experiments."
+                f"Address the {missing_tl} missing or incomplete transfer learning experiments."
             )
 
         if sl_completeness >= 100 and tl_completeness >= 100:
             printer.info(
-                "✅ All expected experiments are present and have the correct number of folds."
+                "All expected experiments are present and have the correct number of folds."
             )
 
     def analyze_data_quality(self) -> tuple[Dict[str, Any], Dict[str, Any]]:
@@ -515,7 +515,7 @@ class DataQuality:
             - tl_quality: Quality metrics for transfer learning
         """
         printer.info("=" * 60)
-        printer.info("🔍 DATA QUALITY ANALYSIS")
+        printer.info("DATA QUALITY ANALYSIS")
         printer.info("=" * 60)
 
         self.init_check()

@@ -8,26 +8,35 @@ from analysis import MainAnalysisController
 from data_loader import DataLoader
 from data_quality import DataQuality
 
+# All paths are derived from a single root so the pipeline can read results
+# that live anywhere and write its own outputs somewhere else entirely -- useful
+# when the results tree is on a filesystem you would rather not write to.
+DEFAULT_RESULTS_BASE = "./../../results"
 SUPERVISED_DATA_DIR_TEMPLATE = (
-    "./../../results/supervised_learning_results/threshold_{threshold}"
+    "{results_base}/supervised_learning_results/threshold_{threshold}"
 )
 TRANSFER_LEARNING_CSV_TEMPLATE = (
-    "./../../results/transfer_learning_results/"
+    "{results_base}/transfer_learning_results/"
     "final_runs_threshold_{threshold}/all_transfer_learning_results.csv"
 )
-RESULTS_BASE = "./../../results/statistical_tests"
 
 
 def load_all_data(
-    affinity_types: List[str], thresholds: List[int]
+    affinity_types: List[str],
+    thresholds: List[int],
+    results_base: str = DEFAULT_RESULTS_BASE,
 ) -> tuple:
     print_phase_banner("LOADING DATA", subtitle="Supervised learning + Transfer learning")
 
     all_sl_data, all_tl_data = [], []
 
     for threshold in thresholds:
-        supervised_dir = SUPERVISED_DATA_DIR_TEMPLATE.format(threshold=threshold)
-        tl_csv_path    = TRANSFER_LEARNING_CSV_TEMPLATE.format(threshold=threshold)
+        supervised_dir = SUPERVISED_DATA_DIR_TEMPLATE.format(
+            results_base=results_base, threshold=threshold
+        )
+        tl_csv_path = TRANSFER_LEARNING_CSV_TEMPLATE.format(
+            results_base=results_base, threshold=threshold
+        )
 
         temp_loader = DataLoader(
             supervised_base_dir=supervised_dir, tl_csv_path=tl_csv_path
@@ -90,8 +99,26 @@ outputs
         help="Threshold values to analyse.",
     )
     parser.add_argument(
-        "--noise-results-dir", default="./../../results/noise_estimation",
-        help="Directory containing noise estimation results.",
+        "--results-base", default=DEFAULT_RESULTS_BASE,
+        help=(
+            "Root directory holding the supervised, transfer learning and noise "
+            "estimation results that are read in."
+        ),
+    )
+    parser.add_argument(
+        "--output-base", default=None,
+        help=(
+            "Root directory for everything this pipeline writes (plots, LaTeX "
+            "tables, CSVs, champion_config.json). Defaults to "
+            "<results-base>/statistical_tests."
+        ),
+    )
+    parser.add_argument(
+        "--noise-results-dir", default=None,
+        help=(
+            "Directory containing noise estimation results. "
+            "Defaults to <results-base>/noise_estimation."
+        ),
     )
     parser.add_argument(
         "--scatter", action="store_true", default=False,
@@ -111,6 +138,10 @@ outputs
     )
     args = parser.parse_args()
 
+    results_base    = args.results_base
+    output_base     = args.output_base or f"{results_base}/statistical_tests"
+    noise_results_dir = args.noise_results_dir or f"{results_base}/noise_estimation"
+
     printer.set_verbose(args.verbose)
     printer.legend()
 
@@ -118,7 +149,12 @@ outputs
         printer.error("Specify at least one of --scatter, --champion, --tables.")
         return
 
-    df_sl_global, df_tl_global = load_all_data(args.affinity_types, args.thresholds)
+    printer.info(f"Reading results from : {results_base}")
+    printer.info(f"Writing outputs to   : {output_base}")
+
+    df_sl_global, df_tl_global = load_all_data(
+        args.affinity_types, args.thresholds, results_base
+    )
     if df_sl_global is None:
         return
 
@@ -132,7 +168,7 @@ outputs
     controller = MainAnalysisController(
         df_sl=df_sl_global,
         df_tl=df_tl_global,
-        noise_results_dir=args.noise_results_dir,
+        noise_results_dir=noise_results_dir,
         scoring_function="mean_mcc_minus_std",
         rank_method="dense",
         metric_decimals=3,
@@ -142,18 +178,18 @@ outputs
         print_phase_banner("SCATTER PLOTS")
         for threshold in args.thresholds:
             for affinity_type in args.affinity_types:
-                out = f"{RESULTS_BASE}/scatter/threshold_{threshold}"
+                out = f"{output_base}/scatter/threshold_{threshold}"
                 controller.run_scatter(affinity_type, threshold, out)
 
     if args.tables:
         print_phase_banner("LATEX TABLES")
         for affinity_type in args.affinity_types:
             for threshold in args.thresholds:
-                out = f"{RESULTS_BASE}/tables/threshold_{threshold}"
+                out = f"{output_base}/tables/threshold_{threshold}"
                 controller.run_tables(
                     affinity_type, out, threshold=threshold, verbose=args.verbose
                 )
-            out = f"{RESULTS_BASE}/tables/global"
+            out = f"{output_base}/tables/global"
             controller.run_tables(
                 affinity_type, out, threshold=None, verbose=args.verbose
             )
@@ -166,7 +202,7 @@ outputs
             )
         else:
             print_phase_banner("CHAMPION COMPARISON")
-            out = f"{RESULTS_BASE}/champion"
+            out = f"{output_base}/champion"
             controller.run_champion(args.affinity_types, out)
 
     print_phase_banner("ALL ANALYSES COMPLETE")

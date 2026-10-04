@@ -127,7 +127,7 @@ def find_summary_csv_files_fast(base_dir: str) -> List[Dict]:
     List[Dict]
         List of dictionaries containing metadata for each CSV file found.
     """
-    print("🚀 Using fast file search with the 'find' command...")
+    print("Using fast file search with the 'find' command...")
     base_path = Path(base_dir)
 
     command = ["find", base_dir, "-type", "f", "-name", "*summary*.csv"]
@@ -139,7 +139,7 @@ def find_summary_csv_files_fast(base_dir: str) -> List[Dict]:
             return []
 
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"⚠️ Warning: 'find' command failed ({e}).")
+        print(f"Warning: 'find' command failed ({e}).")
         print("Falling back to slower Python-based file search...")
         return find_summary_csv_files(base_dir)
 
@@ -211,7 +211,7 @@ def extract_all_results(base_dir: str) -> pd.DataFrame:
     """
     # Step 1: Find all files using the fast, parallel method.
     csv_files = find_summary_csv_files_fast(base_dir)
-    print(f"✅ Found and processed metadata for {len(csv_files)} CSV files.")
+    print(f"Found and processed metadata for {len(csv_files)} CSV files.")
 
     if not csv_files:
         print("No CSV files found. Check the base directory path.")
@@ -220,7 +220,7 @@ def extract_all_results(base_dir: str) -> pd.DataFrame:
     # Step 2: Load the CSV data in parallel.
     num_processes = os.cpu_count()
     print(
-        f"\n📚 Loading data from {len(csv_files)} files in parallel using {num_processes} processes..."
+        f"\nLoading data from {len(csv_files)} files in parallel using {num_processes} processes..."
     )
 
     with multiprocessing.Pool(processes=num_processes) as pool:
@@ -234,7 +234,7 @@ def extract_all_results(base_dir: str) -> pd.DataFrame:
         print("No valid data found in CSV files.")
         return pd.DataFrame()
 
-    print("\n🔗 Combining all dataframes...")
+    print("\nCombining all dataframes...")
     combined_df = pd.concat(all_dataframes, ignore_index=True)
     print(f"Combined data shape: {combined_df.shape}")
 
@@ -491,7 +491,7 @@ def generate_method_comparison_latex_table(
         )
         f.write("\\end{table}\n\n\\end{document}\n")
 
-    print(f"📄 LaTeX table saved to: {latex_filename}")
+    print(f"LaTeX table saved to: {latex_filename}")
 
 
 # --- MAIN EXECUTION BLOCK ---
@@ -536,7 +536,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    print("🔬 Transfer Learning Results Extraction and Analysis")
+    print("Transfer Learning Results Extraction and Analysis")
     print("=" * 60)
     print(f"Base directory: {args.base_dir}")
     print(f"Output directory: {args.output_dir}")
@@ -544,43 +544,43 @@ def main() -> None:
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    print("\n📊 Extracting results from CSV files...")
+    print("\nExtracting results from CSV files...")
     df = extract_all_results(args.base_dir)
 
     if df.empty:
-        print("❌ No data extracted. Exiting.")
+        print("No data extracted. Exiting.")
         return
 
     raw_data_file = os.path.join(args.output_dir, "all_transfer_learning_results.csv")
     df.to_csv(raw_data_file, index=False)
-    print(f"💾 Raw combined data saved to: {raw_data_file}")
+    print(f"Raw combined data saved to: {raw_data_file}")
 
-    print("\n📈 Generating summary statistics...")
+    print("\nGenerating summary statistics...")
     summary_stats = generate_summary_statistics(df)
     summary_file = os.path.join(args.output_dir, "summary_statistics.json")
     with open(summary_file, "w") as f:
         json.dump(summary_stats, f, indent=2, default=str)
-    print(f"💾 Summary statistics saved to: {summary_file}")
+    print(f"Summary statistics saved to: {summary_file}")
 
-    print(f"\n📋 Key Statistics:")
+    print(f"\nKey Statistics:")
     print(f"  Total experiments: {summary_stats['total_experiments']}")
     print(f"  Inhibitors: {summary_stats['unique_inhibitors']}")
     print(f"  Transfer learning methods: {len(summary_stats['unique_methods'])}")
 
-    print("\n🧠 Analyzing transfer learning methods...")
+    print("\nAnalyzing transfer learning methods...")
     tl_analysis = analyze_transfer_learning_methods(df)
     tl_analysis_file = os.path.join(args.output_dir, "transfer_learning_analysis.json")
     with open(tl_analysis_file, "w") as f:
         json.dump(tl_analysis, f, indent=2, default=str)
-    print(f"💾 Transfer learning analysis saved to: {tl_analysis_file}")
+    print(f"Transfer learning analysis saved to: {tl_analysis_file}")
 
-    print(f"\n🏆 Finding best combinations for {args.metric}...")
+    print(f"\nFinding best combinations for {args.metric}...")
     create_comprehensive_comparison_table(df, args.output_dir)
 
-    print(f"\n📄 Generating LaTeX comparison table...")
+    print(f"\nGenerating LaTeX comparison table...")
     generate_method_comparison_latex_table(df, args.output_dir, args.metric)
 
-    print(f"\n✅ Analysis complete! Results saved in: {args.output_dir}")
+    print(f"\nAnalysis complete! Results saved in: {args.output_dir}")
 
 
 if __name__ == "__main__":

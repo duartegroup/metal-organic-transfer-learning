@@ -8,9 +8,17 @@ import numpy as np
 
 from matplotlib import font_manager as fm
 from typing import Union, List, Tuple
-from constants import STRATEGY_MAP, MODALITY_MAP
+from constants import STRATEGY_MAP, MODALITY_MAP, BASELINE_STRATEGY
+from io_utils import atomic_savefig
 
-palatino_font_path = None  # Set to your Palatino Linotype .ttf directory to use this font
+# Palatino Linotype is the manuscript body font, so figure text matches the paper.
+# Override with STATS_PALATINO_DIR when the fonts live elsewhere.
+palatino_font_path = os.path.expanduser(
+    os.environ.get("STATS_PALATINO_DIR", "~/fonts/font/Serif/Palatino")
+)
+if not os.path.isdir(palatino_font_path):
+    printer.warning(f"Palatino directory not found at {palatino_font_path} — using default font.")
+    palatino_font_path = None
 if palatino_font_path:
     try:
         fm.fontManager.addfont(palatino_font_path + "/Palatino_Linotype.ttf")
@@ -21,6 +29,10 @@ if palatino_font_path:
         plt.rcParams["mathtext.rm"] = "Palatino Linotype"
         plt.rcParams["mathtext.it"] = "Palatino Linotype:italic"
         plt.rcParams["mathtext.bf"] = "Palatino Linotype:bold"
+        # fontset="custom" leaves cal/sf/tt on their defaults, and the default
+        # cal family (cursive) is absent here, which logs a findfont warning.
+        plt.rcParams["mathtext.cal"] = "Palatino Linotype:italic"
+        plt.rcParams["mathtext.sf"] = "Palatino Linotype"
         plt.rcParams["font.family"] = "Palatino Linotype"
         plt.rcParams["text.usetex"] = False
         plt.rcParams["text.latex.preamble"] = r"\\usepackage{mathpazo}"
@@ -401,7 +413,7 @@ class PlotGenerator:
 
         filename = f"supervised_{affinity_type}_{metric.replace('/', '_')}_scatter.png"
         output_path = os.path.join(self.output_dir, filename)
-        plt.savefig(output_path, dpi=600, bbox_inches="tight")
+        atomic_savefig(plt, output_path, dpi=600, bbox_inches="tight")
         plt.close()
 
         printer.info(
@@ -773,7 +785,7 @@ class PlotGenerator:
         )
         filename = f"transfer_learning_{affinity_type}_{metric.replace('/', '_')}_scatter_{modality_suffix}.png"
         output_path = os.path.join(self.output_dir, filename)
-        plt.savefig(output_path, dpi=600, bbox_inches="tight")
+        atomic_savefig(plt, output_path, dpi=600, bbox_inches="tight")
         plt.close()
 
     # ──────────────────────────────────────────────────────────────────────
@@ -799,7 +811,9 @@ class PlotGenerator:
         champion_data : dict
             Keyed by affinity_type; each value contains metric arrays keyed as
             ``sl_mcc``, ``tl_mcc``, ``max_mcc``, ``sl_accuracy``, etc., plus
-            ``fold_labels``, ``sl_exp_id``, ``tl_exp_id``.
+            ``fold_labels``, ``sl_exp_id``, ``tl_exp_id``. When a baseline arm
+            was collected the ``bl_*`` arrays are present too and a fourth bar
+            is drawn; without them the chart keeps its original three bars.
         affinity_types : list[str]
             Ordered list of affinity types to plot as panels.
         threshold : str
@@ -819,12 +833,22 @@ class PlotGenerator:
         affinity_display = {"pic50": r"pIC$_{50}$", "pk": r"p$K$"}
 
         metrics_to_plot = [
-            ("val/mcc",      "sl_mcc",      "tl_mcc",      "max_mcc",      "MCC",      "mcc"),
-            ("val/accuracy", "sl_accuracy", "tl_accuracy", "max_accuracy", "Accuracy", "accuracy"),
-            ("val/f1",       "sl_f1",       "tl_f1",       "max_f1",       "F1",       "f1"),
+            ("val/mcc",      "sl_mcc",      "tl_mcc",      "bl_mcc",      "max_mcc",      "MCC",      "mcc"),
+            ("val/accuracy", "sl_accuracy", "tl_accuracy", "bl_accuracy", "max_accuracy", "Accuracy", "accuracy"),
+            ("val/f1",       "sl_f1",       "tl_f1",       "bl_f1",       "max_f1",       "F1",       "f1"),
         ]
 
-        for _metric_key, sl_key, tl_key, max_key, metric_label, metric_suffix in metrics_to_plot:
+        def _arm(data: dict, key: str, n_folds: int):
+            """Return an arm's values, or None when it was never collected."""
+            vals = data.get(key)
+            if vals is None:
+                return None
+            vals = np.asarray(vals, dtype=float)
+            if vals.size == 0 or np.all(np.isnan(vals)):
+                return None
+            return vals
+
+        for _metric_key, sl_key, tl_key, bl_key, max_key, metric_label, metric_suffix in metrics_to_plot:
             fig, axes = plt.subplots(1, n_panels, figsize=(7 * n_panels, 5.5), sharey=True)
             if n_panels == 1:
                 axes = [axes]
@@ -839,11 +863,13 @@ class PlotGenerator:
                 sl_vals  = data.get(sl_key,  data.get("sl_vals",  np.full(n_folds, np.nan)))
                 tl_vals  = data.get(tl_key,  data.get("tl_vals",  np.full(n_folds, np.nan)))
                 max_vals = data.get(max_key, data.get("max_vals", np.full(n_folds, np.nan)))
+                bl_vals  = _arm(data, bl_key, n_folds)
 
                 self._plot_champion_panel(
                     ax=axes[panel_idx],
                     sl_vals=sl_vals,
                     tl_vals=tl_vals,
+                    bl_vals=bl_vals,
                     max_vals=max_vals,
                     fold_labels=data["fold_labels"],
                     panel_label=panel_labels[panel_idx],
@@ -858,7 +884,7 @@ class PlotGenerator:
             handles, labels = axes[0].get_legend_handles_labels()
             fig.legend(
                 handles, labels,
-                loc="upper center", ncol=3,
+                loc="upper center", ncol=len(labels),
                 fontsize=16, frameon=True, fancybox=False, edgecolor="#ccc",
                 bbox_to_anchor=(0.5, 1.02),
             )
@@ -869,7 +895,7 @@ class PlotGenerator:
                 self.output_dir,
                 f"fig_champion_comparison{thresh_suffix}_{metric_suffix}.png",
             )
-            plt.savefig(out_png, dpi=300, bbox_inches="tight")
+            atomic_savefig(plt, out_png, dpi=300, bbox_inches="tight")
             plt.close()
             printer.info(f"Champion comparison plot saved to: {out_png}")
 
@@ -883,73 +909,102 @@ class PlotGenerator:
         panel_label: str,
         title: str,
         metric_label: str = "MCC",
+        bl_vals: np.ndarray = None,
     ) -> None:
-        """Render one panel of the champion comparison bar chart."""
+        """Render one panel of the champion comparison bar chart.
+
+        Draws one bar per arm per fold, plus a Mean column. ``bl_vals`` adds the
+        transfer learning baseline strategy as a fourth arm; when it is None the
+        panel falls back to the original three bars, at the original width, so
+        previously generated figures stay reproducible.
+        """
         import matplotlib.ticker as mticker
 
         n = len(fold_labels)
         x = np.arange(n + 1)
-        width = 0.25
 
-        sl_mean, sl_std = float(np.mean(sl_vals)), float(np.std(sl_vals))
-        tl_mean, tl_std = float(np.mean(tl_vals)), float(np.std(tl_vals))
-        max_mean        = float(np.mean(max_vals))
+        def _stats(vals):
+            vals = np.asarray(vals, dtype=float)
+            return float(np.nanmean(vals)), float(np.nanstd(vals))
 
-        sl_all  = np.append(sl_vals,  sl_mean)
-        tl_all  = np.append(tl_vals,  tl_mean)
-        max_all = np.append(max_vals, max_mean)
-
-        c_sl       = "#5B7FA5"
-        c_tl       = "#6BA368"
-        c_max_fill = "#E8C8C3"
-        c_max_edge = "#C0796E"
-
-        bars_sl = ax.bar(
-            x - width, sl_all, width,
-            color=c_sl, edgecolor="white", linewidth=0.5,
-            label="B", zorder=3,
-        )
-        bars_tl = ax.bar(
-            x, tl_all, width,
-            color=c_tl, edgecolor="white", linewidth=0.5,
-            label="TL", zorder=3,
-        )
-        bars_max = ax.bar(
-            x + width, max_all, width,
-            color=c_max_fill, edgecolor=c_max_edge, linewidth=1.0,
-            hatch="//", label="Max (upper bound)", zorder=3,
+        # (label, per-fold values, face colour, edge colour, hatch, error bar?)
+        arms = [
+            ("B", sl_vals, "#5B7FA5", "white", None, True),
+        ]
+        if bl_vals is not None:
+            arms.append(
+                (BASELINE_STRATEGY, bl_vals, "#B08A3E", "white", None, True)
+            )
+        arms.append(("TL", tl_vals, "#6BA368", "white", None, True))
+        arms.append(
+            ("Max (upper bound)", max_vals, "#E8C8C3", "#C0796E", "//", False)
         )
 
-        # Error bars only on the Mean column (last position), always black
+        # Keeps the three-bar layout at its original 0.25 width and shrinks the
+        # bars only when a fourth arm is actually present.
+        width = 0.75 / len(arms)
+        offsets = (np.arange(len(arms)) - (len(arms) - 1) / 2) * width
+
         mean_x = x[-1]
-        err_kw = dict(fmt="none", color="black", lw=1.2, capsize=3, capthick=1.2, zorder=5)
-        ax.errorbar(mean_x - width, sl_mean, yerr=sl_std, **err_kw)
-        ax.errorbar(mean_x,         tl_mean, yerr=tl_std, **err_kw)
+        err_kw = dict(
+            fmt="none", color="black", lw=1.2, capsize=3, capthick=1.2, zorder=5
+        )
+        label_specs = []
+        # MCC is bounded at -1, not 0. A hard ylim of 0 clipped negative bars off
+        # the axis entirely and dropped their labels on top of the tick text.
+        observed = []
+
+        for (label, vals, face, edge, hatch, show_err), offset in zip(arms, offsets):
+            mean, std = _stats(vals)
+            heights = np.append(np.asarray(vals, dtype=float), mean)
+            bars = ax.bar(
+                x + offset, heights, width,
+                color=face, edgecolor=edge,
+                linewidth=1.0 if hatch else 0.5,
+                hatch=hatch, label=label, zorder=3,
+            )
+            if show_err:
+                ax.errorbar(mean_x + offset, mean, yerr=std, **err_kw)
+            # Only the Mean bar carries an error bar, so only it needs clearance
+            label_specs.append((bars, [0.0] * n + [std if show_err else 0.0]))
+            # Lowest ink this arm puts on the axis: the shortest bar, or the
+            # bottom of the Mean bar's error whisker if that reaches lower.
+            # Subtracting the error bar from the *shortest* bar instead would
+            # drag the axis below zero whenever any bar happened to be short.
+            lowest_here = float(np.nanmin(heights))
+            if show_err:
+                lowest_here = min(lowest_here, mean - std)
+            observed.append(lowest_here)
 
         # Dashed separator between individual folds and the Mean column
         ax.axvline(x=n - 0.5, color="grey", lw=0.8, ls="--", zorder=1)
 
-        # Value labels above each bar (position above bar + std for mean bars)
-        fs = 12
-        for bars, stds in [
-            (bars_sl,  [0.0] * n + [sl_std]),
-            (bars_tl,  [0.0] * n + [tl_std]),
-            (bars_max, [0.0] * (n + 1)),
-        ]:
+        # Value labels: above positive bars, below negative ones, so a label
+        # never lands on the axis or on the fold tick text.
+        fs = 12 if len(arms) == 3 else 10
+        for bars, stds in label_specs:
             for bar, std in zip(bars, stds):
-                h = bar.get_height() + std
+                height = bar.get_height()
+                if height >= 0:
+                    y, va = height + std + 0.012, "bottom"
+                else:
+                    y, va = height - std - 0.012, "top"
                 ax.text(
                     bar.get_x() + bar.get_width() / 2,
-                    h + 0.012,
-                    f"{bar.get_height():.2f}",
-                    ha="center", va="bottom",
+                    y,
+                    f"{height:.2f}",
+                    ha="center", va=va,
                     fontsize=fs, rotation=90,
                 )
 
         ax.set_xticks(x)
         ax.set_xticklabels(fold_labels + ["Mean"], fontsize=14)
         ax.set_ylabel(metric_label, fontsize=17)
-        ax.set_ylim(0, 1.1)
+        lowest = min([0.0] + [v for v in observed if np.isfinite(v)])
+        y_min = 0.0 if lowest >= 0 else float(np.floor((lowest - 0.10) * 10) / 10)
+        ax.set_ylim(y_min, 1.1)
+        if y_min < 0:
+            ax.axhline(0, color="#888", lw=0.8, zorder=2)
         ax.yaxis.set_major_locator(mticker.MultipleLocator(0.2))
         ax.tick_params(axis="y", labelsize=16)
         ax.grid(axis="y", which="major", color="#ddd", lw=0.6, zorder=0)

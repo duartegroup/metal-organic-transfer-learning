@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M3_amideNH_to_NMe/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M3_amideNH_to_NMe/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 5.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.8750861287117004,
+    "ensemble_logit": 2.0422842502593994,
+    "binary_prediction": true,
+    "is_active": true,
+    "fold_probabilities": [
+      0.8153156042098999,
+      0.9240906834602356,
+      0.8221246600151062,
+      0.9410184025764465,
+      0.8728812336921692
+    ]
+  }
+}

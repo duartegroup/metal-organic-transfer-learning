@@ -1,0 +1,11 @@
+{
+  "name": "frag_warhead_half",
+  "series": "fragment",
+  "parent": "stf_31",
+  "motif": "amide + pyridine + central ring",
+  "charge": 0,
+  "formula": "C12H10N2O",
+  "n_atoms": 25,
+  "n_heavy": 15,
+  "source": "built by scripts/build_molecules.py from stf_31"
+}

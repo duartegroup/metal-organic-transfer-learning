@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_terpyridine/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_terpyridine/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.13700079917907715,
+    "ensemble_logit": -2.7345876693725586,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.3697757422924042,
+      0.07683904469013214,
+      0.10271108895540237,
+      0.0013274274533614516,
+      0.13435068726539612
+    ]
+  }
+}

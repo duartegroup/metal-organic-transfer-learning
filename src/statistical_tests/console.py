@@ -58,7 +58,7 @@ class Printer:
         _console.print(f"  {msg}")
 
     def warning(self, msg: str) -> None:
-        _console.print(f"  [yellow]⚠  {msg}[/yellow]")
+        _console.print(f"  [yellow]Warning: {msg}[/yellow]")
 
     def error(self, msg: str) -> None:
         _console.print(f"  [red]✗  {msg}[/red]")
@@ -373,11 +373,23 @@ def print_champion_showdown(
     statistic: float,
     p_value: float,
     metric: str = "val/mcc",
+    bl_champion_id: Optional[str] = None,
+    bl_label: str = "S1",
+    bl_statistic: Optional[float] = None,
+    bl_p_value: Optional[float] = None,
 ) -> None:
-    """Per-threshold breakdown + Wilcoxon result for global champion comparison."""
+    """Per-threshold breakdown + Wilcoxon result for global champion comparison.
+
+    When ``bl_champion_id`` is given, the transfer learning baseline strategy is
+    shown as a third arm: the champion's own configuration trained without
+    pretraining or domain adaptation, so the gap between them is attributable to
+    the training strategy alone.
+    """
+
+    has_bl = bl_champion_id is not None and "bl" in paired.columns
 
     # Context block
-    lines = "\n".join([
+    context = [
         "[bold]Champion Showdown · Global Cross-Threshold Analysis[/bold]",
         "  Champions selected by lowest average rank across all thresholds.",
         f"  Test     : Wilcoxon signed-rank  (two-sided, paired by (threshold, fold))",
@@ -385,7 +397,10 @@ def print_champion_showdown(
         f"  Pairs (n): {len(paired)}",
         f"  SL champion : {sl_champion_id}  (avg rank {sl_avg_rank:.2f})",
         f"  TL champion : {tl_champion_id}  (avg rank {tl_avg_rank:.2f})",
-    ])
+    ]
+    if has_bl:
+        context.append(f"  {bl_label} baseline  : {bl_champion_id}")
+    lines = "\n".join(context)
     _console.print(Panel(lines, expand=False, padding=(0, 1)))
 
     # Per-threshold breakdown
@@ -398,29 +413,46 @@ def print_champion_showdown(
     )
     bt.add_column("Threshold", justify="center")
     bt.add_column("SL  μ ± σ",  justify="right", min_width=16)
+    if has_bl:
+        bt.add_column(f"{bl_label}  μ ± σ", justify="right", min_width=16)
     bt.add_column("TL  μ ± σ",  justify="right", min_width=16)
     bt.add_column("N pairs",    justify="center")
     bt.add_column("Δ (TL−SL)", justify="right")
+    if has_bl:
+        bt.add_column(f"Δ (TL−{bl_label})", justify="right")
 
     for thr in sorted(paired["threshold"].unique()):
-        sub  = paired[paired["threshold"] == thr]
-        diff = sub["tl"].mean() - sub["sl"].mean()
-        bt.add_row(
-            str(thr),
-            f"{sub['sl'].mean():.4f} ± {sub['sl'].std():.4f}",
-            f"{sub['tl'].mean():.4f} ± {sub['tl'].std():.4f}",
-            str(len(sub)),
-            _delta(diff),
-        )
+        sub = paired[paired["threshold"] == thr]
+        row = [str(thr), f"{sub['sl'].mean():.4f} ± {sub['sl'].std():.4f}"]
+        if has_bl:
+            row.append(f"{sub['bl'].mean():.4f} ± {sub['bl'].std():.4f}")
+        row.append(f"{sub['tl'].mean():.4f} ± {sub['tl'].std():.4f}")
+        row.append(str(len(sub)))
+        row.append(_delta(sub["tl"].mean() - sub["sl"].mean()))
+        if has_bl:
+            row.append(_delta(sub["tl"].mean() - sub["bl"].mean()))
+        bt.add_row(*row)
 
     _console.print(bt)
 
-    overall_diff = paired["tl"].mean() - paired["sl"].mean()
-    _console.print(
+    pooled = (
         f"\n  Pooled SL μ = {paired['sl'].mean():.4f} ± {paired['sl'].std():.4f}  "
-        f"│  Pooled TL μ = {paired['tl'].mean():.4f} ± {paired['tl'].std():.4f}  "
-        f"│  Δ = {_delta(overall_diff)}"
     )
+    if has_bl:
+        pooled += (
+            f"│  Pooled {bl_label} μ = {paired['bl'].mean():.4f} "
+            f"± {paired['bl'].std():.4f}  "
+        )
+    pooled += (
+        f"│  Pooled TL μ = {paired['tl'].mean():.4f} ± {paired['tl'].std():.4f}  "
+        f"│  Δ TL−SL = {_delta(paired['tl'].mean() - paired['sl'].mean())}"
+    )
+    if has_bl:
+        pooled += (
+            f"  │  Δ TL−{bl_label} = "
+            f"{_delta(paired['tl'].mean() - paired['bl'].mean())}"
+        )
+    _console.print(pooled)
 
     # Result panel — only here do we use a coloured border
     sig    = p_value < 0.05
@@ -433,9 +465,23 @@ def print_champion_showdown(
         if sig
         else "[bold]NOT SIGNIFICANT[/bold]  →  Both approaches perform equivalently"
     )
+    body = f"TL vs SL   Wilcoxon W = {statistic:.2f}  │  p = {p_value:.4f}"
+    if has_bl and bl_p_value is not None:
+        bl_sig = bl_p_value < 0.05
+        bl_verdict = "significant" if bl_sig else "not significant"
+        body += (
+            f"\nTL vs {bl_label}   Wilcoxon W = {bl_statistic:.2f}  "
+            f"│  p = {bl_p_value:.4f}  ({bl_verdict})"
+        )
+        body += (
+            f"\n\n[dim]p-values above are uncorrected. The Holm-corrected values "
+            f"for the two pre-specified comparisons are reported in the pooled "
+            f"champion summary.[/dim]"
+        )
+    body += f"\n\n{verdict}"
     _console.print(
         Panel(
-            f"Wilcoxon signed-rank  W = {statistic:.2f}  │  p = {p_value:.4f}\n\n{verdict}",
+            body,
             title="[bold]Test Result[/bold]",
             style="green" if sig else "yellow",
             expand=False,

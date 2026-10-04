@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M1_pyridineN_to_CH/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M1_pyridineN_to_CH/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 5.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.8771084547042847,
+    "ensemble_logit": 2.0596606731414795,
+    "binary_prediction": true,
+    "is_active": true,
+    "fold_probabilities": [
+      0.8158370852470398,
+      0.923535943031311,
+      0.8253116607666016,
+      0.9416093230247498,
+      0.8792482018470764
+    ]
+  }
+}

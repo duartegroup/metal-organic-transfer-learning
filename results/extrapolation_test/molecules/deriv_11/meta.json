@@ -1,0 +1,12 @@
+{
+  "name": "deriv_11",
+  "series": "spectator",
+  "parent": "caged_PACT",
+  "motif": "ancillary ligand set",
+  "charge": 2,
+  "source": "original input structure",
+  "formula": "C38H46N8O3RuS",
+  "n_atoms": 97,
+  "n_heavy": 51,
+  "notes": "Ru-NH2 repaired to Ru-NH3 on 2026-08-11"
+}

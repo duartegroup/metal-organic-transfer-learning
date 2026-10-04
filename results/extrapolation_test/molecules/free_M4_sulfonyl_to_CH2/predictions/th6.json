@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M4_sulfonyl_to_CH2/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M4_sulfonyl_to_CH2/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.14238817989826202,
+    "ensemble_logit": -2.674785614013672,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.3737486004829407,
+      0.08107925206422806,
+      0.10425043851137161,
+      0.0014198371209204197,
+      0.1514427810907364
+    ]
+  }
+}

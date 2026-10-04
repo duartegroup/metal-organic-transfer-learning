@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/photo_bipyridine/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/photo_bipyridine/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.15173600614070892,
+    "ensemble_logit": -2.5989038944244385,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.393786758184433,
+      0.08297484368085861,
+      0.10453861951828003,
+      0.0015501449815928936,
+      0.17582964897155762
+    ]
+  }
+}

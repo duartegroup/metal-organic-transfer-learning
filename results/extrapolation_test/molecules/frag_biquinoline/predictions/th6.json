@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_biquinoline/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/frag_biquinoline/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.13822931051254272,
+    "ensemble_logit": -2.720707416534424,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.36864009499549866,
+      0.07730536162853241,
+      0.10351616144180298,
+      0.0013386191567406058,
+      0.14034636318683624
+    ]
+  }
+}

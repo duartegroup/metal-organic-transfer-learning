@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/caged_M2_amideCO_to_CH2/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/caged_M2_amideCO_to_CH2/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 5.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.7749477624893188,
+    "ensemble_logit": 1.40086829662323,
+    "binary_prediction": true,
+    "is_active": true,
+    "fold_probabilities": [
+      0.7665188908576965,
+      0.8583605289459229,
+      0.47858962416648865,
+      0.8943434357643127,
+      0.8769265413284302
+    ]
+  }
+}

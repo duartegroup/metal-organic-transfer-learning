@@ -1,0 +1,11 @@
+{
+  "name": "deriv_6",
+  "series": "spectator",
+  "parent": "caged_PACT",
+  "motif": "ancillary ligand set",
+  "charge": 2,
+  "source": "original input structure",
+  "formula": "C48H46N8O3RuS",
+  "n_atoms": 107,
+  "n_heavy": 61
+}

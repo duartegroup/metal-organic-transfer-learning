@@ -1,0 +1,11 @@
+{
+  "name": "frag_aminopyridine",
+  "series": "fragment",
+  "parent": "stf_31",
+  "motif": "terminal: nicotinamide mimic",
+  "charge": 0,
+  "formula": "C5H6N2",
+  "n_atoms": 13,
+  "n_heavy": 7,
+  "source": "built by scripts/build_molecules.py from stf_31"
+}

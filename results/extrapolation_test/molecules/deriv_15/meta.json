@@ -1,0 +1,12 @@
+{
+  "name": "deriv_15",
+  "series": "spectator",
+  "parent": "caged_PACT",
+  "motif": "ancillary ligand set",
+  "charge": 2,
+  "source": "original input structure",
+  "formula": "C28H42N8O3RuS",
+  "n_atoms": 83,
+  "n_heavy": 41,
+  "notes": "Ru-NH2 repaired to Ru-NH3 on 2026-08-11"
+}

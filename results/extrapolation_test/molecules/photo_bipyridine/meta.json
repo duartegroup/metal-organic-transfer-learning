@@ -1,0 +1,11 @@
+{
+  "name": "photo_bipyridine",
+  "series": "photoproduct",
+  "parent": "deriv_5",
+  "motif": "photoproduct of deriv_5: Ru(terpy)(bipyridine)(H2O)",
+  "charge": 2,
+  "formula": "C25H21N5ORu",
+  "n_atoms": 53,
+  "n_heavy": 32,
+  "source": "built by scripts/build_molecules.py from deriv_5"
+}

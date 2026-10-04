@@ -12,6 +12,7 @@ from constants import (
     SORT_ORDER_MAP,
     FALLBACK_MAX_VALUES,
 )
+from io_utils import atomic_write
 
 
 class Reporter:
@@ -107,8 +108,7 @@ class Reporter:
         output_dir = self.sl_output_dir if learning_type.lower() == "supervised" else self.tl_output_dir
         filename = f"table_overall_{name.lower().replace(' ', '_').replace('/', '_')}_{affinity_type.lower()}.tex"
         output_path = os.path.join(output_dir, filename)
-        with open(output_path, 'w') as f:
-            f.write(latex_table)
+        atomic_write(output_path, latex_table)
 
         if self.log_table_generation:
             printer.info(f"Saved LaTeX table for {title} to {output_path}")
@@ -230,7 +230,7 @@ class Reporter:
         df_csv = pd.DataFrame(rows)
         safe_name = name.lower().replace(" ", "_").replace("/", "_")
         csv_path  = os.path.join(output_dir, f"stats_{safe_name}_{affinity_type.lower()}.csv")
-        df_csv.to_csv(csv_path, index=False)
+        atomic_write(csv_path, df_csv.to_csv(index=False))
         if self.log_table_generation:
             printer.info(f"Saved CSV for {name} to {csv_path}")
 
@@ -540,9 +540,8 @@ class Reporter:
         filename = f"table_top_{n_top}_robust_{learning_type.lower()}_{affinity_type.lower()}.tex"
         output_path = os.path.join(output_dir, filename)
         
-        with open(output_path, 'w') as f:
-            f.write(latex_table)
-        
+        atomic_write(output_path, latex_table)
+
         if self.log_table_generation:
             printer.info(f"Saved top {n_top} models LaTeX table to {output_path}")
 

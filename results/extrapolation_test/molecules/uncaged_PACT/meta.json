@@ -1,0 +1,11 @@
+{
+  "name": "uncaged_PACT",
+  "series": "reaction",
+  "parent": null,
+  "motif": null,
+  "charge": 2,
+  "source": "original input structure",
+  "formula": "C33H23N5Ru",
+  "n_atoms": 62,
+  "n_heavy": 39
+}

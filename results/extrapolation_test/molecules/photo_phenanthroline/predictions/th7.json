@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/photo_phenanthroline/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/photo_phenanthroline/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.08979236334562302,
+    "ensemble_logit": -2.769432783126831,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.11049022525548935,
+      0.05330844968557358,
+      0.22818033397197723,
+      0.04771976172924042,
+      0.009263071231544018
+    ]
+  }
+}

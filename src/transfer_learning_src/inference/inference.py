@@ -32,13 +32,14 @@ from create_hf5_common import (
     add_mace_embeddings_to_entry,
 )
 
-# Add the data directory to the path
-data_path = str(Path(__file__).parent.parent / "data")
+# Add transfer_learning_src to the path so data can be imported as a package
+# (required because data modules use relative imports internally)
+data_path = str(Path(__file__).parent.parent)
 sys.path.append(data_path)
 
-from load_data import load_data_hdf5
-from split_data import split_data_by_group
-from utils_data import prepare_datasets, compute_scaling_stats
+from data.load_data import load_data_hdf5
+from data.split_data import split_data_by_group
+from data.utils_data import prepare_datasets, compute_scaling_stats
 
 # Add the model directory to the path
 model_path = str(Path(__file__).parent.parent / "model")
@@ -104,18 +105,18 @@ def build_params(
     threshold: float,
     inhibitor_descriptor: str,
     biological_descriptor: str,
-    embed_dim: int,
-    dropout: float,
-    learning_rate: float,
-    batch_size: int,
-    n_folds: int,
-    seed: int,
     affinity_type: str,
     modality: str,
     data_scaler: str,
     cross_domain_scaling: bool,
     source_smote: bool,
     target_smote: bool,
+    embed_dim: int = 128,
+    dropout: float = 0.4,
+    learning_rate: float = 1e-4,
+    batch_size: int = 64,
+    n_folds: int = 5,
+    seed: int = 42,
 ) -> Dict[str, Any]:
     """
     Construct the parameters dictionary for model inference.
@@ -224,31 +225,46 @@ def optimize_with_gfn2_xtb(
         - Optimized atomic coordinates (N x 3 array)
         - List of atomic symbols
     """
-    # Create organized output directory structure
+    # Honour the caller's output path in full. Using only its basename and
+    # rebuilding the directory relative to the CWD sent every optimized
+    # structure to wherever the job happened to be launched from, left the path
+    # recorded in the result JSON pointing at a non-existent file, and keyed the
+    # reuse-cache below on the input basename alone -- so two inputs with the
+    # same name in different directories would silently share one geometry even
+    # if they were optimized at different charges.
     xyz_base_name = os.path.splitext(os.path.basename(xyz_in))[0]
-    gfn2_base_dir = "GFN2-xTB_optimized"
-    xyz_output_dir = os.path.join(gfn2_base_dir, xyz_base_name)
 
-    # Create output directory if it doesn't exist
-    os.makedirs(xyz_output_dir, exist_ok=True)
-
-    # Generate output filename within the organized structure
     if xyz_out:
-        # If user specified output path, use it but place in organized structure
-        output_filename = os.path.basename(xyz_out)
+        organized_xyz_out = os.path.abspath(xyz_out)
     else:
-        # Default to optimized.xyz in the organized structure
-        output_filename = "optimized.xyz"
+        # No path given: keep the historical layout, relative to the input file
+        # rather than to the CWD.
+        organized_xyz_out = os.path.join(
+            os.path.dirname(os.path.abspath(xyz_in)),
+            "GFN2-xTB_optimized",
+            xyz_base_name,
+            "optimized.xyz",
+        )
 
-    organized_xyz_out = os.path.join(xyz_output_dir, output_filename)
+    os.makedirs(os.path.dirname(organized_xyz_out), exist_ok=True)
 
-    # Reuse existing optimized structure if available and not forcing re-optimization
+    # Reuse existing optimized structure if available and not forcing
+    # re-optimization -- but only when it is actually a geometry of the molecule
+    # we were asked about. Editing an input .xyz without noticing a stale cached
+    # result would otherwise silently featurize the previous molecule.
     if organized_xyz_out and os.path.exists(organized_xyz_out) and not force:
-        logger.info(f"Reusing existing optimized structure: {organized_xyz_out}")
-        atoms = read(organized_xyz_out)
-        coords = atoms.get_positions()
-        atom_types = atoms.get_chemical_symbols()
-        return coords, atom_types
+        cached = read(organized_xyz_out)
+        wanted = read(xyz_in)
+        if sorted(cached.get_chemical_symbols()) == sorted(
+            wanted.get_chemical_symbols()
+        ):
+            logger.info(f"Reusing existing optimized structure: {organized_xyz_out}")
+            return cached.get_positions(), cached.get_chemical_symbols()
+        logger.warning(
+            f"Cached geometry {organized_xyz_out} has a different composition "
+            f"({cached.get_chemical_formula()}) than the input "
+            f"({wanted.get_chemical_formula()}); re-optimizing."
+        )
 
     # Read input structure and optimize
     atoms = read(xyz_in)
@@ -517,13 +533,8 @@ def load_model_checkpoint(
     # Build the path based on the actual directory structure
     checkpoint_dir = (
         Path(model_path)
-        / f'threshold_{params["threshold"]:1.0f}'
-        / "results"
-        / descriptor_type
-        / modality
-        / f"{scaler_type}_scaler"
         / affinity_type
-        / train_config
+        / f'threshold_{params["threshold"]:1.0f}'
         / f"fold_{fold}"
         / phase
         / "checkpoints"
@@ -544,9 +555,19 @@ def load_model_checkpoint(
     # Load checkpoint
     checkpoint = torch.load(checkpoint_path, map_location="cpu")
 
-    # Always load as MultiTaskPocket - no need for CCSAFinetune wrapper for inference
+    # Checkpoints were written by the Lightning wrapper, so every tensor is
+    # prefixed with "base_model."; strip it so the keys match MultiTaskPocket.
+    raw_sd = checkpoint["state_dict"]
+    state_dict = {
+        k[len("base_model."):]: v
+        for k, v in raw_sd.items()
+        if k.startswith("base_model.")
+    }
+    if not state_dict:
+        state_dict = raw_sd
+
     model = MultiTaskPocket(domain="tgt", **params)
-    model.load_state_dict(checkpoint["state_dict"], strict=False)
+    model.load_state_dict(state_dict, strict=True)
 
     return model
 
@@ -612,13 +633,8 @@ def load_all_models(
     # First, let's discover available phases and folds
     base_path = (
         Path(model_path)
-        / f'threshold_{params["threshold"]:1.0f}'
-        / "results"
-        / descriptor_type
-        / modality
-        / f"{scaler_type}_scaler"
         / affinity_type
-        / train_config
+        / f'threshold_{params["threshold"]:1.0f}'
     )
 
     if not base_path.exists():
@@ -953,6 +969,14 @@ def apply_scaling_like_training(
         safe_range = np.where(scaler.data_range_ == 0, 1.0, scaler.data_range_)
         scaler.scale_ = 1.0 / safe_range
         scaler.min_ = -stats["combined_min"] * scaler.scale_
+
+        # A feature that never varied in training carries no information; map it
+        # to a constant 0 instead of letting the substituted range rescale it.
+        zero_var_mask = scaler.data_range_ == 0
+        if np.any(zero_var_mask):
+            scaler.scale_[zero_var_mask] = 1.0
+            scaler.min_[zero_var_mask] = 0.0
+
         scaler.n_features_in_ = len(stats["combined_min"])
         scaler.feature_range = (0, 1)
         scaled = scaler.transform(combined.reshape(1, -1)).reshape(-1)
@@ -1206,7 +1230,14 @@ def main(args: argparse.Namespace) -> None:
     if not any(models.values()):
         raise RuntimeError("No models were successfully loaded")
 
-    # Load target dataset and compute fold-specific stats on-the-fly
+    # Load the target dataset and compute the normalization statistics per fold,
+    # rather than reading a saved normalization_stats.pkl. The stored file is the
+    # same object everywhere it appears, so reusing it would silently apply one
+    # fold's statistics to all five and leak the other folds' training data into
+    # this prediction. Recomputing here costs one dataset load and keeps each
+    # fold's model paired with the statistics it was actually fitted under.
+    # RECONSTRUCTED COMMENT: the original wording was lost with the file; the
+    # code below is byte-exact against the surviving bytecode.
     logger.info(
         "Loading target dataset and computing fold-specific normalization stats..."
     )
@@ -1219,31 +1250,8 @@ def main(args: argparse.Namespace) -> None:
         n_folds=params["n_folds"],
     )
 
-    # Verify stats are different across folds (for separate domain)
-    if not cross_domain_scaling and len(fold_stats) > 1:
-        logger.info("Verifying fold-specific stats are different...")
-        ref_fold = list(fold_stats.keys())[0]
-        ref_stats = fold_stats[ref_fold]
-        all_identical = True
-
-        for fold, stats in fold_stats.items():
-            if fold == ref_fold:
-                continue
-            if stats is not None and ref_stats is not None:
-                if not np.allclose(
-                    stats["combined_min"], ref_stats["combined_min"]
-                ) or not np.allclose(stats["combined_max"], ref_stats["combined_max"]):
-                    all_identical = False
-                    break
-
-        if all_identical:
-            logger.warning(
-                "⚠️  All fold stats are identical! This may indicate a data loading issue."
-            )
-        else:
-            logger.info(
-                "✅ Fold stats are different as expected for separate domain training."
-            )
+    if not fold_stats:
+        raise RuntimeError("No normalization stats could be computed for the folds")
 
     # Initialize ESM-C model if needed
     esm_model = None
@@ -1385,6 +1393,12 @@ def main(args: argparse.Namespace) -> None:
             "ensemble_logit": float(prediction["ensemble_logit"]),
             "binary_prediction": bool(prediction["binary_prediction"]),
             "is_active": bool(prediction["is_active"]),
+
+            # Keep the per-fold probabilities, not just their mean: the folds
+            # disagree enough that the spread is part of the result.
+            "fold_probabilities": [
+                float(p) for p in prediction["individual_predictions"]
+            ],
         }
 
         results = {

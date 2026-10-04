@@ -1,0 +1,11 @@
+{
+  "name": "photo_phenanthroline",
+  "series": "photoproduct",
+  "parent": "deriv_4",
+  "motif": "photoproduct of deriv_4: Ru(terpy)(phenanthroline)(H2O)",
+  "charge": 2,
+  "formula": "C27H21N5ORu",
+  "n_atoms": 55,
+  "n_heavy": 34,
+  "source": "built by scripts/build_molecules.py from deriv_4"
+}

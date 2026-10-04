@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/uncaged_PACT_H2O/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/uncaged_PACT_H2O/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.09445812553167343,
+    "ensemble_logit": -2.7252702713012695,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.10988534986972809,
+      0.05361314117908478,
+      0.25026780366897583,
+      0.04846525192260742,
+      0.010059099644422531
+    ]
+  }
+}

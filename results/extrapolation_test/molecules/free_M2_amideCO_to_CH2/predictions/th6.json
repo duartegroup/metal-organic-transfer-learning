@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M2_amideCO_to_CH2/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/free_M2_amideCO_to_CH2/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 6.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.1455288529396057,
+    "ensemble_logit": -2.644395112991333,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.37561625242233276,
+      0.09280502051115036,
+      0.10731776058673859,
+      0.0013790171360597014,
+      0.15052621066570282
+    ]
+  }
+}

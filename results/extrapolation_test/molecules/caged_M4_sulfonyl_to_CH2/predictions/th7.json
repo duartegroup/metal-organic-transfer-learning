@@ -1,0 +1,28 @@
+{
+  "input_files": {
+    "xyz_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/caged_M4_sulfonyl_to_CH2/input.xyz",
+    "pdb_file": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/shared/NAMPT.pdb",
+    "optimized_xyz": "/home/mhakkennes/projects/transfer_learning/transfer_learning_metal/results/extrapolation_test/molecules/caged_M4_sulfonyl_to_CH2/optimized.xyz"
+  },
+  "configuration": {
+    "inhibitor_descriptor": "SOAP",
+    "biological_descriptor": "ESM-C",
+    "modality": "molecule_protein",
+    "affinity_type": "pic50",
+    "threshold": 7.0
+  },
+  "prediction": {
+    "n_models_used": 5,
+    "ensemble_probability": 0.20280294120311737,
+    "ensemble_logit": -1.53193998336792,
+    "binary_prediction": false,
+    "is_active": false,
+    "fold_probabilities": [
+      0.11364597827196121,
+      0.05923835560679436,
+      0.30651822686195374,
+      0.24260996282100677,
+      0.2920021712779999
+    ]
+  }
+}

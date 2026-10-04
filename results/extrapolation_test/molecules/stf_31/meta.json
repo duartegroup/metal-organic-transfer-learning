@@ -1,0 +1,11 @@
+{
+  "name": "stf_31",
+  "series": "reaction",
+  "parent": null,
+  "motif": null,
+  "charge": 0,
+  "source": "original input structure",
+  "formula": "C23H25N3O3S",
+  "n_atoms": 55,
+  "n_heavy": 30
+}

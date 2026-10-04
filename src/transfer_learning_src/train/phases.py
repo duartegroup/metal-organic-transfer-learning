@@ -1086,7 +1086,7 @@ class FinetunePhase(TrainingPhase):
         # Setup output directory
         output_dir = self.create_output_dir(fold, f"no_pretrain_{finetune_mode}")
 
-        # IMPORTANT: Pass global_scaling_stats=None to force computation from target data for this fold.
+        # Pass global_scaling_stats=None to force computation from target data for this fold.
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=None
         )

@@ -21,21 +21,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 # === FONT === #
 import matplotlib.font_manager as fm
 
-palatino_font_path = None  # Set to your Palatino Linotype .ttf directory to use this font
-if palatino_font_path:
-    try:
-        fm.fontManager.addfont(palatino_font_path + "/Palatino_Linotype.ttf")
-        fm.fontManager.addfont(palatino_font_path + "/Palatino_Linotype_Bold.ttf")
-        fm.fontManager.addfont(palatino_font_path + "/Palatino_Linotype_Italic.ttf")
-        fm.fontManager.addfont(palatino_font_path + "/Palatino_Linotype_Bold_Italic.ttf")
-        plt.rcParams["mathtext.fontset"] = "custom"
-        plt.rcParams["mathtext.rm"] = "Palatino Linotype"
-        plt.rcParams["mathtext.it"] = "Palatino Linotype:italic"
-        plt.rcParams["mathtext.bf"] = "Palatino Linotype:bold"
-        plt.rcParams["font.family"] = "Palatino Linotype"
-        plt.rcParams["text.usetex"] = False
-    except (FileNotFoundError, OSError):
-        print("Palatino font not found. Using default font.")
+palatino_font_path = os.path.expanduser("~/fonts/Palatino.ttf")
+if os.path.isfile(palatino_font_path):
+    fm.fontManager.addfont(palatino_font_path)
+    palatino_name = fm.FontProperties(fname=palatino_font_path).get_name()
+    plt.rcParams["font.family"] = palatino_name
+    plt.rcParams["mathtext.fontset"] = "custom"
+    plt.rcParams["mathtext.rm"] = palatino_name
+    plt.rcParams["mathtext.it"] = f"{palatino_name}:italic"
+    plt.rcParams["mathtext.bf"] = f"{palatino_name}:bold"
+    plt.rcParams["text.usetex"] = False
+    plt.rcParams["axes.unicode_minus"] = False  # Palatino.ttf lacks the U+2212 minus glyph
+else:
+    print("Palatino font not found. Using default font.")
 
 # Add the src directory to the path to import modules
 script_dir = Path(__file__).resolve().parent
@@ -804,6 +802,12 @@ class EmbeddingVisualizer:
             "tgt_test_inactive": "#F48FB1",  # Warm pink (distinct from the blue inactive)
         }
 
+        # Source-only plot colors: highlight actives against a neutral background
+        self.source_only_colors = {
+            "src_active":   "#00FF3C",  # Fluorescent green
+            "src_inactive": "#B0B0B0",  # Light neutral gray
+        }
+
         # KDE-specific colors
         self.kde_colors = {
             "src_active":   "#1B5E20",  # Deep forest green (solid contour)
@@ -1067,7 +1071,7 @@ class EmbeddingVisualizer:
         logger.info(f"Loading data for fold {fold}, phase {phase}")
 
         # Determine whether to compute or load statistics
-        # IMPORTANT: Compute statistics BEFORE loading source data to avoid double-loading
+        # Compute statistics before loading source data to avoid double-loading
         if self.recompute_stats:
             # Compute statistics following training logic (this loads raw data and caches it)
             logger.info(f"Recomputing scaling statistics for fold {fold}...")
@@ -1867,7 +1871,7 @@ class EmbeddingVisualizer:
         legend_fontsize = self.label_fontsize  # For source only plot, use same as label
         plot_labels = ["A", "B", "C", "D", "E"]  # Labels for 5 subplots
 
-        colors = self.scatter_colors
+        colors = self.source_only_colors
 
         # Reorder legend elements: Active column first, then Inactive column
         legend_elements = [
@@ -1877,8 +1881,9 @@ class EmbeddingVisualizer:
                 marker="o",
                 color="w",
                 label="Organic Active",
-                mfc=self.scatter_colors["src_active"],
-                mec="k",
+                mfc=self.source_only_colors["src_active"],
+                mec="none",
+                alpha=0.8,
                 ms=self.legend_marker_size,
             ),
             Line2D(
@@ -1887,7 +1892,7 @@ class EmbeddingVisualizer:
                 marker="o",
                 color="w",
                 label="Organic Inactive",
-                mfc=self.scatter_colors["src_inactive"],
+                mfc=self.source_only_colors["src_inactive"],
                 mec="k",
                 ms=self.legend_marker_size,
             ),
@@ -1922,17 +1927,20 @@ class EmbeddingVisualizer:
             src_data = fold_data["src_train"]
             tsne_embs = self.tsne_visualizer.fit_transform(src_data["embeddings"])
 
-            for class_val, status in [(1, "active"), (0, "inactive")]:
+            # Draw inactive (gray) first so the active (green) points sit on top
+            for class_val, status in [(0, "inactive"), (1, "active")]:
                 mask = src_data["labels"] == class_val
                 if np.any(mask):
+                    # Actives slightly transparent with no dark edge so the fluorescent green stays bright
+                    is_active = status == "active"
                     ax.scatter(
                         tsne_embs[mask, 0],
                         tsne_embs[mask, 1],
-                        c=self.scatter_colors[f"src_{status}"],
+                        c=colors[f"src_{status}"],
                         s=self.marker_sizes["src_only"],
                         marker="o",
-                        alpha=self.alpha_values["src_scatter"],
-                        edgecolors="k",
+                        alpha=0.8 if is_active else self.alpha_values["src_scatter"],
+                        edgecolors="none" if is_active else "k",
                         linewidth=self.line_widths["scatter_edge"],
                     )
 
@@ -2632,7 +2640,7 @@ class EmbeddingVisualizer:
         logger.info(f"Saved target prediction plot to {save_path}")
 
     def run_analysis_for_all_folds(
-        self, n_folds: int, phase: str, with_predictions: bool
+        self, n_folds: int, phase: str, with_predictions: bool, source_only: bool = False
     ) -> None:
         """
         Run the full analysis pipeline for all folds and create summary plots.
@@ -2649,6 +2657,8 @@ class EmbeddingVisualizer:
             Training phase identifier.
         with_predictions : bool
             If True, perform prediction analysis and misclassification analysis.
+        source_only : bool, optional
+            If True, only create the source-only plot and skip all other analysis.
 
         Returns
         -------
@@ -2663,7 +2673,7 @@ class EmbeddingVisualizer:
                 fold_data = self.extract_all_embeddings(fold, phase)
                 all_fold_data[fold] = fold_data
 
-                if with_predictions and "tgt_test" in fold_data:
+                if with_predictions and not source_only and "tgt_test" in fold_data:
                     logger.info(f"--- Analyzing predictions for Fold {fold} ---")
                     test_data = fold_data["tgt_test"]
                     pred_analysis = self._analyze_predictions(
@@ -2686,6 +2696,8 @@ class EmbeddingVisualizer:
             logger.info("--- Creating final combined plots for all folds ---")
             try:
                 self.create_source_only_plot(all_fold_data, phase)
+                if source_only:
+                    return
 
                 # Compute comprehensive separability metrics for all folds
                 comprehensive_metrics = self.compute_comprehensive_separability_metrics(
@@ -2927,6 +2939,12 @@ def main() -> None:
         help="Use simple directory structure (model_path/fold_X/phase/checkpoints) instead of complex nested structure",
     )
 
+    parser.add_argument(
+        "--source_only_plot",
+        action="store_true",
+        help="Only regenerate the source-domain-only plot (skips metrics and other plots)",
+    )
+
     args = parser.parse_args()
 
     features_dim_dict = {"MACE": 256, "SOAP": 5376, "ACSF": 360, "ESM-C": 1152}
@@ -2986,7 +3004,7 @@ def main() -> None:
 
     # Run analysis
     visualizer.run_analysis_for_all_folds(
-        args.n_folds, args.phase, args.with_predictions
+        args.n_folds, args.phase, args.with_predictions, args.source_only_plot
     )
 
     logger.info("Script finished.")

@@ -18,6 +18,16 @@ STRATEGY_MAP = {
     "pretrain_ccsa_then_encoder_task": "S4C",
 }
 
+# The transfer-learning baseline strategy: plain fine-tuning, no pretraining and
+# no domain adaptation. Every other strategy is measured against it, so the label
+# lives here and the method key is derived from STRATEGY_MAP rather than repeated.
+BASELINE_STRATEGY = "S1"
+
+BASELINE_METHOD = next(
+    method for method, label in STRATEGY_MAP.items() if label == BASELINE_STRATEGY
+)
+
+
 MODALITY_MAP = {
     # Transfer learning modality names
     "molecule": "Molecule",

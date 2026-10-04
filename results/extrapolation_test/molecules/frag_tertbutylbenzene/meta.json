@@ -1,0 +1,11 @@
+{
+  "name": "frag_tertbutylbenzene",
+  "series": "fragment",
+  "parent": "stf_31",
+  "motif": "terminal: lipophilic anchor",
+  "charge": 0,
+  "formula": "C10H14",
+  "n_atoms": 24,
+  "n_heavy": 10,
+  "source": "built by scripts/build_molecules.py from stf_31"
+}

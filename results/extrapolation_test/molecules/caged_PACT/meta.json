@@ -1,0 +1,11 @@
+{
+  "name": "caged_PACT",
+  "series": "reaction",
+  "parent": null,
+  "motif": null,
+  "charge": 2,
+  "source": "original input structure",
+  "formula": "C56H48N8O3RuS",
+  "n_atoms": 117,
+  "n_heavy": 69
+}

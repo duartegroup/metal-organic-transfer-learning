@@ -59,9 +59,8 @@ class MultitaskTrainingPipeline:
         self.params = params
         self.config = TrainingConfig()
 
-        # Fix: Update the scaler based on the params
+        # Scaler and SMOTE options from the params
         self.config.data_scaler = params.get("data_scaler", None)
-        # NEW: Update the new options
         self.config.source_smote = params.get("source_smote", False)
         self.config.target_smote = params.get("target_smote", False)
         self.config.cross_domain_scaling = params.get("cross_domain_scaling", False)

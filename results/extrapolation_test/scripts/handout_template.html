@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PACT panel — NAMPT activity predictions</title>
+<style>
+:root {
+  color-scheme: light;
+  --ground:      #f4f6f5;
+  --surface:     #ffffff;
+  --surface-alt: #eef1ef;
+  --ink:         #171c1a;
+  --ink-2:       #414b48;
+  --muted:       #5f6a66;
+  --rule:        #d8dedb;
+  --rule-strong: #b9c2be;
+  --accent:      #93510f;
+  --accent-soft: #f2e6d8;
+  --on-accent:   #ffffff;
+  --pos:         #1c6248;
+  --pos-soft:    #dcebe4;
+  --neg:         #5b6a72;
+  --neg-soft:    #e5eaec;
+  --warn-soft:   #f6ecd6;
+  --warn-rule:   #d9b878;
+
+  --f-display: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --f-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:      #101413;
+    --surface:     #181d1b;
+    --surface-alt: #1f2523;
+    --ink:         #e8edea;
+    --ink-2:       #c0c9c5;
+    --muted:       #909d98;
+    --rule:        #2b3230;
+    --rule-strong: #414a47;
+    --accent:      #e0a460;
+    --accent-soft: #33261a;
+    --on-accent:   #14100b;
+    --pos:         #58b68d;
+    --pos-soft:    #172b23;
+    --neg:         #93a3aa;
+    --neg-soft:    #1c2427;
+    --warn-soft:   #2c2517;
+    --warn-rule:   #6b5730;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:      #101413;
+  --surface:     #181d1b;
+  --surface-alt: #1f2523;
+  --ink:         #e8edea;
+  --ink-2:       #c0c9c5;
+  --muted:       #909d98;
+  --rule:        #2b3230;
+  --rule-strong: #414a47;
+  --accent:      #e0a460;
+  --accent-soft: #33261a;
+  --on-accent:   #14100b;
+  --pos:         #58b68d;
+  --pos-soft:    #172b23;
+  --neg:         #93a3aa;
+  --neg-soft:    #1c2427;
+  --warn-soft:   #2c2517;
+  --warn-rule:   #6b5730;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px 96px; }
+
+/* ---------- masthead ---------- */
+.masthead { padding: 48px 0 28px; border-bottom: 1px solid var(--rule); }
+.eyebrow {
+  font-family: var(--f-data);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+.masthead h1 {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  margin: 0 0 12px;
+  text-wrap: balance;
+}
+.standfirst {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--ink-2);
+  font-size: 16.5px;
+}
+.provenance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 22px;
+  font-family: var(--f-data);
+  font-size: 12px;
+  color: var(--muted);
+}
+.provenance span::before { content: "· "; color: var(--rule-strong); }
+.provenance span:first-child::before { content: none; }
+
+.topbar { display: flex; justify-content: flex-end; gap: 8px; padding-top: 14px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* ---------- caveats ---------- */
+.caveats { margin: 30px 0 0; }
+.caveats h2 {
+  font-family: var(--f-data);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+.caveat-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.caveat {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.caveat.flag { background: var(--warn-soft); border-color: var(--warn-rule); }
+.caveat h3 {
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 7px;
+}
+.caveat p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.caveat p + p { margin-top: 8px; }
+
+/* ---------- scorecard ---------- */
+.scorecard { margin-top: 34px; }
+.scorecard > h2 {
+  font-family: var(--f-data);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.scorecard > p.lede { margin: 0 0 14px; max-width: 78ch; font-size: 13.5px; color: var(--ink-2); }
+.score-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.score {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.score-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.score-thr { font-family: var(--f-data); font-size: 12px; letter-spacing: .06em; color: var(--muted); }
+.score-frac { font-family: var(--f-data); font-variant-numeric: tabular-nums; font-size: 26px; font-weight: 600; color: var(--ink); line-height: 1; }
+.score-frac small { font-size: 14px; font-weight: 400; color: var(--muted); }
+.score-note { margin: 0; font-size: 13px; color: var(--ink-2); }
+.score-alarm {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  padding: 7px 10px;
+}
+.score-alarm strong { font-weight: 600; }
+
+/* ---------- controls ---------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 34px;
+  padding: 12px 0;
+  background: var(--ground);
+  border-bottom: 1px solid var(--rule);
+}
+.ctl-label {
+  font-family: var(--f-data);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: -6px;
+}
+.segmented { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 6px; overflow: hidden; }
+.segmented button {
+  font-family: var(--f-data);
+  font-size: 12.5px;
+  padding: 6px 12px;
+  border: 0;
+  border-right: 1px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.segmented button:last-child { border-right: 0; }
+.segmented button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+.search {
+  font-family: var(--f-data);
+  font-size: 13px;
+  padding: 7px 10px;
+  min-width: 210px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+}
+.check { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.count { margin-left: auto; font-family: var(--f-data); font-size: 12px; color: var(--muted); }
+
+/* ---------- table ---------- */
+/* The table is the one scroll container: bounded height so the sticky header inside it has
+   something to stick to, and `overflow: auto` so wide content scrolls here, never the body. */
+.tablewrap {
+  overflow: auto;
+  max-height: min(78vh, 960px);
+  overscroll-behavior: contain;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface);
+  margin-top: 18px;
+}
+/* separate, not collapse: a collapsed border belongs to the table, not the cell, so it
+   does not travel with a sticky header and rows show through the seam */
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--rule-strong);
+  box-shadow: 0 1px 0 var(--rule-strong);
+  font-family: var(--f-data);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { color: var(--accent); }
+thead th .arrow { color: var(--accent); }
+tbody td { border-bottom: 1px solid var(--rule); padding: 9px 14px; vertical-align: middle; }
+tbody tr.row:hover > td { background: var(--surface-alt); }
+tbody tr.row { cursor: pointer; }
+.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+
+.cmp-name { font-family: var(--f-data); font-size: 13px; color: var(--ink); white-space: nowrap; }
+.cmp-series { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.struct { font-family: var(--f-data); font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.struct em { font-style: normal; color: var(--muted); }
+.thr { font-family: var(--f-data); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink-2); }
+
+/* pills: form carries the state as well as colour */
+.pill {
+  display: inline-block;
+  font-family: var(--f-data);
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pill.yes { background: var(--pos-soft); border: 1px solid var(--pos); color: var(--pos); font-weight: 600; }
+.pill.no  { background: transparent; border: 1px dashed var(--neg); color: var(--neg); }
+.pill.none { background: transparent; border: 0; color: var(--rule-strong); font-size: 13px; padding-left: 0; }
+
+.agree { font-family: var(--f-data); font-size: 14px; }
+.agree.ok { color: var(--pos); }
+.agree.bad { color: var(--accent); }
+.agree.na { color: var(--rule-strong); }
+
+/* value + fold-spread meter */
+.valcell { display: flex; align-items: center; gap: 10px; min-width: 190px; }
+.valnum { font-family: var(--f-data); font-variant-numeric: tabular-nums; font-size: 13px; width: 44px; }
+.meter { position: relative; flex: 1; height: 8px; min-width: 96px; }
+.meter-track { position: absolute; inset: 1px 0; background: var(--rule); border-radius: 3px; }
+.meter-cut { position: absolute; top: -2px; bottom: -2px; left: 50%; width: 1px; background: var(--rule-strong); }
+.meter-span { position: absolute; inset: 1px auto; height: 6px; background: var(--accent); opacity: .34; border-radius: 3px; }
+.meter-mean { position: absolute; top: -1px; height: 10px; width: 2px; background: var(--ink); box-shadow: 0 0 0 1.5px var(--surface); border-radius: 1px; }
+.nofolds { font-family: var(--f-data); font-size: 11px; color: var(--muted); font-style: italic; }
+tbody tr.row:hover .meter-mean { box-shadow: 0 0 0 1.5px var(--surface-alt); }
+
+/* ---------- 3D structure viewer ---------- */
+.molview { display: flex; flex-direction: column; gap: 8px; }
+.molstage {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.molstage canvas {
+  display: block;
+  width: 100%;
+  height: 280px;
+  cursor: grab;
+  touch-action: none;
+}
+.molstage canvas:active { cursor: grabbing; }
+.molhint {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  font-family: var(--f-data);
+  font-size: 10.5px;
+  color: var(--muted);
+  pointer-events: none;
+  opacity: .85;
+}
+.moltools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.moltools .btn { padding: 5px 10px; font-size: 12px; }
+.moltools .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.mollegend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0; list-style: none; }
+.mollegend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--f-data);
+  font-size: 11px;
+  color: var(--muted);
+}
+.mollegend .swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--rule-strong);
+}
+
+/* ---------- expanded detail ---------- */
+tr.detail > td { background: var(--surface-alt); padding: 4px 14px 20px; }
+.detail-grid { display: grid; gap: 18px 34px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); padding-top: 12px; }
+.field h4 {
+  font-family: var(--f-data);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.field p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.smiles {
+  font-family: var(--f-data);
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0 0 8px;
+}
+.caveat-inline { font-size: 12px; color: var(--muted); margin: 0; }
+.folds { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; padding: 0; list-style: none; }
+.folds li {
+  font-family: var(--f-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  padding: 3px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--surface);
+}
+.folds li.over { border-color: var(--pos); color: var(--pos); }
+.tag {
+  display: inline-block;
+  font-family: var(--f-data);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+.empty { padding: 40px; text-align: center; color: var(--muted); font-size: 14px; }
+
+@media print {
+  .tablewrap { max-height: none; overflow: visible; border: 0; }
+  thead th { position: static; box-shadow: none; }
+  .topbar, .controls { display: none; }
+  .caveat, .score { break-inside: avoid; }
+  tbody tr.row { break-inside: avoid; }
+}
+
+/* ---------- methods ---------- */
+.methods { margin-top: 46px; border-top: 1px solid var(--rule); padding-top: 26px; }
+.methods h2 { font-family: var(--f-display); font-size: 20px; font-weight: 600; margin: 0 0 14px; }
+.methods h3 { font-family: var(--f-display); font-size: 15.5px; font-weight: 600; margin: 20px 0 5px; }
+.methods p, .methods li { max-width: 76ch; font-size: 13.5px; color: var(--ink-2); }
+.methods p { margin: 0 0 9px; }
+.methods ul { margin: 0 0 9px; padding-left: 20px; }
+.methods code { font-family: var(--f-data); font-size: 12.5px; background: var(--surface-alt); padding: 1px 5px; border-radius: 4px; }
+.colophon { margin-top: 30px; font-family: var(--f-data); font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <button class="btn" id="theme" type="button">Dark / light</button>
+    <button class="btn btn-primary" id="dl-csv" type="button">Download CSV</button>
+  </div>
+
+  <header class="masthead">
+    <p class="eyebrow">Ru-caged STF-31 · extrapolation test</p>
+    <h1>Predicted NAMPT activity for the PACT panel</h1>
+    <p class="standfirst">
+      Every compound in the study, at all three pIC50 thresholds: what the model predicted,
+      how confident the five fold models were, and — where one can honestly be stated — what
+      the answer ought to be. One row per compound and threshold; click any row for the
+      SMILES, the individual fold probabilities and the optimized geometry.
+    </p>
+    <div class="provenance" id="provenance"></div>
+  </header>
+
+  <section class="caveats">
+    <h2>Read before analysing</h2>
+    <div class="caveat-grid">
+      <div class="caveat flag">
+        <h3>Almost nothing here has a measured activity</h3>
+        <p>
+          38 of the 39 compounds were drawn or generated for this study — the ablations,
+          fragments and photoproducts do not exist outside it — and NAMPT is not among the
+          38 targets in the 94-complex training set.
+        </p>
+        <p>
+          The <strong>expected</strong> column is therefore filled in only where a basis can be
+          stated and checked, and is blank everywhere else. Each entry is tagged
+          <em>literature</em>, <em>control</em>, <em>chemistry</em> or <em>hypothesis</em>; open
+          a row to read the reasoning. Nothing in that column is an experimental measurement.
+        </p>
+      </div>
+      <div class="caveat">
+        <h3>The five fold models disagree with each other</h3>
+        <p>
+          Each value is the mean of five independently trained folds whose median spread is
+          about __FOLD_SPREAD_7__ at pIC50&nbsp;&gt;&nbsp;7. <code>caged_PACT</code> there
+          returns __CAGED_FOLDS_7__.
+        </p>
+        <p>
+          The bar beside every value shows that min–max range, with the mean marked and the
+          0.5 decision line drawn in. Where the range straddles the line, the yes/no in the
+          predicted column is a coin toss between models, not a result.
+        </p>
+      </div>
+      <div class="caveat">
+        <h3>pIC50 &gt; 6 does not discriminate</h3>
+        <p>
+          At that threshold the drug, its two halves, <em>tert</em>-butylbenzene and both
+          spectator-ligand controls span __TH6_SPAN__ in total, and every one of the 39
+          compounds is called inactive — the model cannot tell an inhibitor from an ancillary
+          ligand. Treat the threshold-6 rows as a negative control on the method rather than
+          as predictions.
+        </p>
+      </div>
+      <div class="caveat">
+        <h3>Size can move the prediction on its own</h3>
+        <p>
+          The descriptor is a per-atom SOAP mean-pooled over the molecule, so removing atoms
+          can shift the prediction regardless of chemistry. The spectator derivatives measure
+          that axis directly, since they never touch the pharmacophore: __SIZE_FIT__
+        </p>
+        <p>
+          The slope is refitted from the geometries in use rather than assumed — it is not a
+          fixed property of the model. Compare compounds of similar heavy-atom count, or
+          subtract the fitted slope where it is real. The <code>n_heavy</code> figure is in the
+          structure column for exactly this reason.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="scorecard">
+    <h2>How the stated expectations came out</h2>
+    <p class="lede">
+      Counted over the rows that carry an expectation only. Read the tally together with the
+      note beneath it — a threshold can score well by predicting the same answer for every
+      compound, which is what happens below.
+    </p>
+    <div class="score-grid" id="score-grid"></div>
+  </section>
+
+  <div class="controls">
+    <span class="ctl-label">Threshold</span>
+    <div class="segmented" id="thr-seg"></div>
+    <span class="ctl-label">Series</span>
+    <select class="search" id="series-sel"></select>
+    <input class="search" id="q" type="search" placeholder="Search name, formula, SMILES…" aria-label="Search compounds">
+    <label class="check"><input type="checkbox" id="only-exp"> Only rows with an expectation</label>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="tablewrap">
+    <table id="tbl">
+      <thead>
+        <tr id="head"></tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <section class="methods">
+    <h2>How to read the columns</h2>
+
+    <h3>Structure</h3>
+    <p>
+      Molecular formula and heavy-atom count in the table; SMILES and the full optimized
+      geometry inside each row. Geometries are GFN2-xTB optimized at
+      <code>fmax&nbsp;=&nbsp;0.05</code>, and the SMILES were perceived from those geometries
+      with RDKit.
+    </p>
+    <p>
+      For the 26 Ru complexes RDKit has no valence model for the metal, so the SMILES is
+      written as <code>[Ru+2]</code> plus the disconnected neutral ligands. That is a faithful
+      description of the composition but discards the coordination — the Ru–N(pyridine) bond
+      that defines the caged compound is not in it. Use the XYZ for anything geometric.
+    </p>
+
+    <h3>Activity expected</h3>
+    <p>Blank means no expectation is asserted. Where one is, the tag says on what grounds:</p>
+    <ul>
+      <li><strong>literature</strong> — reported activity. Only <code>stf_31</code> qualifies.</li>
+      <li><strong>control</strong> — a designed negative control of this study: an ancillary
+        ligand alone, carrying no part of the pharmacophore.</li>
+      <li><strong>chemistry</strong> — contains no part of the pharmacophore, or is a fragment
+        far too small to reach the threshold. Near-certain, but not measured.</li>
+      <li><strong>hypothesis</strong> — the study's own premise, which the study exists to
+        test. Only <code>caged_PACT</code>. Agreement here is weaker evidence than a control.</li>
+    </ul>
+
+    <h3>Activity predicted &amp; value predicted</h3>
+    <p>
+      The value is the ensemble probability: the mean over five fold models. The boolean is
+      simply that value above 0.5, taken from the model output unchanged. Given the fold
+      spread it is frequently not a meaningful dichotomy — the bar is there so you can see
+      when.
+    </p>
+
+    <h3>Series</h3>
+    <ul>
+      <li><strong>reaction species</strong> — <code>caged_PACT</code>, <code>stf_31</code>,
+        <code>uncaged_PACT</code>, <code>uncaged_PACT_H2O</code>. These balance atom for atom.</li>
+      <li><strong>spectator derivative</strong> — <code>deriv_1</code>…<code>deriv_15</code>:
+        STF-31 and Ru intact, only the ancillary ligands vary, so they measure composition
+        alone. <code>deriv_9</code> is a byte-identical duplicate of <code>deriv_8</code> and is
+        not an independent point.</li>
+      <li><strong>ablation</strong> — one motif removed from STF-31, free and inside the caged
+        complex. <code>free_M1_pyridineN_to_CH</code> is the anchor: it changes zero heavy
+        atoms, so the size axis cannot explain its result. M1 has no caged form, since the
+        edit deletes the atom that binds Ru.</li>
+      <li><strong>fragment</strong> — motifs alone, plus free terpyridine and biquinoline as
+        controls. An isolated fragment is a different molecule, with capping hydrogens and no
+        intramolecular context, so these corroborate rather than prove.</li>
+      <li><strong>photoproduct</strong> — what each caged complex becomes after release.</li>
+    </ul>
+
+    <p class="colophon" id="colophon"></p>
+  </section>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+/* ---------- state ---------- */
+const state = { thr: 'all', series: 'all', q: '', onlyExp: false, sort: 'default', dir: 1, open: new Set() };
+
+/* ---------- rows: one per compound x threshold ---------- */
+const ROWS = [];
+for (const t of DATA.thresholds) {
+  for (const c of DATA.compounds) {
+    const p = c.predictions[t];
+    const folds = p.folds || [];
+    ROWS.push({
+      c, t,
+      p: p.p,
+      predicted: p.predicted,
+      expected: p.expected,
+      folds,
+      sd: p.fold_sd,
+      lo: folds.length ? Math.min(...folds) : null,
+      hi: folds.length ? Math.max(...folds) : null,
+      agree: p.expected === null ? null : p.expected === p.predicted,
+      key: c.name + '@' + t
+    });
+  }
+}
+
+/* ---------- controls ---------- */
+const seg = document.getElementById('thr-seg');
+[['all', 'All'], ...DATA.thresholds.map(t => [String(t), 'pIC50 > ' + t])].forEach(([v, label]) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.textContent = label; b.dataset.v = v;
+  b.setAttribute('aria-pressed', String(v === state.thr));
+  b.onclick = () => { state.thr = v; [...seg.children].forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === v))); render(); };
+  seg.appendChild(b);
+});
+
+const sel = document.getElementById('series-sel');
+const seriesList = [...new Set(DATA.compounds.map(c => c.series))].sort();
+sel.appendChild(new Option('All series', 'all'));
+seriesList.forEach(s => {
+  const label = DATA.compounds.find(c => c.series === s).series_label;
+  const n = DATA.compounds.filter(c => c.series === s).length;
+  sel.appendChild(new Option(`${label} (${n})`, s));
+});
+sel.onchange = () => { state.series = sel.value; render(); };
+
+document.getElementById('q').oninput = e => { state.q = e.target.value.toLowerCase().trim(); render(); };
+document.getElementById('only-exp').onchange = e => { state.onlyExp = e.target.checked; render(); };
+
+document.getElementById('theme').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  themeWatchers.forEach(fn => fn());
+};
+
+/* ---------- header ---------- */
+const COLS = [
+  { k: 'thr',   label: 'Threshold',  sort: r => r.t },
+  { k: 'name',  label: 'Compound',   sort: r => r.c.name },
+  { k: 'struct',label: 'Structure',  sort: r => r.c.n_heavy },
+  { k: 'exp',   label: 'Activity expected', sort: r => r.expected === null ? -1 : (r.expected ? 1 : 0) },
+  { k: 'pred',  label: 'Activity predicted', sort: r => r.predicted ? 1 : 0 },
+  { k: 'val',   label: 'Value predicted', sort: r => r.p },
+  { k: 'agree', label: '=', sort: r => r.agree === null ? -1 : (r.agree ? 1 : 0) }
+];
+const head = document.getElementById('head');
+COLS.forEach(col => {
+  const th = document.createElement('th');
+  th.textContent = col.label;
+  th.dataset.k = col.k;
+  if (col.k === 'agree') th.title = 'Does the prediction agree with the stated expectation?';
+  th.onclick = () => {
+    if (state.sort === col.k) state.dir *= -1; else { state.sort = col.k; state.dir = 1; }
+    render();
+  };
+  head.appendChild(th);
+});
+
+/* ---------- helpers ---------- */
+const fmt = v => v.toFixed(3);
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+
+function pill(v) {
+  if (v === null || v === undefined) return '<span class="pill none" title="No expectation asserted">—</span>';
+  return v ? '<span class="pill yes">active</span>' : '<span class="pill no">inactive</span>';
+}
+
+function meter(r) {
+  if (r.lo === null) {
+    return '<span class="nofolds" title="This run predates the change that records individual fold probabilities, so its spread is unknown.">spread not recorded</span>';
+  }
+  const span = `left:${(r.lo * 100).toFixed(2)}%;width:${Math.max((r.hi - r.lo) * 100, 0.6).toFixed(2)}%`;
+  const title = `folds: ${r.folds.map(fmt).join(', ')} · range ${fmt(r.lo)}–${fmt(r.hi)} · SD ${r.sd === null ? 'n/a' : fmt(r.sd)}`;
+  return `<div class="meter" title="${esc(title)}">
+    <div class="meter-track"></div><div class="meter-cut"></div>
+    <div class="meter-span" style="${span}"></div>
+    <div class="meter-mean" style="left:calc(${(r.p * 100).toFixed(2)}% - 1px)"></div>
+  </div>`;
+}
+
+/* ---------- 3D structure viewer ----------
+   Ball-and-stick on a 2D canvas: rotate the coordinates ourselves, sort every mark by depth
+   and paint back-to-front. Bonds are perceived from covalent radii, so the Ru-N bond that
+   defines a caged complex is drawn rather than inferred. Element colours follow CPK, which
+   is what a chemist expects, with the page's neutrals only for fog. */
+const ELEM = {
+  H:  { r: 0.31, c: '#d8d8d4' },
+  C:  { r: 0.76, c: '#5d6a66' },
+  N:  { r: 0.71, c: '#3060a8' },
+  O:  { r: 0.66, c: '#c0392b' },
+  S:  { r: 1.05, c: '#d4a017' },
+  Ru: { r: 1.46, c: '#2a8f8f' }
+};
+const ELEM_FALLBACK = { r: 0.8, c: '#8a7f76' };
+const el = s => ELEM[s] || ELEM_FALLBACK;
+
+const themeWatchers = [];     // canvases repaint on theme change
+const molCache = new Map();   // compound name -> parsed geometry
+const molState = new Map();   // compound name -> camera, so reopening a row keeps the view
+
+function parseMol(c) {
+  if (molCache.has(c.name)) return molCache.get(c.name);
+  const atoms = c.xyz.trim().split('\n').map(l => {
+    const p = l.trim().split(/\s+/);
+    return { s: p[0], x: +p[1], y: +p[2], z: +p[3] };
+  });
+  // centre on the mean position so rotation happens about the molecule, not the origin
+  const n = atoms.length;
+  const cx = atoms.reduce((a, b) => a + b.x, 0) / n;
+  const cy = atoms.reduce((a, b) => a + b.y, 0) / n;
+  const cz = atoms.reduce((a, b) => a + b.z, 0) / n;
+  atoms.forEach(a => { a.x -= cx; a.y -= cy; a.z -= cz; });
+
+  const bonds = [], contacts = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const a = atoms[i], b = atoms[j];
+      if (a.s === 'H' && b.s === 'H') continue;
+      const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+      const d2 = dx * dx + dy * dy + dz * dz;
+      // 1.2, not the more usual 1.3: at 1.3 the Ru-C cutoff reaches 2.89 A and picks up the
+      // ortho carbons of every chelate ring (~2.85 A), drawing Ru as 12-coordinate
+      const cut = (el(a.s).r + el(b.s).r) * 1.2;
+      if (d2 < cut * cut) { bonds.push([i, j]); continue; }
+      // A single cutoff can never be right for a metal, and several geometries in this panel
+      // have donors stretched well past bonding range (a dissociated aqua at 3.04 A, ammines
+      // at 2.6-2.7 A). Draw those as dashed contacts rather than hiding or inventing a bond.
+      const metal = a.s === 'Ru' || b.s === 'Ru';
+      const donor = ['N', 'O'].includes(a.s) || ['N', 'O'].includes(b.s);
+      if (metal && donor && d2 < 3.4 * 3.4) contacts.push([i, j]);
+    }
+  }
+  const radius = Math.max(...atoms.map(a => Math.hypot(a.x, a.y, a.z))) || 1;
+  const elements = [...new Set(atoms.map(a => a.s))]
+    .sort((a, b) => el(b).r - el(a).r);
+  const parsed = { atoms, bonds, contacts, radius, elements };
+  molCache.set(c.name, parsed);
+  return parsed;
+}
+
+function mountViewer(canvas) {
+  const name = canvas.dataset.mol;
+  const compound = DATA.compounds.find(c => c.name === name);
+  if (!compound || !canvas.getContext) return;
+  const mol = parseMol(compound);
+  const ctx = canvas.getContext('2d');
+  const cam = molState.get(name) || { rx: -0.35, ry: 0.6, zoom: 1, showH: false };
+  molState.set(name, cam);
+
+  function draw() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr; canvas.height = h * dpr;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const css = getComputedStyle(document.documentElement);
+    const surface = css.getPropertyValue('--surface').trim() || '#ffffff';
+    const rule = css.getPropertyValue('--rule').trim() || '#dddddd';
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = surface;
+    ctx.fillRect(0, 0, w, h);
+
+    const show = mol.atoms.map(a => cam.showH || a.s !== 'H');
+    const scale = (Math.min(w, h) / 2 - 16) / mol.radius * cam.zoom;
+    const sx = Math.sin(cam.ry), cxr = Math.cos(cam.ry);
+    const sy = Math.sin(cam.rx), cyr = Math.cos(cam.rx);
+
+    const P = mol.atoms.map(a => {
+      const x1 = a.x * cxr + a.z * sx;
+      const z1 = -a.x * sx + a.z * cxr;
+      const y2 = a.y * cyr - z1 * sy;
+      const z2 = a.y * sy + z1 * cyr;
+      return { X: w / 2 + x1 * scale, Y: h / 2 - y2 * scale, Z: z2 };
+    });
+
+    // fog: fade toward the page surface with depth, so the far side reads as far
+    const zs = P.filter((_, i) => show[i]).map(p => p.Z);
+    const zmin = Math.min(...zs), zmax = Math.max(...zs) || 1;
+    const fog = z => 0.32 + 0.68 * ((z - zmin) / (zmax - zmin || 1));
+    const mix = (hex, t) => {
+      const f = h2 => parseInt(h2, 16);
+      const A = [f(hex.slice(1, 3)), f(hex.slice(3, 5)), f(hex.slice(5, 7))];
+      const B = surface.startsWith('#')
+        ? [f(surface.slice(1, 3)), f(surface.slice(3, 5)), f(surface.slice(5, 7))]
+        : [255, 255, 255];
+      return `rgb(${A.map((v, i) => Math.round(v * t + B[i] * (1 - t))).join(',')})`;
+    };
+
+    const marks = [];
+    mol.bonds.forEach(([i, j]) => {
+      if (!show[i] || !show[j]) return;
+      marks.push({ z: (P[i].Z + P[j].Z) / 2, kind: 'bond', i, j });
+    });
+    mol.contacts.forEach(([i, j]) => {
+      if (!show[i] || !show[j]) return;
+      marks.push({ z: (P[i].Z + P[j].Z) / 2, kind: 'contact', i, j });
+    });
+    mol.atoms.forEach((a, i) => { if (show[i]) marks.push({ z: P[i].Z, kind: 'atom', i }); });
+    marks.sort((a, b) => a.z - b.z);
+
+    ctx.lineCap = 'round';
+    for (const m of marks) {
+      if (m.kind === 'contact') {
+        const A = P[m.i], B = P[m.j];
+        ctx.save();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = mix(el('Ru').c, fog(m.z) * 0.75);
+        ctx.lineWidth = Math.max(1, 1.6 * cam.zoom);
+        ctx.beginPath(); ctx.moveTo(A.X, A.Y); ctx.lineTo(B.X, B.Y); ctx.stroke();
+        ctx.restore();
+      } else if (m.kind === 'bond') {
+        const A = P[m.i], B = P[m.j];
+        const mx = (A.X + B.X) / 2, my = (A.Y + B.Y) / 2;
+        const lw = Math.max(1.6, 3.4 * cam.zoom * (0.6 + 0.4 * fog(m.z)));
+        // a surface-coloured underlay separates overlapping bonds
+        ctx.strokeStyle = surface; ctx.lineWidth = lw + 2.4;
+        ctx.beginPath(); ctx.moveTo(A.X, A.Y); ctx.lineTo(B.X, B.Y); ctx.stroke();
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = mix(el(mol.atoms[m.i].s).c, fog(P[m.i].Z));
+        ctx.beginPath(); ctx.moveTo(A.X, A.Y); ctx.lineTo(mx, my); ctx.stroke();
+        ctx.strokeStyle = mix(el(mol.atoms[m.j].s).c, fog(P[m.j].Z));
+        ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(B.X, B.Y); ctx.stroke();
+      } else {
+        const a = mol.atoms[m.i], p = P[m.i];
+        const rad = Math.max(2, el(a.s).r * scale * 0.34 * (0.82 + 0.18 * fog(m.z)));
+        const base = mix(el(a.s).c, fog(m.z));
+        const g = ctx.createRadialGradient(
+          p.X - rad * 0.35, p.Y - rad * 0.4, rad * 0.1, p.X, p.Y, rad);
+        g.addColorStop(0, mix('#ffffff', 0.55 * fog(m.z)));
+        g.addColorStop(0.45, base);
+        g.addColorStop(1, mix(el(a.s).c, fog(m.z) * 0.62));
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(p.X, p.Y, rad, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = mix(rule, fog(m.z)); ctx.lineWidth = 0.6; ctx.stroke();
+      }
+    }
+  }
+
+  /* interaction */
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => {
+    drag = { x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!drag) return;
+    cam.ry += (e.clientX - drag.x) * 0.01;
+    cam.rx += (e.clientY - drag.y) * 0.01;
+    cam.rx = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cam.rx));
+    drag = { x: e.clientX, y: e.clientY };
+    draw();
+  });
+  const stop = () => { drag = null; };
+  canvas.addEventListener('pointerup', stop);
+  canvas.addEventListener('pointercancel', stop);
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    cam.zoom = Math.max(0.4, Math.min(4, cam.zoom * (e.deltaY < 0 ? 1.12 : 0.89)));
+    draw();
+  }, { passive: false });
+
+  const tools = canvas.closest('.molview').querySelector('.moltools');
+  tools.addEventListener('click', e => {
+    const b = e.target.closest('button[data-mact]');
+    if (!b) return;
+    if (b.dataset.mact === 'h') {
+      cam.showH = !cam.showH;
+      b.setAttribute('aria-pressed', String(cam.showH));
+      b.textContent = cam.showH ? 'Hydrogens shown' : 'Show hydrogens';
+    } else {
+      cam.rx = -0.35; cam.ry = 0.6; cam.zoom = 1;
+    }
+    draw();
+  });
+
+  themeWatchers.push(draw);
+  draw();
+}
+
+function mountViewers() {
+  document.querySelectorAll('canvas.molcanvas').forEach(c => {
+    if (c.dataset.mounted) return;
+    c.dataset.mounted = '1';
+    mountViewer(c);
+  });
+}
+
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function detailRow(r) {
+  const c = r.c;
+  const straddles = r.lo !== null && r.lo < 0.5 && r.hi > 0.5;
+  const foldItems = r.folds.map(f => `<li class="${f > 0.5 ? 'over' : ''}">${fmt(f)}</li>`).join('');
+  const foldBlock = r.folds.length
+    ? `<ul class="folds">${foldItems}</ul>
+       <p class="caveat-inline">
+         mean ${fmt(r.p)} · SD ${r.sd === null ? 'n/a' : fmt(r.sd)} · range ${fmt(r.lo)}–${fmt(r.hi)}.
+         ${straddles
+           ? '<strong>The range crosses 0.5</strong>, so the fold models do not agree on the yes/no for this compound.'
+           : 'All five folds fall on the same side of 0.5.'}
+       </p>`
+    : `<p class="caveat-inline">
+         Ensemble mean ${fmt(r.p)}. The individual fold probabilities were not written for this
+         run, which predates the change that records them, so the spread is unknown — do not
+         read this value as more precise than the others.
+       </p>`;
+  const mol = parseMol(c);
+  const legend = mol.elements.map(s =>
+    `<li><span class="swatch" style="background:${el(s).c}"></span>${esc(s)}</li>`).join('');
+  return `<tr class="detail"><td colspan="${COLS.length}"><div class="detail-grid">
+    <div class="field molview">
+      <h4>3D structure · ${esc(c.geometry)}</h4>
+      <div class="molstage">
+        <canvas class="molcanvas" data-mol="${esc(c.name)}"
+          aria-label="Interactive ball-and-stick model of ${esc(c.name)}"></canvas>
+        <span class="molhint">drag to rotate · scroll to zoom</span>
+      </div>
+      <div class="moltools">
+        <button class="btn" type="button" data-mact="h" aria-pressed="false">Show hydrogens</button>
+        <button class="btn" type="button" data-mact="reset">Reset view</button>
+      </div>
+      <ul class="mollegend">${legend}</ul>
+      <p class="caveat-inline">
+        ${mol.bonds.length} bonds drawn from covalent radii; hydrogens hidden by default.
+        ${mol.contacts.length
+          ? `<strong>${mol.contacts.length} Ru–N/O contact${mol.contacts.length > 1 ? 's are' : ' is'}
+             too long to draw as a bond</strong> and ${mol.contacts.length > 1 ? 'are' : 'is'} dashed
+             instead — the donor has stretched past bonding range in this optimized geometry.`
+          : 'Every Ru donor is within bonding range.'}
+        The geometry shown is exactly what the model was given.
+      </p>
+    </div>
+    <div class="field">
+      <h4>SMILES · ${esc(c.geometry)}</h4>
+      <p class="smiles">${esc(c.smiles)}</p>
+      ${c.smiles_note ? `<p class="caveat-inline">${esc(c.smiles_note)}</p>` : ''}
+      <div class="detail-actions">
+        <button class="btn" type="button" data-act="smiles" data-name="${esc(c.name)}">Copy SMILES</button>
+        <button class="btn" type="button" data-act="xyz" data-name="${esc(c.name)}">Download XYZ</button>
+      </div>
+    </div>
+    <div class="field">
+      <h4>Fold probabilities at pIC50 &gt; ${r.t}</h4>
+      ${foldBlock}
+    </div>
+    <div class="field">
+      <h4>Basis for the expected activity</h4>
+      ${c.basis_type !== 'none' ? `<span class="tag">${esc(c.basis_type)}</span>` : ''}
+      <p>${esc(c.basis)}</p>
+    </div>
+    <div class="field">
+      <h4>Provenance</h4>
+      <p>
+        Series: ${esc(c.series_label)}<br>
+        ${c.parent ? `Derived from: <code>${esc(c.parent)}</code><br>` : ''}
+        ${c.motif ? `Change: ${esc(c.motif)}<br>` : ''}
+        Formula ${esc(c.formula)} · charge ${c.charge >= 0 ? '+' + c.charge : c.charge} ·
+        ${c.n_atoms} atoms, ${c.n_heavy} heavy
+      </p>
+    </div>
+  </div></td></tr>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  let rows = ROWS.filter(r =>
+    (state.thr === 'all' || String(r.t) === state.thr) &&
+    (state.series === 'all' || r.c.series === state.series) &&
+    (!state.onlyExp || r.expected !== null) &&
+    (!state.q || (r.c.name + ' ' + r.c.formula + ' ' + r.c.smiles + ' ' + r.c.series_label + ' ' + (r.c.motif || '')).toLowerCase().includes(state.q))
+  );
+
+  if (state.sort === 'default') {
+    rows.sort((a, b) => a.t - b.t || a.c.series.localeCompare(b.c.series) || a.c.name.localeCompare(b.c.name));
+  } else {
+    const f = COLS.find(c => c.k === state.sort).sort;
+    rows.sort((a, b) => {
+      const x = f(a), y = f(b);
+      const cmp = typeof x === 'string' ? x.localeCompare(y) : x - y;
+      return cmp * state.dir || a.c.name.localeCompare(b.c.name);
+    });
+  }
+
+  [...head.children].forEach(th => {
+    const c = COLS.find(c => c.k === th.dataset.k);
+    th.innerHTML = esc(c.label) + (state.sort === c.k ? ` <span class="arrow">${state.dir > 0 ? '▲' : '▼'}</span>` : '');
+  });
+
+  const body = document.getElementById('body');
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="${COLS.length}"><p class="empty">No rows match these filters.</p></td></tr>`;
+  } else {
+    body.innerHTML = rows.map(r => {
+      const agree = r.agree === null
+        ? '<span class="agree na" title="No expectation to compare against">—</span>'
+        : (r.agree ? '<span class="agree ok" title="Prediction matches the stated expectation">✓</span>'
+                   : '<span class="agree bad" title="Prediction contradicts the stated expectation">✗</span>');
+      return `<tr class="row" data-key="${esc(r.key)}">
+        <td class="thr">pIC50 &gt; ${r.t}</td>
+        <td><span class="cmp-name">${esc(r.c.name)}</span><span class="cmp-series">${esc(r.c.series_label)}</span></td>
+        <td class="struct">${esc(r.c.formula)}<br><em>${r.c.n_heavy} heavy · ${r.c.n_atoms} atoms</em></td>
+        <td>${pill(r.expected)}</td>
+        <td>${pill(r.predicted)}</td>
+        <td><div class="valcell"><span class="valnum">${fmt(r.p)}</span>${meter(r)}</div></td>
+        <td>${agree}</td>
+      </tr>` + (state.open.has(r.key) ? detailRow(r) : '');
+    }).join('');
+  }
+
+  const nExp = rows.filter(r => r.expected !== null).length;
+  document.getElementById('count').textContent =
+    `${rows.length} of ${ROWS.length} rows · ${nExp} with a stated expectation`;
+
+  mountViewers();
+}
+
+/* ---------- events ---------- */
+document.getElementById('body').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if (btn) {
+    const c = DATA.compounds.find(c => c.name === btn.dataset.name);
+    if (btn.dataset.act === 'smiles') {
+      navigator.clipboard.writeText(c.smiles).then(() => {
+        const t = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => btn.textContent = t, 1200);
+      });
+    } else {
+      const n = c.xyz.trim().split('\n').length;
+      download(c.name + '.xyz', `${n}\n${c.name} · ${c.formula} · charge ${c.charge} · ${c.geometry}\n${c.xyz}\n`, 'chemical/x-xyz');
+    }
+    return;
+  }
+  const tr = e.target.closest('tr.row');
+  if (!tr) return;
+  const k = tr.dataset.key;
+  state.open.has(k) ? state.open.delete(k) : state.open.add(k);
+  render();
+});
+
+/* ---------- CSV ---------- */
+document.getElementById('dl-csv').onclick = () => {
+  const q = v => {
+    const s = v === null || v === undefined ? '' : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const lines = [DATA.columns.join(',')];
+  for (const r of ROWS.slice().sort((a, b) => a.t - b.t || a.c.series.localeCompare(b.c.series) || a.c.name.localeCompare(b.c.name))) {
+    const c = r.c, f = r.folds;
+    lines.push([
+      r.t, c.name, c.series, c.parent || '', c.motif || '', c.formula, c.charge, c.n_atoms, c.n_heavy,
+      c.smiles, c.smiles_note, c.geometry,
+      r.expected === null ? '' : String(r.expected).toUpperCase(),
+      c.basis_type, c.basis,
+      String(r.predicted).toUpperCase(), r.p.toFixed(6),
+      r.agree === null ? '' : String(r.agree).toUpperCase(),
+      r.sd === null ? '' : r.sd.toFixed(6),
+      r.lo === null ? '' : r.lo.toFixed(6),
+      r.hi === null ? '' : r.hi.toFixed(6),
+      ...[0, 1, 2, 3, 4].map(i => f[i] === undefined ? '' : f[i].toFixed(6))
+    ].map(q).join(','));
+  }
+  download('panel_handout.csv', lines.join('\n') + '\n', 'text/csv');
+};
+
+/* ---------- scorecard ---------- */
+document.getElementById('score-grid').innerHTML = DATA.thresholds.map(t => {
+  const rows = ROWS.filter(r => r.t === t && r.expected !== null);
+  const ok = rows.filter(r => r.agree).length;
+  const nActive = rows.filter(r => r.predicted).length;
+  const single = nActive === 0 || nActive === rows.length;
+  const label = nActive === 0 ? 'inactive' : 'active';
+  return `<div class="score">
+    <div class="score-head">
+      <span class="score-frac">${ok}<small>/${rows.length}</small></span>
+      <span class="score-thr">pIC50 &gt; ${t}</span>
+    </div>
+    ${single ? `<p class="score-alarm"><strong>Single-class predictor.</strong>
+      All ${rows.length} of these rows were predicted <strong>${label}</strong>, so the tally
+      reflects how many expectations happen to be ${label} — not discrimination.</p>` : ''}
+    <p class="score-note">${esc(DATA.reading[t] || '')}</p>
+  </div>`;
+}).join('');
+
+/* ---------- provenance ---------- */
+const nCompounds = DATA.compounds.length;
+const nExpRows = ROWS.filter(r => r.expected !== null).length;
+document.getElementById('provenance').innerHTML = [
+  `${nCompounds} compounds`,
+  `${ROWS.length} predictions`,
+  `${nExpRows} rows with a stated expectation`,
+  'pIC50 · SOAP / ESM-C · molecule + protein',
+  'phase pretrain_ccsa_encoder_task',
+  '5-fold ensemble'
+].map(s => `<span>${esc(s)}</span>`).join('');
+document.getElementById('colophon').textContent =
+  'Generated by scripts/export_handout.py from molecules/*/predictions/. Self-contained: no network requests, ' +
+  'no external assets. The CSV button re-exports exactly the rows below, including every per-fold probability.';
+
+render();
+</script>
+</body>
+</html>
