@@ -164,14 +164,28 @@ class BindingAffinitiesDataset(Dataset):
         # Split back into components based on modality
         self._split_combined_features(torch.tensor(X_res, dtype=torch.float32))
 
-        # Synthetic continuous affinities for SMOTE samples:
-        # For synthetic positives assign a high affinity (e.g., 8.0),
-        # for synthetic negatives assign a lower affinity (e.g., 6.0).
-        synthetic_affinities = [
-            self.binding_threshold + 1.0 if lbl == 1 else self.binding_threshold - 1.0
-            for lbl in y_res
-        ]
-        self.affinities = torch.tensor(synthetic_affinities, dtype=torch.float32)
+        # Synthetic continuous affinities, for the interpolated samples only:
+        # synthetic positives get an affinity one unit above the threshold, negatives
+        # one unit below. imblearn returns the original rows first and in order,
+        # followed by the synthetic ones, so the measured affinities are carried
+        # through unchanged rather than being replaced by these placeholders.
+        n_original = len(self.affinities)
+        synthetic_affinities = torch.tensor(
+            [
+                self.binding_threshold + 1.0
+                if lbl == 1
+                else self.binding_threshold - 1.0
+                for lbl in y_res[n_original:]
+            ],
+            dtype=torch.float32,
+        )
+        self.affinities = torch.cat([self.affinities, synthetic_affinities])
+        # Guard the ordering assumption above: if imblearn ever stops returning the
+        # original rows first, fail loudly rather than silently mismatch labels.
+        assert len(self.affinities) == len(y_res), (
+            f"affinity/label length mismatch after SMOTE: "
+            f"{len(self.affinities)} vs {len(y_res)}"
+        )
 
     def _get_combined_features(self) -> torch.Tensor:
         """
