@@ -447,6 +447,7 @@ def prepare_datasets(
         modality: str,
         apply_smote: bool = False,
         scaler_stats: Optional[Dict[str, Any]] = None,
+        binding_threshold: float = 7.0,
     ) -> Optional[Dataset]:
         """
         Helper function to build dataset with consistent parameters.
@@ -485,6 +486,7 @@ def prepare_datasets(
                 apply_smote=apply_smote,
                 scaler_type=scaling_method,
                 scaler_stats=scaler_stats,
+                binding_threshold=binding_threshold,
             )
         else:
             return BindingAffinitiesDataset(
@@ -496,7 +498,17 @@ def prepare_datasets(
                 apply_smote=apply_smote,
                 scaler_type=scaling_method,
                 scaler_stats=scaler_stats,
+                binding_threshold=binding_threshold,
             )
+
+    # The activity threshold is carried through the config as a list; unwrap it the
+    # same way MultiTaskPocket does (see model/multitask.py). Oversampling must
+    # binarise at the threshold of the experiment actually being run.
+    raw_threshold = params.get("threshold", 7.0)
+    if isinstance(raw_threshold, (list, tuple)):
+        activity_threshold = float(raw_threshold[0]) if raw_threshold else 7.0
+    else:
+        activity_threshold = float(raw_threshold)
 
     # Build datasets with appropriate scaling and SMOTE settings
     src_train_ds = src_val_ds = tgt_train_ds = tgt_val_ds = None
@@ -510,6 +522,7 @@ def prepare_datasets(
             modality,
             apply_smote=source_smote,
             scaler_stats=src_scaling_stats,
+            binding_threshold=activity_threshold,
         )
     if src_val is not None:
         src_val_ds = build_dataset(
@@ -520,6 +533,7 @@ def prepare_datasets(
             modality,
             apply_smote=False,
             scaler_stats=src_scaling_stats,
+            binding_threshold=activity_threshold,
         )
     if tgt_train is not None:
         tgt_train_ds = build_dataset(
@@ -530,6 +544,7 @@ def prepare_datasets(
             modality,
             apply_smote=target_smote,  # Apply SMOTE to target training
             scaler_stats=tgt_scaling_stats,
+            binding_threshold=activity_threshold,
         )
     if tgt_val is not None:
         tgt_val_ds = build_dataset(
@@ -540,6 +555,7 @@ def prepare_datasets(
             modality,
             apply_smote=False,
             scaler_stats=tgt_scaling_stats,
+            binding_threshold=activity_threshold,
         )
 
     # Return scaling stats in a structured way
