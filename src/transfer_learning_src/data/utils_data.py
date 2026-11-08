@@ -142,12 +142,56 @@ def compute_source_scaling_stats(
     return compute_scaling_stats(source_raw, modality, scaling_method)
 
 
+def _carve_inner_validation(tgt_train, tgt_test, target_raw, params, fold):
+    """Hold one of the training folds out as an inner validation set.
+
+    Model selection -- the stopping epoch, the retained checkpoint and the LR
+    schedule -- must not see the fold the reported metric is computed on. The inner
+    set is taken as a whole fold rather than a random subset, so that the grouped
+    structure the spectral folds were built to preserve is kept intact.
+
+    Returns (train, inner_validation, test).
+    """
+    n_folds = params["n_folds"]
+    inner_fold = (fold % n_folds) + 1 if fold < n_folds else 1
+
+    _, inner = split_data_by_group(
+        target_raw["inhibitor_feats"],
+        target_raw["protein_feats"],
+        target_raw["pocket_feats"],
+        target_raw["binding_affs"],
+        "caged",
+        params["affinity_type"],
+        fold=inner_fold,
+        n_folds=n_folds,
+    )
+
+    test_keys = set(tgt_test["binding_affs"])
+    inner_keys = set(inner["binding_affs"]) - test_keys
+    train_keys = set(tgt_train["binding_affs"]) - inner_keys
+
+    def subset(source, keys):
+        return {
+            field: {k: v for k, v in source[field].items() if k in keys}
+            for field in ("inhibitor_feats", "protein_feats", "pocket_feats",
+                          "binding_affs")
+        }
+
+    return subset(tgt_train, train_keys), subset(inner, inner_keys), tgt_test
+
+
 def get_datasets(
     params: Dict[str, Any],
     fold: Optional[int] = None,
     global_scaling_stats: Optional[Dict[str, Any]] = None,
 ) -> Tuple[
-    Tuple[Optional[Dataset], Optional[Dataset], Optional[Dataset], Optional[Dataset]],
+    Tuple[
+        Optional[Dataset],
+        Optional[Dataset],
+        Optional[Dataset],
+        Optional[Dataset],
+        Optional[Dataset],
+    ],
     Dict[str, Any],
 ]:
     """
@@ -166,7 +210,10 @@ def get_datasets(
     -------
     tuple[tuple[Dataset or None, ...], dict[str, Any]]
         A tuple containing:
-        - datasets_tuple: (src_train_ds, src_val_ds, tgt_train_ds, tgt_val_ds)
+        - datasets_tuple: (src_train_ds, src_val_ds, tgt_train_ds, tgt_val_ds,
+          tgt_test_ds). tgt_val_ds is an inner validation split held out of the
+          training folds, for model selection; tgt_test_ds is the held-out fold and
+          must only be used for the final reported evaluation.
         - scaling_stats_dict: Dictionary with scaling statistics and metadata
 
     Raises
@@ -191,7 +238,7 @@ def get_datasets(
     target_raw = load_dataset("caged", params) if use_target else None
 
     # Split data based on train_on parameter
-    src_train = src_val = tgt_train = tgt_val = None
+    src_train = src_val = tgt_train = tgt_val = tgt_test = None
 
     if train_on == "src":
         src_train, src_val = split_data_by_group_random(
@@ -205,7 +252,7 @@ def get_datasets(
     elif train_on == "tgt":
         if fold is None:
             raise ValueError("Fold number required for target data splitting")
-        tgt_train, tgt_val = split_data_by_group(
+        tgt_train, tgt_test = split_data_by_group(
             target_raw["inhibitor_feats"],
             target_raw["protein_feats"],
             target_raw["pocket_feats"],
@@ -215,13 +262,16 @@ def get_datasets(
             fold=fold,
             n_folds=params["n_folds"],
         )
+        tgt_train, tgt_val, tgt_test = _carve_inner_validation(
+            tgt_train, tgt_test, target_raw, params, fold
+        )
     elif train_on == "src+tgt":
         if fold is None:
             raise ValueError("Fold number required for target data splitting")
         # Use all source data for training, split target
         src_train = source_raw
         src_val = None
-        tgt_train, tgt_val = split_data_by_group(
+        tgt_train, tgt_test = split_data_by_group(
             target_raw["inhibitor_feats"],
             target_raw["protein_feats"],
             target_raw["pocket_feats"],
@@ -230,6 +280,9 @@ def get_datasets(
             params["affinity_type"],
             fold=fold,
             n_folds=params["n_folds"],
+        )
+        tgt_train, tgt_val, tgt_test = _carve_inner_validation(
+            tgt_train, tgt_test, target_raw, params, fold
         )
     else:
         raise ValueError(f"Invalid train_on value: {train_on}")
@@ -245,6 +298,7 @@ def get_datasets(
         src_val,
         tgt_train,
         tgt_val,
+        tgt_test,
         params["modality"],
         scaling_method=scaling_method,
         scaling_stats=global_scaling_stats,  # Use consistent parameter name
@@ -328,6 +382,7 @@ def prepare_datasets(
     src_val: Optional[Dict[str, dict]],
     tgt_train: Optional[Dict[str, dict]],
     tgt_val: Optional[Dict[str, dict]],
+    tgt_test: Optional[Dict[str, dict]],
     modality: str,
     scaling_method: Optional[str] = None,
     scaling_stats: Optional[Dict[str, Any]] = None,
@@ -336,7 +391,13 @@ def prepare_datasets(
     cross_domain_scaling: bool = False,
     with_keys: bool = False,
 ) -> Tuple[
-    Tuple[Optional[Dataset], Optional[Dataset], Optional[Dataset], Optional[Dataset]],
+    Tuple[
+        Optional[Dataset],
+        Optional[Dataset],
+        Optional[Dataset],
+        Optional[Dataset],
+        Optional[Dataset],
+    ],
     Dict[str, Any],
 ]:
     """
@@ -511,7 +572,7 @@ def prepare_datasets(
         activity_threshold = float(raw_threshold)
 
     # Build datasets with appropriate scaling and SMOTE settings
-    src_train_ds = src_val_ds = tgt_train_ds = tgt_val_ds = None
+    src_train_ds = src_val_ds = tgt_train_ds = tgt_val_ds = tgt_test_ds = None
 
     if src_train is not None:
         src_train_ds = build_dataset(
@@ -557,6 +618,17 @@ def prepare_datasets(
             scaler_stats=tgt_scaling_stats,
             binding_threshold=activity_threshold,
         )
+    if tgt_test is not None:
+        tgt_test_ds = build_dataset(
+            tgt_test["inhibitor_feats"],
+            tgt_test["protein_feats"],
+            tgt_test["pocket_feats"],
+            tgt_test["binding_affs"],
+            modality,
+            apply_smote=False,
+            scaler_stats=tgt_scaling_stats,
+            binding_threshold=activity_threshold,
+        )
 
     # Return scaling stats in a structured way
     if cross_domain_scaling:
@@ -573,7 +645,13 @@ def prepare_datasets(
             "scaling_method": scaling_method,
         }
 
-    return (src_train_ds, src_val_ds, tgt_train_ds, tgt_val_ds), scaling_stats_return
+    return (
+        src_train_ds,
+        src_val_ds,
+        tgt_train_ds,
+        tgt_val_ds,
+        tgt_test_ds,
+    ), scaling_stats_return
 
 
 def create_dataloaders(
@@ -582,6 +660,7 @@ def create_dataloaders(
     tgt_train_dataset: Optional[Dataset],
     tgt_val_dataset: Optional[Dataset],
     params: Dict[str, Any],
+    tgt_test_dataset: Optional[Dataset] = None,
 ) -> Dict[str, Optional[TorchDataLoader]]:
     """
     Create dataloaders from datasets.
@@ -602,10 +681,12 @@ def create_dataloaders(
     Returns
     -------
     dict[str, DataLoader or None]
-        Dictionary with keys: 'src_train_loader', 'src_val_loader', 'tgt_train_loader', 'tgt_val_loader'.
+        Dictionary with keys: 'src_train_loader', 'src_val_loader',
+        'tgt_train_loader', 'tgt_val_loader', 'tgt_test_loader'.
     """
     batch_size = params["batch_size"]
     src_train_loader = src_val_loader = tgt_train_loader = tgt_val_loader = None
+    tgt_test_loader = None
 
     if src_train_dataset is not None:
         src_train_loader = TorchDataLoader(
@@ -627,11 +708,17 @@ def create_dataloaders(
             tgt_val_dataset, batch_size=batch_size, shuffle=False
         )
 
+    if tgt_test_dataset is not None:
+        tgt_test_loader = TorchDataLoader(
+            tgt_test_dataset, batch_size=batch_size, shuffle=False
+        )
+
     loaders = {
         "src_train_loader": src_train_loader,
         "src_val_loader": src_val_loader,
         "tgt_train_loader": tgt_train_loader,
         "tgt_val_loader": tgt_val_loader,
+        "tgt_test_loader": tgt_test_loader,
     }
 
     # Print dataset sizes
@@ -655,5 +742,10 @@ def create_dataloaders(
         logger.info(f"Target val: {len(tgt_val_dataset)}")
         logger.info(
             f" (-) {tgt_val_dataset.neg_count} : (+) {tgt_val_dataset.pos_count}"
+        )
+    if tgt_test_dataset:
+        logger.info(f"Target test: {len(tgt_test_dataset)}")
+        logger.info(
+            f" (-) {tgt_test_dataset.neg_count} : (+) {tgt_test_dataset.pos_count}"
         )
     return loaders

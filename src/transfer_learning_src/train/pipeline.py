@@ -246,7 +246,7 @@ class MultitaskTrainingPipeline:
             source_smote=False,
             cross_domain_scaling=True,  # does not matter because src is only used in pretrain
         )
-        src_train_dataset, src_val_dataset, _, _ = datasets
+        src_train_dataset, src_val_dataset, _, _, _ = datasets
 
         temp_params.update({"batch_size": self.config.pretrain_batch_size})
 
@@ -314,7 +314,7 @@ class MultitaskTrainingPipeline:
             source_smote=self.config.source_smote,
             cross_domain_scaling=self.config.cross_domain_scaling,
         )
-        src_train_dataset, src_val_dataset, _, _ = datasets
+        src_train_dataset, src_val_dataset, _, _, _ = datasets
 
         return src_train_dataset, src_val_dataset
 
@@ -894,9 +894,13 @@ class MultitaskTrainingPipeline:
             fold=fold,
             global_scaling_stats=global_scaling_stats,
         )
-        src_train_dataset, src_val_dataset, tgt_train_dataset, tgt_val_dataset = (
-            datasets
-        )
+        (
+            src_train_dataset,
+            src_val_dataset,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            tgt_test_dataset,
+        ) = datasets
 
         # Setup output directory and save stats
         output_dir = self.finetune_phase.create_output_dir(
@@ -922,10 +926,18 @@ class MultitaskTrainingPipeline:
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = WrappedDataLoader(dataloaders[f"{domain}_train_loader"], domain)
         val_loader = WrappedDataLoader(dataloaders[f"{domain}_val_loader"], domain)
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = (
+            WrappedDataLoader(dataloaders["tgt_test_loader"], domain)
+            if dataloaders.get("tgt_test_loader") is not None
+            else val_loader
+        )
 
         # Create callbacks and trainer
         callbacks = self.finetune_phase.create_callbacks(
@@ -942,7 +954,7 @@ class MultitaskTrainingPipeline:
             trainer.fit(
                 model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self.finetune_phase._extract_metrics(trainer, val_loader)
+            metrics = self.finetune_phase._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.finetune_phase.component_manager.save_components(

@@ -948,7 +948,7 @@ class EmbeddingVisualizer:
             else:
                 datasets, _ = get_datasets(temp_params, fold=None)
 
-            src_train, _, _, _ = datasets
+            src_train, _, _, _, _ = datasets
             loaders = create_dataloaders(src_train, None, None, None, temp_params)
             self._cached_source_dataloaders = loaders
 
@@ -1136,9 +1136,11 @@ class EmbeddingVisualizer:
         datasets, _ = get_datasets(
             temp_params, fold=fold, global_scaling_stats=norm_stats
         )
-        _, _, tgt_train, tgt_val = datasets
+        _, _, tgt_train, tgt_val, tgt_test = datasets
 
-        tgt_loaders = create_dataloaders(None, None, tgt_train, tgt_val, temp_params)
+        tgt_loaders = create_dataloaders(
+            None, None, tgt_train, tgt_val, temp_params, tgt_test_dataset=tgt_test
+        )
         tgt_loaders["src_train_loader"] = self._cached_source_dataloaders[
             "src_train_loader"
         ]
@@ -1307,7 +1309,7 @@ class EmbeddingVisualizer:
         data_splits = {
             "src_train": ("src_train_loader", "src"),
             "tgt_train": ("tgt_train_loader", "tgt"),
-            "tgt_test": ("tgt_val_loader", "tgt"),
+            "tgt_test": ("tgt_test_loader", "tgt"),
         }
 
         for name, (loader_key, domain) in data_splits.items():

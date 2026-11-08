@@ -511,7 +511,7 @@ class CCSAPhase(TrainingPhase):
             fold=fold,
             global_scaling_stats=global_scaling_stats,
         )
-        _, _, tgt_train_dataset, tgt_val_dataset = datasets
+        _, _, tgt_train_dataset, tgt_val_dataset, tgt_test_dataset = datasets
 
         # Save the appropriate scaling stats based on the mode
         if temp_params.get("cross_domain_scaling", False):
@@ -533,6 +533,7 @@ class CCSAPhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         # Combine cached source loaders with new target loaders
@@ -543,6 +544,9 @@ class CCSAPhase(TrainingPhase):
             }
         )
         val_loader = dataloaders["tgt_val_loader"]
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = dataloaders["tgt_test_loader"] or val_loader
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -555,7 +559,7 @@ class CCSAPhase(TrainingPhase):
             trainer.fit(
                 ccsa_model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(ccsa_model, output_dir, "ccsa")
@@ -635,7 +639,7 @@ class CCSAPhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params_tgt, fold=fold, global_scaling_stats=global_scaling_stats
         )
-        _, _, tgt_train_dataset, tgt_val_dataset = datasets
+        _, _, tgt_train_dataset, tgt_val_dataset, tgt_test_dataset = datasets
 
         # Save the appropriate scaling stats based on the mode
         if scaling_stats_dict.get("cross_domain"):
@@ -657,6 +661,7 @@ class CCSAPhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         # Combine cached source loaders with new target loaders
@@ -667,6 +672,9 @@ class CCSAPhase(TrainingPhase):
             }
         )
         val_loader = dataloaders["tgt_val_loader"]
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = dataloaders["tgt_test_loader"] or val_loader
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -679,7 +687,7 @@ class CCSAPhase(TrainingPhase):
             trainer.fit(
                 ccsa_model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(
@@ -755,9 +763,13 @@ class CCSAPhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=global_scaling_stats
         )
-        src_train_dataset, src_val_dataset, tgt_train_dataset, tgt_val_dataset = (
-            datasets
-        )
+        (
+            src_train_dataset,
+            src_val_dataset,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            tgt_test_dataset,
+        ) = datasets
 
         # Save the appropriate scaling stats based on the mode
         if temp_params.get("cross_domain_scaling", False):
@@ -777,6 +789,7 @@ class CCSAPhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = CombinedLoader(
@@ -786,6 +799,9 @@ class CCSAPhase(TrainingPhase):
             }
         )
         val_loader = dataloaders["tgt_val_loader"]
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = dataloaders["tgt_test_loader"] or val_loader
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -798,7 +814,7 @@ class CCSAPhase(TrainingPhase):
             trainer.fit(
                 ccsa_model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(ccsa_model, output_dir, "ccsa")
@@ -967,9 +983,13 @@ class FinetunePhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=global_scaling_stats
         )
-        src_train_dataset, src_val_dataset, tgt_train_dataset, tgt_val_dataset = (
-            datasets
-        )
+        (
+            src_train_dataset,
+            src_val_dataset,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            tgt_test_dataset,
+        ) = datasets
 
         # Save the appropriate scaling stats based on the mode
         if temp_params.get("cross_domain_scaling", False):
@@ -989,10 +1009,18 @@ class FinetunePhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = WrappedDataLoader(loaders[f"{domain}_train_loader"], domain)
         val_loader = WrappedDataLoader(loaders[f"{domain}_val_loader"], domain)
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = (
+            WrappedDataLoader(loaders["tgt_test_loader"], domain)
+            if loaders.get("tgt_test_loader") is not None
+            else val_loader
+        )
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -1007,7 +1035,7 @@ class FinetunePhase(TrainingPhase):
             trainer.fit(
                 model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(model, output_dir, finetune_mode)
@@ -1090,7 +1118,7 @@ class FinetunePhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=None
         )
-        _, _, tgt_train_dataset, tgt_val_dataset = datasets
+        _, _, tgt_train_dataset, tgt_val_dataset, tgt_test_dataset = datasets
 
         # Save the correctly computed target-specific scaling stats.
         stats_to_save = scaling_stats_dict.get("target_stats")
@@ -1100,11 +1128,23 @@ class FinetunePhase(TrainingPhase):
             logger.warning(f"No target scaling stats found to save for {output_dir}")
 
         loaders = create_dataloaders(
-            None, None, tgt_train_dataset, tgt_val_dataset, temp_params
+            None,
+            None,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = WrappedDataLoader(loaders["tgt_train_loader"], "tgt")
         val_loader = WrappedDataLoader(loaders["tgt_val_loader"], "tgt")
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = (
+            WrappedDataLoader(loaders["tgt_test_loader"], "tgt")
+            if loaders.get("tgt_test_loader") is not None
+            else val_loader
+        )
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -1121,7 +1161,7 @@ class FinetunePhase(TrainingPhase):
             trainer.fit(
                 model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(
