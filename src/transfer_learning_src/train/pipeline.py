@@ -366,11 +366,25 @@ class MultitaskTrainingPipeline:
         all_results = {}
 
         try:
-            # Always compute global scaling stats for consistency
-            self._compute_global_scaling_stats()
-
             # Determine which run types to execute
             run_types = self.run_types
+
+            # Loading the source domain means reading ~42 GB of organic HDF5, which
+            # takes about nine minutes. Every run type except no_pretrain_encoder_task
+            # needs it -- SSL pre-training trains on it, and the CCSA stages need it
+            # for the contrastive pairs. no_pretrain_encoder_task does not: it goes
+            # through FinetunePhase.run_target_only, which sets train_on="tgt",
+            # forces cross_domain_scaling=False and passes global_scaling_stats=None,
+            # so the statistics computed here are discarded unused. Skipping the load
+            # for that one case changes no number it produces.
+            if run_types == ["no_pretrain_encoder_task"]:
+                logger.info(
+                    "Target-only run: skipping the source-domain load, since "
+                    "run_target_only recomputes scaling statistics from the target "
+                    "training fold and ignores the global ones."
+                )
+            else:
+                self._compute_global_scaling_stats()
 
             if "full_pipeline" in run_types:
                 # Run ALL training approaches for comprehensive comparison
