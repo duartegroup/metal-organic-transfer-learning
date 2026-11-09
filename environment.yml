@@ -14,8 +14,9 @@ dependencies:
   # Core ML/DL frameworks
   - pytorch
   - pytorch-lightning
+  - lightning  # train/phases.py imports `lightning`, which pytorch-lightning does not provide
   - torchmetrics
-  # - torch-geometric  # Uncomment if needed
+  - torch-geometric  # required: data/dataset.py imports it unconditionally
   - pytorch-cuda  # Adjust CUDA version as needed
 
   # Scientific computing
@@ -23,6 +24,7 @@ dependencies:
   - scipy
   - scikit-learn
   - pandas
+  - imbalanced-learn  # SMOTE oversampling in data/dataset.py
 
   # Visualization
   - matplotlib
@@ -37,10 +39,23 @@ dependencies:
   - biopython
   - h5py
 
+  # Experiment tracking
+  # train/phases.py imports wandb unconditionally and builds a WandbLogger, so a
+  # run needs either `wandb login` or WANDB_MODE=offline/disabled in the job script.
+  - wandb
+
   # Utilities
   - tqdm
   - termcolor
   - pathlib
+  - prettytable  # result tables in train/phases.py and train/results.py
+
+  # Analysis and inference only, not needed to train:
+  #   rich      statistical_tests/
+  #   tabulate  supervised_learning_src/
+  #   xtb       inference/ (conda-forge: xtb-python)
+  - rich
+  - tabulate
 
   # pip dependencies (for packages not available via conda)
   - pip
@@ -48,4 +63,5 @@ dependencies:
     - dscribe
     - esm
     - mace-torch
+    - pytorch_optimizer  # model/multitask.py
 
