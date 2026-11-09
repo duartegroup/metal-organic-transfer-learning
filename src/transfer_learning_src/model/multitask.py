@@ -624,6 +624,16 @@ class MultiTaskPocket(pl.LightningModule):
         # actually happens; they affect nothing.
         self._logit_batches_total = 0
         self._logit_batches_inside_unit_interval = 0
+
+        # The diagnostic above showed the ambiguity is live in ~21% of reported fold
+        # evaluations, so the correct-boundary values are computed alongside rather
+        # than instead. Replacing the originals would confound two changes in one
+        # re-run -- the nested protocol and the metric -- and leave no clean
+        # comparison against the published numbers. These are fed sigmoid
+        # probabilities, so they always threshold at p = 0.5.
+        self.accuracy_from_probs = BinaryAccuracy()
+        self.f1_from_probs = BinaryF1Score()
+        self.mcc_from_probs = BinaryMatthewsCorrCoef()
         self.confmat = BinaryConfusionMatrix()
 
     def _evaluate_probe(
@@ -1148,6 +1158,10 @@ class MultiTaskPocket(pl.LightningModule):
             self.auprc.update(forward_output, labels_int)
             self.mcc.update(forward_output, labels_int)
 
+            self.accuracy_from_probs.update(probs, labels_int)
+            self.f1_from_probs.update(probs, labels_int)
+            self.mcc_from_probs.update(probs, labels_int)
+
             # new confusion matrix updates
             self.confmat.update(probs, labels_int)
 
@@ -1292,6 +1306,9 @@ class MultiTaskPocket(pl.LightningModule):
                 "val/auroc": self.auroc.compute(),
                 # "val/auprc": self.auprc.compute(),
                 "val/mcc": self.mcc.compute(),
+                "val/accuracy_from_probs": self.accuracy_from_probs.compute(),
+                "val/f1_from_probs": self.f1_from_probs.compute(),
+                "val/mcc_from_probs": self.mcc_from_probs.compute(),
             }
             # confusion matrix
             cm = self.confmat.compute()  # [[tn, fp],[fn, tp]]
@@ -1311,7 +1328,9 @@ class MultiTaskPocket(pl.LightningModule):
             )
 
             # Reset metrics
-            for metric in [self.accuracy, self.f1, self.auroc, self.mcc]:
+            for metric in [self.accuracy, self.f1, self.auroc, self.mcc,
+                           self.accuracy_from_probs, self.f1_from_probs,
+                           self.mcc_from_probs]:
                 metric.reset()
             self.confmat.reset()
 

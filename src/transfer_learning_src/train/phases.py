@@ -121,9 +121,17 @@ def _metrics_from_best_checkpoint(
     # logit fell inside [0, 1], and torchmetrics therefore thresholded the raw logit
     # at 0.5 instead of mapping it through a sigmoid and thresholding at 0. Optional
     # rather than required, so a model that does not log it still reports normally.
-    diagnostic = "val/logit_batches_in_unit_interval"
-    if diagnostic in result:
-        metrics[diagnostic] = float(result[diagnostic])
+    for optional in (
+        "val/logit_batches_in_unit_interval",
+        # Computed from sigmoid probabilities, so thresholded at p = 0.5 whatever the
+        # logits happen to be. Reported alongside the originals rather than replacing
+        # them, so the nested-versus-published comparison stays clean.
+        "val/accuracy_from_probs",
+        "val/f1_from_probs",
+        "val/mcc_from_probs",
+    ):
+        if optional in result:
+            metrics[optional] = float(result[optional])
 
     return metrics
 
