@@ -150,10 +150,11 @@ def test_threshold_is_forwarded_to_datasets():
     }
 
     for threshold in (5.0, 6.0, 7.0):
+        # A list, as the config carries it, to exercise the unwrapping too.
         datasets, _ = prepare_datasets(
             None, None, split, None, None, "mol",
             target_smote=True,
-            params={"threshold": [threshold]},
+            activity_threshold=[threshold],
         )
         tgt_train = datasets[2]
         assert tgt_train.binding_threshold == threshold, (
