@@ -68,13 +68,62 @@ def test_self_ssl_extras_are_allowed():
     mod.transfer_weights(target, source, "ssl source -> plain target")  # must not raise
 
 
+def test_head_absent_from_an_ssl_source_is_allowed():
+    """MultiTaskPocket builds a classification head XOR a projection head.
+
+    An SSL-pretrained source therefore has no classification head to give, and the
+    supervised target's head is meant to be trained from scratch. This is the real
+    shape of every pretrained -> finetune transfer in the pipeline, and an earlier
+    version of the guard rejected it, failing the first S4C run at CCSA fold 1.
+    """
+    import torch.nn as nn
+
+    mod = _load_module()
+
+    class SSLSource(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.mol_encoder = nn.Linear(8, 4)
+            self.protein_encoder = nn.Linear(6, 4)
+            self.projection_head = nn.Linear(4, 4)  # and no classification_head
+
+    target = _encoder_model()  # has classification_head
+    mod.transfer_weights(
+        target,
+        SSLSource(),
+        "ssl source -> supervised target",
+        allow_missing=("classification_head",),
+    )
+
+
+def test_the_head_exemption_does_not_excuse_an_encoder():
+    """The exemption is named, so a missing encoder is still fatal."""
+    import torch.nn as nn
+
+    mod = _load_module()
+
+    class NoMolEncoder(nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.protein_encoder = nn.Linear(6, 4)
+            self.projection_head = nn.Linear(4, 4)
+
+    with pytest.raises(RuntimeError, match="mol_encoder"):
+        mod.transfer_weights(
+            _encoder_model(),
+            NoMolEncoder(),
+            "ssl source missing an encoder",
+            allow_missing=("classification_head",),
+        )
+
+
 def test_missing_parameters_raise_instead_of_staying_random():
-    """The target needs a parameter the source cannot supply -- a silent no-op before."""
+    """Without an exemption, any component the source cannot supply is fatal."""
     mod = _load_module()
     source = _encoder_model(with_projection_head=False)
     target = _encoder_model(with_projection_head=True)
 
-    with pytest.raises(RuntimeError, match="randomly initialised"):
+    with pytest.raises(RuntimeError, match="projection_head"):
         mod.transfer_weights(target, source, "plain source -> ssl target")
 
 

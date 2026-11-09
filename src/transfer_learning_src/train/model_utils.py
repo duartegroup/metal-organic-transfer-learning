@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 def transfer_weights(
-    target: torch.nn.Module, source: torch.nn.Module, what: str
+    target: torch.nn.Module,
+    source: torch.nn.Module,
+    what: str,
+    allow_missing: tuple = (),
 ) -> None:
     """Copy every parameter of `source` into `target`, refusing a partial copy.
 
@@ -25,19 +28,42 @@ def transfer_weights(
     result would be a "transfer-learning" run that transferred nothing, scoring
     like the from-scratch baseline it is being compared against.
 
-    Missing keys are fatal: those parameters exist in `target`, were not supplied
-    by `source`, and are therefore still random. Unexpected keys are not, because
-    a source model built with self_ssl=True legitimately carries a projection
-    head that the target does not have.
+    Unexpected keys are harmless: a source built with self_ssl=True carries a
+    projection head the target does not have.
+
+    Missing keys are fatal unless their top-level component is named in
+    `allow_missing`. Only one component is ever legitimately absent:
+    `MultiTaskPocket` builds a classification head or a projection head, never both
+    (`if not self_ssl:` in model/multitask.py), so an SSL-pretrained source has no
+    classification head to give and the supervised target's head is *meant* to start
+    fresh -- that is what "transfer the encoders, train a new head" means.
+
+    The exemption is named per call site rather than inferred from the source, because
+    inferring it cannot distinguish an intentionally absent head from a *renamed*
+    encoder: both look like a component the source does not have, and the second is
+    precisely the silent failure this guard exists to catch.
     """
     missing, unexpected = target.load_state_dict(source.state_dict(), strict=False)
 
     if missing:
-        raise RuntimeError(
-            f"{what}: {len(missing)} parameter(s) were not present in the source "
-            f"model and remain randomly initialised, so the weights were NOT "
-            f"transferred. Missing keys: {sorted(missing)}"
-        )
+        permitted, fatal = [], []
+        for key in missing:
+            component = key.split(".", 1)[0]
+            (permitted if component in allow_missing else fatal).append(key)
+
+        if permitted:
+            logger.info(
+                f"{what}: {sorted({k.split('.', 1)[0] for k in permitted})} not "
+                f"supplied by the source, as expected; "
+                f"{len(permitted)} parameter(s) start from their initialisation."
+            )
+
+        if fatal:
+            raise RuntimeError(
+                f"{what}: {len(fatal)} parameter(s) were not supplied by the source "
+                f"model and remain randomly initialised, so the weights were NOT "
+                f"transferred. Missing keys: {sorted(fatal)}"
+            )
     if unexpected:
         logger.info(
             f"{what}: ignored {len(unexpected)} source parameter(s) with no "

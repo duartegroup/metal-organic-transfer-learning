@@ -941,7 +941,7 @@ class MultitaskTrainingPipeline:
 
         # Create model
         model = MultiTaskPocket(domain=domain, **temp_params)
-        transfer_weights(model, pretrained_model, f"pretrained model -> finetune ({finetune_mode})")
+        transfer_weights(model, pretrained_model, f"pretrained model -> finetune ({finetune_mode})", allow_missing=("classification_head",))
 
         # Apply freezing strategy
         if finetune_mode == "encoder_task":
