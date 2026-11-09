@@ -113,7 +113,19 @@ def _metrics_from_best_checkpoint(
             f"{missing}. Got keys: {sorted(result)}"
         )
 
-    return {k: float(result[k]) for k in _REPORTED_METRICS}
+    metrics = {k: float(result[k]) for k in _REPORTED_METRICS}
+
+    # Carried through when the model logged it (MultiTaskPocket does; CCSAFinetune
+    # feeds probabilities and is not affected). This is the fraction of batches in
+    # *this* evaluation -- the one whose numbers are reported -- for which every
+    # logit fell inside [0, 1], and torchmetrics therefore thresholded the raw logit
+    # at 0.5 instead of mapping it through a sigmoid and thresholding at 0. Optional
+    # rather than required, so a model that does not log it still reports normally.
+    diagnostic = "val/logit_batches_in_unit_interval"
+    if diagnostic in result:
+        metrics[diagnostic] = float(result[diagnostic])
+
+    return metrics
 
 
 class TrainingPhase:
