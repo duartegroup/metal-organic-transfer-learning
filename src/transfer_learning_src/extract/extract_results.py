@@ -197,6 +197,15 @@ def load_and_process_csv(csv_info: Dict) -> Optional[pd.DataFrame]:
         df["scaling_config"] = csv_info["scaling_config"]
         df["cross_domain_scaling"] = csv_info["cross_domain_scaling"]
         df["source_smote"] = csv_info["source_smote"]
+        # target_smote, threshold and seed were parsed but never attached. Without
+        # threshold and seed, runs differing only in those collapse into one
+        # indistinguishable group -- which is the whole point of adding them to the
+        # results path. target_smote has been parsed and dropped since the original
+        # sweep, which is why the published CSV has no such column even though
+        # scaling_config encodes it.
+        df["target_smote"] = csv_info["target_smote"]
+        df["threshold"] = csv_info.get("threshold")
+        df["seed"] = csv_info.get("seed")
         df["filename"] = csv_info["filename"]
         df["file_path"] = str(csv_info["file_path"])
 
@@ -244,6 +253,18 @@ def extract_all_results(base_dir: str) -> pd.DataFrame:
         )
 
     all_dataframes = [df for df in results if df is not None and not df.empty]
+
+    # Say so when files are dropped. The comprehension above silently discards any
+    # CSV that failed to parse or came back empty, and the only other output is the
+    # combined shape -- so a sweep in which a tenth of the runs failed to load would
+    # look like a sweep that was simply smaller.
+    dropped = len(csv_files) - len(all_dataframes)
+    if dropped:
+        print(
+            f"WARNING: {dropped} of {len(csv_files)} result files produced no rows "
+            f"and were excluded. Any aggregate below is computed over "
+            f"{len(all_dataframes)} runs, not {len(csv_files)}."
+        )
 
     if not all_dataframes:
         print("No valid data found in CSV files.")
