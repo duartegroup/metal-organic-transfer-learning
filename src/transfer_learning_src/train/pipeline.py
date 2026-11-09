@@ -540,13 +540,29 @@ class MultitaskTrainingPipeline:
                 load_status = self.pretrain_phase.component_manager.load_components_from_directory(
                     model=source_model, load_dir=pretrained_model_path, strict=False
                 )
-                if any(load_status.values()):
+                # Every component must be restored, not merely one of them. With
+                # `any`, a checkpoint that matched a single component would skip
+                # pretraining and leave the remaining encoders randomly initialised,
+                # while logging success.
+                failed = [name for name, ok in load_status.items() if not ok]
+                if load_status and not failed:
                     logger.info(
                         f"Successfully loaded pre-trained source model. Load status: {load_status}"
                     )
                     return source_model, {"pretraining_skipped": True}
+                elif not load_status:
+                    raise RuntimeError(
+                        f"No components were successfully loaded from "
+                        f"{pretrained_model_path}"
+                    )
                 else:
-                    raise RuntimeError("No components were successfully loaded")
+                    raise RuntimeError(
+                        f"Pre-trained source model at {pretrained_model_path} is "
+                        f"incomplete: {failed} could not be restored (load status: "
+                        f"{load_status}). Refusing to skip pretraining with partly "
+                        f"random weights -- delete the directory to pretrain from "
+                        f"scratch, or point the run at a complete checkpoint."
+                    )
             except Exception as e:
                 logger.error(f"Failed to load pre-trained model: {e}")
                 raise

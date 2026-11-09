@@ -227,6 +227,17 @@ class ModelComponentManager:
         load_status = {}
         target_components = ModelComponentManager.get_saveable_components(model)
 
+        # Components the model expects but the directory does not hold cannot be
+        # restored. Record them as failures rather than omitting them, so a caller
+        # testing the returned statuses sees an incomplete checkpoint for what it is.
+        for component_name in target_components:
+            if component_name not in available_components:
+                logger.warning(
+                    f"Component '{component_name}' is required by the model but has "
+                    f"no file in {load_dir}; it cannot be restored."
+                )
+                load_status[component_name] = False
+
         for component_name in components_to_load:
             try:
                 if component_name not in target_components:
@@ -256,14 +267,26 @@ class ModelComponentManager:
                     missing_keys, unexpected_keys = target_component.load_state_dict(
                         component_state, strict=False
                     )
-                    if missing_keys:
-                        logger.debug(
-                            f"Missing keys in {component_name}: {missing_keys}"
-                        )
                     if unexpected_keys:
+                        # Extra tensors in the checkpoint are harmless: every parameter
+                        # the component needs was still restored.
                         logger.debug(
                             f"Unexpected keys in {component_name}: {unexpected_keys}"
                         )
+                    if missing_keys:
+                        # Missing keys are NOT harmless. Those parameters keep their
+                        # random initialisation, so the component has not been restored
+                        # even though load_state_dict did not raise. Reporting this as a
+                        # success let a caller skip pretraining and train on a partly
+                        # random encoder.
+                        logger.warning(
+                            f"Component '{component_name}' was NOT fully restored: "
+                            f"{len(missing_keys)} parameter(s) absent from the "
+                            f"checkpoint and left at their initial values. "
+                            f"Missing keys: {missing_keys}"
+                        )
+                        load_status[component_name] = False
+                        continue
 
                 load_status[component_name] = True
                 logger.debug(
