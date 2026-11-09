@@ -1,8 +1,9 @@
 name: metal-transfer-learning
+# The `pytorch` and `cuda` channels are deliberately absent: mixing them with
+# conda-forge is what produced a CPU-only build below. Everything here resolves
+# from conda-forge.
 channels:
   - conda-forge
-  - pytorch
-  - cuda
   - pyg
   - bioconda
   - defaults
@@ -12,12 +13,23 @@ dependencies:
   - python=3.11
 
   # Core ML/DL frameworks
-  - pytorch
+  #
+  # pytorch-gpu, NOT pytorch: on conda-forge, plain `pytorch` resolves to a
+  # cpu_mkl_* build, and the old `pytorch-cuda` pin did not prevent that. It is a
+  # pin package for the pytorch channel's own builds, so the solver was free to
+  # satisfy it alongside a CPU pytorch. The result imported and ran, with
+  # torch.cuda.is_available() == False -- every job would have fallen back to CPU.
+  - pytorch-gpu
+  #
+  # torchvision must come from conda-forge so it links the same libtorch. `esm`
+  # declares it as a dependency, so if it is absent here pip installs a wheel built
+  # against a different libtorch and torchmetrics/lightning then fail to import with
+  # "operator torchvision::nms does not exist".
+  - torchvision
   - pytorch-lightning
   - lightning  # train/phases.py imports `lightning`, which pytorch-lightning does not provide
   - torchmetrics
   - torch-geometric  # required: data/dataset.py imports it unconditionally
-  - pytorch-cuda  # Adjust CUDA version as needed
 
   # Scientific computing
   - numpy
@@ -47,7 +59,6 @@ dependencies:
   # Utilities
   - tqdm
   - termcolor
-  - pathlib
   - prettytable  # result tables in train/phases.py and train/results.py
 
   # Analysis and inference only, not needed to train:
