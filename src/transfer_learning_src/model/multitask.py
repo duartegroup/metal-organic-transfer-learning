@@ -615,6 +615,25 @@ class MultiTaskPocket(pl.LightningModule):
         self.auroc = BinaryAUROC()
         self.auprc = BinaryAveragePrecision()
         self.mcc = BinaryMatthewsCorrCoef()
+
+        # Diagnostic only, see on_validation_epoch_end: torchmetrics applies a
+        # sigmoid to its input only when some value falls outside [0, 1]. The
+        # metrics above are fed raw logits, so a batch whose logits all happen to
+        # lie inside that interval is thresholded at 0.5 on the logit rather than
+        # at 0, which is a different decision boundary. These count how often that
+        # actually happens; they affect nothing.
+        self._logit_batches_total = 0
+        self._logit_batches_inside_unit_interval = 0
+
+        # The diagnostic above showed the ambiguity is live in ~21% of reported fold
+        # evaluations, so the correct-boundary values are computed alongside rather
+        # than instead. Replacing the originals would confound two changes in one
+        # re-run -- the nested protocol and the metric -- and leave no clean
+        # comparison against the published numbers. These are fed sigmoid
+        # probabilities, so they always threshold at p = 0.5.
+        self.accuracy_from_probs = BinaryAccuracy()
+        self.f1_from_probs = BinaryF1Score()
+        self.mcc_from_probs = BinaryMatthewsCorrCoef()
         self.confmat = BinaryConfusionMatrix()
 
     def _evaluate_probe(
@@ -1125,6 +1144,11 @@ class MultiTaskPocket(pl.LightningModule):
             labels_int = labels.int()
             probs = torch.sigmoid(forward_output.detach())
 
+            detached = forward_output.detach()
+            self._logit_batches_total += 1
+            if bool(((detached >= 0) & (detached <= 1)).all()):
+                self._logit_batches_inside_unit_interval += 1
+
             # existing metrics (kept as-is)
             self.accuracy.update(forward_output, labels_int)
             self.precision.update(forward_output, labels_int)
@@ -1133,6 +1157,10 @@ class MultiTaskPocket(pl.LightningModule):
             self.auroc.update(forward_output, labels_int)
             self.auprc.update(forward_output, labels_int)
             self.mcc.update(forward_output, labels_int)
+
+            self.accuracy_from_probs.update(probs, labels_int)
+            self.f1_from_probs.update(probs, labels_int)
+            self.mcc_from_probs.update(probs, labels_int)
 
             # new confusion matrix updates
             self.confmat.update(probs, labels_int)
@@ -1278,18 +1306,31 @@ class MultiTaskPocket(pl.LightningModule):
                 "val/auroc": self.auroc.compute(),
                 # "val/auprc": self.auprc.compute(),
                 "val/mcc": self.mcc.compute(),
+                "val/accuracy_from_probs": self.accuracy_from_probs.compute(),
+                "val/f1_from_probs": self.f1_from_probs.compute(),
+                "val/mcc_from_probs": self.mcc_from_probs.compute(),
             }
             # confusion matrix
             cm = self.confmat.compute()  # [[tn, fp],[fn, tp]]
             tn, fp, fn, tp = cm.flatten().tolist()
             cm_metrics = {"val/tn": tn, "val/fp": fp, "val/fn": fn, "val/tp": tp}
 
+            # Fraction of batches for which the thresholding ambiguity above was live.
+            if self._logit_batches_total:
+                cm_metrics["val/logit_batches_in_unit_interval"] = float(
+                    self._logit_batches_inside_unit_interval
+                ) / float(self._logit_batches_total)
+            self._logit_batches_total = 0
+            self._logit_batches_inside_unit_interval = 0
+
             self.log_dict(
                 metrics | cm_metrics, prog_bar=True, batch_size=self.batch_size
             )
 
             # Reset metrics
-            for metric in [self.accuracy, self.f1, self.auroc, self.mcc]:
+            for metric in [self.accuracy, self.f1, self.auroc, self.mcc,
+                           self.accuracy_from_probs, self.f1_from_probs,
+                           self.mcc_from_probs]:
                 metric.reset()
             self.confmat.reset()
 

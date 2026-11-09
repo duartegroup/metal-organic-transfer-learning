@@ -112,13 +112,25 @@ class TrainingPhase:
         scaling_suffix += f"_{source_smote_status}_{target_smote_status}"
 
         # Create directory structure: inhibitor_descriptor/modality_combination/scaler/affinity_type/scaling_config/
+        # CONTROL BRANCH: threshold and seed added to the path, and output_dir
+        # honoured. Without them two thresholds of one configuration resolve to the
+        # same directory and overwrite each other. Plumbing only -- the protocol on
+        # this branch is deliberately the published one.
+        raw_threshold = self.params.get("threshold", 7.0)
+        if isinstance(raw_threshold, (list, tuple)):
+            threshold_tag = "_".join(f"{float(x):g}" for x in raw_threshold)
+        else:
+            threshold_tag = f"{float(raw_threshold):g}"
+
         base_results_dir = (
-            Path("results")
+            Path(self.params.get("output_dir") or "results")
             / self.params["inhibitor_descriptor"]
             / modality_combination
             / scaler_name
             / self.params["affinity_type"]
             / scaling_suffix.lstrip("_")
+            / f"threshold_{threshold_tag}"
+            / f"seed_{self.params.get('seed', 42)}"
         )
         base_results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -864,6 +876,16 @@ class CCSAPhase(TrainingPhase):
                     "val/f1": float(result.get("val/f1", 0.0)),
                     "val/auroc": float(result.get("val/auroc", 0.0)),
                     "val/mcc": float(result.get("val/mcc", 0.0)),
+                    **{
+                        k: float(result[k])
+                        for k in (
+                            "val/logit_batches_in_unit_interval",
+                            "val/accuracy_from_probs",
+                            "val/f1_from_probs",
+                            "val/mcc_from_probs",
+                        )
+                        if k in result
+                    },
                 }
             except Exception as e:
                 logger.warning(f"Could not load best checkpoint: {e}")
@@ -1247,6 +1269,16 @@ class FinetunePhase(TrainingPhase):
                     "val/f1": float(result.get("val/f1", 0.0)),
                     "val/auroc": float(result.get("val/auroc", 0.0)),
                     "val/mcc": float(result.get("val/mcc", 0.0)),
+                    **{
+                        k: float(result[k])
+                        for k in (
+                            "val/logit_batches_in_unit_interval",
+                            "val/accuracy_from_probs",
+                            "val/f1_from_probs",
+                            "val/mcc_from_probs",
+                        )
+                        if k in result
+                    },
                 }
             except Exception as e:
                 logger.warning(f"Could not load best checkpoint: {e}")
