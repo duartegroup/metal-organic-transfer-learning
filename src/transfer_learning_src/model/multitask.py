@@ -615,6 +615,15 @@ class MultiTaskPocket(pl.LightningModule):
         self.auroc = BinaryAUROC()
         self.auprc = BinaryAveragePrecision()
         self.mcc = BinaryMatthewsCorrCoef()
+
+        # Diagnostic only, see on_validation_epoch_end: torchmetrics applies a
+        # sigmoid to its input only when some value falls outside [0, 1]. The
+        # metrics above are fed raw logits, so a batch whose logits all happen to
+        # lie inside that interval is thresholded at 0.5 on the logit rather than
+        # at 0, which is a different decision boundary. These count how often that
+        # actually happens; they affect nothing.
+        self._logit_batches_total = 0
+        self._logit_batches_inside_unit_interval = 0
         self.confmat = BinaryConfusionMatrix()
 
     def _evaluate_probe(
@@ -1125,6 +1134,11 @@ class MultiTaskPocket(pl.LightningModule):
             labels_int = labels.int()
             probs = torch.sigmoid(forward_output.detach())
 
+            detached = forward_output.detach()
+            self._logit_batches_total += 1
+            if bool(((detached >= 0) & (detached <= 1)).all()):
+                self._logit_batches_inside_unit_interval += 1
+
             # existing metrics (kept as-is)
             self.accuracy.update(forward_output, labels_int)
             self.precision.update(forward_output, labels_int)
@@ -1283,6 +1297,14 @@ class MultiTaskPocket(pl.LightningModule):
             cm = self.confmat.compute()  # [[tn, fp],[fn, tp]]
             tn, fp, fn, tp = cm.flatten().tolist()
             cm_metrics = {"val/tn": tn, "val/fp": fp, "val/fn": fn, "val/tp": tp}
+
+            # Fraction of batches for which the thresholding ambiguity above was live.
+            if self._logit_batches_total:
+                cm_metrics["val/logit_batches_in_unit_interval"] = float(
+                    self._logit_batches_inside_unit_interval
+                ) / float(self._logit_batches_total)
+            self._logit_batches_total = 0
+            self._logit_batches_inside_unit_interval = 0
 
             self.log_dict(
                 metrics | cm_metrics, prog_bar=True, batch_size=self.batch_size
