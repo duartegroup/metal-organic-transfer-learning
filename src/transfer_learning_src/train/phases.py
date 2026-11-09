@@ -22,7 +22,7 @@ from data.utils_data import (
     create_dataloaders,
 )
 from .config import TrainingConfig
-from .model_utils import ModelComponentManager
+from .model_utils import ModelComponentManager, transfer_weights
 from model.multitask import MultiTaskPocket, CCSAFinetune
 from utils.checkpoint_utils import PrintOnBestModelCheckpoint, save_phase_stats
 
@@ -576,7 +576,7 @@ class CCSAPhase(TrainingPhase):
 
         # Create base model and CCSA wrapper
         base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        base_model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(base_model, pretrained_model, f"pretrained model -> CCSA base (fold {fold})")
 
         ccsa_model = CCSAFinetune(
             base_model=base_model,
@@ -650,8 +650,8 @@ class CCSAPhase(TrainingPhase):
 
         # Return the best base model for chaining
         best_base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        best_base_model.load_state_dict(
-            ccsa_model.base_model.state_dict(), strict=False
+        transfer_weights(
+            best_base_model, ccsa_model.base_model, f"CCSA base -> chained model (fold {fold})"
         )
 
         logger.info(
@@ -780,8 +780,8 @@ class CCSAPhase(TrainingPhase):
 
         # Return the best base model for chaining
         best_base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        best_base_model.load_state_dict(
-            ccsa_model.base_model.state_dict(), strict=False
+        transfer_weights(
+            best_base_model, ccsa_model.base_model, f"CCSA base -> chained model (fold {fold})"
         )
 
         logger.info(
@@ -832,7 +832,7 @@ class CCSAPhase(TrainingPhase):
 
         # Create base model and CCSA wrapper
         base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        base_model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(base_model, pretrained_model, f"pretrained model -> CCSA base (fold {fold})")
 
         ccsa_model = CCSAFinetune(
             base_model=base_model,
@@ -905,8 +905,8 @@ class CCSAPhase(TrainingPhase):
 
         # Return the best base model for chaining
         best_base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        best_base_model.load_state_dict(
-            ccsa_model.base_model.state_dict(), strict=False
+        transfer_weights(
+            best_base_model, ccsa_model.base_model, f"CCSA base -> chained model (fold {fold})"
         )
 
         logger.info(
@@ -1001,7 +1001,7 @@ class FinetunePhase(TrainingPhase):
 
         # Create model
         model = MultiTaskPocket(domain=domain, **temp_params)
-        model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(model, pretrained_model, f"pretrained model -> finetune ({finetune_mode})")
 
         # Apply freezing strategy
         if finetune_mode == "encoder_task":

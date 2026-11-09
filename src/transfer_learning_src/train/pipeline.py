@@ -3,6 +3,7 @@ import torch
 from .config import TrainingConfig
 from .phases import TrainingPhase, PretrainingPhase, CCSAPhase, FinetunePhase
 from .results import ResultsManager
+from .model_utils import transfer_weights
 from model.multitask import MultiTaskPocket
 from data.utils_data import (
     load_dataset,
@@ -608,8 +609,9 @@ class MultitaskTrainingPipeline:
             fold_model = MultiTaskPocket(
                 domain="src", self_ssl=True, temperature=0.07, **self.params
             )
-            fold_model.load_state_dict(source_model.state_dict(), strict=False)
-            logger.info(f"Loaded source model for fold {fold}")
+            transfer_weights(
+                fold_model, source_model, f"source model -> CCSA fold {fold}"
+            )
 
             # Load source data
             src_train_dataset, src_val_dataset = (
@@ -821,7 +823,9 @@ class MultitaskTrainingPipeline:
                 fold_model = MultiTaskPocket(
                     domain="src", self_ssl=True, temperature=0.07, **self.params
                 )
-                fold_model.load_state_dict(source_model.state_dict(), strict=False)
+                transfer_weights(
+                    fold_model, source_model, f"source model -> fold {fold} ({method})"
+                )
 
                 # Run fine-tuning
                 metrics = self._run_finetune(
@@ -896,7 +900,7 @@ class MultitaskTrainingPipeline:
 
         # Create model
         model = MultiTaskPocket(domain=domain, **temp_params)
-        model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(model, pretrained_model, f"pretrained model -> finetune ({finetune_mode})")
 
         # Apply freezing strategy
         if finetune_mode == "encoder_task":

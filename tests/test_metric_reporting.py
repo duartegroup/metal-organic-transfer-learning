@@ -78,7 +78,11 @@ def _load_phases():
     package.__path__ = [str(REPO / "src" / "transfer_learning_src" / "train")]
     sys.modules[PKG] = package
     _stub(f"{PKG}.config", TrainingConfig=type("TrainingConfig", (), {}))
-    _stub(f"{PKG}.model_utils", ModelComponentManager=anything)
+    _stub(
+        f"{PKG}.model_utils",
+        ModelComponentManager=anything,
+        transfer_weights=lambda *a, **k: None,
+    )
 
     path = REPO / "src" / "transfer_learning_src" / "train" / "phases.py"
     spec = importlib.util.spec_from_file_location(f"{PKG}.phases", path)

@@ -1,4 +1,14 @@
 name: metal-transfer-learning
+# Build this on a machine with no GPU (a cluster login node, say) with:
+#
+#     CONDA_OVERRIDE_CUDA=12.4 conda env create -f environment.yml
+#
+# conda detects CUDA through the `__cuda` virtual package, which comes from the
+# NVIDIA driver. A login node has no driver, so every CUDA build of pytorch is
+# judged uninstallable and the solve fails with
+# "nothing provides __cuda needed by pytorch-...-cuda...". The override states
+# the CUDA version the *compute* nodes provide.
+#
 # The `pytorch` and `cuda` channels are deliberately absent: mixing them with
 # conda-forge is what produced a CPU-only build below. Everything here resolves
 # from conda-forge.

@@ -11,6 +11,42 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def transfer_weights(
+    target: torch.nn.Module, source: torch.nn.Module, what: str
+) -> None:
+    """Copy every parameter of `source` into `target`, refusing a partial copy.
+
+    This is the handoff between phases -- source pretraining to fold model, fold
+    model to CCSA base, CCSA base to fine-tuning -- and it is the mechanism the
+    paper's transfer-learning claim rests on. Each call site used
+    `load_state_dict(..., strict=False)` and discarded the returned key lists, so
+    a name mismatch anywhere in the chain left the target at its random
+    initialisation while the next log line reported the transfer as done. The
+    result would be a "transfer-learning" run that transferred nothing, scoring
+    like the from-scratch baseline it is being compared against.
+
+    Missing keys are fatal: those parameters exist in `target`, were not supplied
+    by `source`, and are therefore still random. Unexpected keys are not, because
+    a source model built with self_ssl=True legitimately carries a projection
+    head that the target does not have.
+    """
+    missing, unexpected = target.load_state_dict(source.state_dict(), strict=False)
+
+    if missing:
+        raise RuntimeError(
+            f"{what}: {len(missing)} parameter(s) were not present in the source "
+            f"model and remain randomly initialised, so the weights were NOT "
+            f"transferred. Missing keys: {sorted(missing)}"
+        )
+    if unexpected:
+        logger.info(
+            f"{what}: ignored {len(unexpected)} source parameter(s) with no "
+            f"counterpart in the target (expected when the source was built with "
+            f"self_ssl=True): {sorted(unexpected)}"
+        )
+    logger.info(f"{what}: transferred all {len(target.state_dict())} parameters")
+
+
 class ModelComponentManager:
     """
     Utility class for managing model component saving and loading.
