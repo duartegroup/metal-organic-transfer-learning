@@ -306,6 +306,7 @@ def get_datasets(
         target_smote=target_smote,
         cross_domain_scaling=cross_domain_scaling,
         with_keys=with_keys,
+        activity_threshold=params.get("threshold", 7.0),
     )
 
 
@@ -390,6 +391,7 @@ def prepare_datasets(
     target_smote: bool = False,
     cross_domain_scaling: bool = False,
     with_keys: bool = False,
+    activity_threshold: Any = 7.0,
 ) -> Tuple[
     Tuple[
         Optional[Dataset],
@@ -565,11 +567,12 @@ def prepare_datasets(
     # The activity threshold is carried through the config as a list; unwrap it the
     # same way MultiTaskPocket does (see model/multitask.py). Oversampling must
     # binarise at the threshold of the experiment actually being run.
-    raw_threshold = params.get("threshold", 7.0)
-    if isinstance(raw_threshold, (list, tuple)):
-        activity_threshold = float(raw_threshold[0]) if raw_threshold else 7.0
+    if isinstance(activity_threshold, (list, tuple)):
+        activity_threshold = (
+            float(activity_threshold[0]) if activity_threshold else 7.0
+        )
     else:
-        activity_threshold = float(raw_threshold)
+        activity_threshold = float(activity_threshold)
 
     # Build datasets with appropriate scaling and SMOTE settings
     src_train_ds = src_val_ds = tgt_train_ds = tgt_val_ds = tgt_test_ds = None

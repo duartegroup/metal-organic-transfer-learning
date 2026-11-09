@@ -253,13 +253,15 @@ class MultitaskTrainingPipeline:
             src_train,
             src_val,
             tgt_train=None,
-            tgt_val=None,  # Only source data
+            tgt_val=None,
+            tgt_test=None,  # source-only: there is no target fold here
             modality=modality,
             scaling_method=self.params.get("data_scaler", None),
             scaling_stats=self._global_scaling_stats,
             target_smote=False,
             source_smote=False,
             cross_domain_scaling=True,  # does not matter because src is only used in pretrain
+            activity_threshold=self.params.get("threshold", 7.0),
         )
         src_train_dataset, src_val_dataset, _, _, _ = datasets
 
@@ -321,13 +323,15 @@ class MultitaskTrainingPipeline:
             src_train,
             src_val,
             tgt_train=None,
-            tgt_val=None,  # Only source data
+            tgt_val=None,
+            tgt_test=None,  # source-only: there is no target fold here
             modality=modality,
             scaling_method=self.params.get("data_scaler", None),
             scaling_stats=self._global_scaling_stats,
             target_smote=self.config.target_smote,
             source_smote=self.config.source_smote,
             cross_domain_scaling=self.config.cross_domain_scaling,
+            activity_threshold=self.params.get("threshold", 7.0),
         )
         src_train_dataset, src_val_dataset, _, _, _ = datasets
 
