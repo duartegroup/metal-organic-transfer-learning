@@ -688,12 +688,36 @@ def create_dataloaders(
         'tgt_train_loader', 'tgt_val_loader', 'tgt_test_loader'.
     """
     batch_size = params["batch_size"]
+
+    def _drop_last(dataset) -> bool:
+        """Drop a trailing batch of exactly one sample.
+
+        The model uses BatchNorm1d, which cannot compute batch statistics from a
+        single sample and raises
+
+            ValueError: Expected more than 1 value per channel when training,
+                        got input size torch.Size([1, 384])
+
+        The published runs never hit this: with 214 caged compounds and five folds
+        the training sets were 175/168/178/159/176, none of which leaves a remainder
+        of 1 against a batch size of 64. Carving out an inner validation fold shrinks
+        them, and some of the new sizes do. Three of eight pilot runs failed this way.
+
+        Dropping is conditional rather than unconditional so that every size which
+        does not trigger the crash keeps loading exactly the data it did before --
+        and since the training loaders shuffle, the one dropped sample differs each
+        epoch rather than being excluded from training altogether.
+        """
+        return len(dataset) % batch_size == 1
     src_train_loader = src_val_loader = tgt_train_loader = tgt_val_loader = None
     tgt_test_loader = None
 
     if src_train_dataset is not None:
         src_train_loader = TorchDataLoader(
-            src_train_dataset, batch_size=batch_size, shuffle=True
+            src_train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            drop_last=_drop_last(src_train_dataset),
         )
 
     if src_val_dataset is not None:
@@ -703,7 +727,10 @@ def create_dataloaders(
 
     if tgt_train_dataset is not None:
         tgt_train_loader = TorchDataLoader(
-            tgt_train_dataset, batch_size=batch_size, shuffle=True
+            tgt_train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            drop_last=_drop_last(tgt_train_dataset),
         )
 
     if tgt_val_dataset is not None:
