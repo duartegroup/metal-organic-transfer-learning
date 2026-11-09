@@ -75,7 +75,12 @@ class TrainingConfig:
     learning_rate_pretrain: float = 1e-4
     dropout_pretrain: float = 0.05
     ssl_temperature: float = 0.07
-    ssl_noise_scale: float = 0.03
+    # 0.3 / 0.3 are the values every run to date has used. They came from the
+    # params.get(..., 0.3) fallbacks in model/multitask.py, because these keys
+    # were never written into params at all -- so neither the command line
+    # (0.02 / 0.2) nor this dataclass (0.03 / 0.3) was ever in force. All three
+    # now agree, and the flags are wired through.
+    ssl_noise_scale: float = 0.3
     ssl_node_drop_prob: float = 0.3
     monitor_metric_pretrain: str = "val/knn_auroc"
     monitor_mode_pretrain: str = "max"

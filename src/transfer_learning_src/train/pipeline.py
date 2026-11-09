@@ -1,3 +1,4 @@
+from dataclasses import fields as dataclass_fields
 from typing import Dict, Any, Tuple
 import torch
 from .config import TrainingConfig
@@ -59,6 +60,19 @@ class MultitaskTrainingPipeline:
         """
         self.params = params
         self.config = TrainingConfig()
+
+        # Every TrainingConfig field that has a command-line equivalent is taken
+        # from the parsed arguments. Without this the dataclass defaults won, so
+        # --max_epochs, --patience, --learning_rate_{pretrain,ccsa,finetune},
+        # --dropout_{pretrain,ccsa,finetune}, --gamma and --margin were parsed,
+        # written into params, logged in the run configuration, and then ignored:
+        # the trainer reads self.config.*, which nothing ever updated. Passing
+        # --max_epochs 20 still ran 500. The two CLI defaults that disagreed with
+        # the dataclass (dropout_pretrain, patience) have been brought into line
+        # in config_loader.py, so wiring them through changes no default.
+        for field in dataclass_fields(self.config):
+            if field.name in params and params[field.name] is not None:
+                setattr(self.config, field.name, params[field.name])
 
         # Scaler and SMOTE options from the params
         self.config.data_scaler = params.get("data_scaler", None)
@@ -535,7 +549,10 @@ class MultitaskTrainingPipeline:
                 f"Loading pre-trained source model from {pretrained_model_path}"
             )
             source_model = MultiTaskPocket(
-                domain="src", self_ssl=True, temperature=0.07, **self.params
+                domain="src",
+                self_ssl=True,
+                temperature=self.config.ssl_temperature,
+                **self.params,
             )
             try:
                 load_status = self.pretrain_phase.component_manager.load_components_from_directory(
@@ -607,7 +624,10 @@ class MultitaskTrainingPipeline:
 
             # Create clean model copy for this fold
             fold_model = MultiTaskPocket(
-                domain="src", self_ssl=True, temperature=0.07, **self.params
+                domain="src",
+                self_ssl=True,
+                temperature=self.config.ssl_temperature,
+                **self.params,
             )
             transfer_weights(
                 fold_model, source_model, f"source model -> CCSA fold {fold}"
@@ -821,7 +841,10 @@ class MultitaskTrainingPipeline:
 
                 # Create clean model copy
                 fold_model = MultiTaskPocket(
-                    domain="src", self_ssl=True, temperature=0.07, **self.params
+                    domain="src",
+                self_ssl=True,
+                temperature=self.config.ssl_temperature,
+                **self.params,
                 )
                 transfer_weights(
                     fold_model, source_model, f"source model -> fold {fold} ({method})"
