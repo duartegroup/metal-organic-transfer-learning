@@ -195,14 +195,32 @@ class TrainingPhase:
         )
         scaling_suffix += f"_{source_smote_status}_{target_smote_status}"
 
-        # Create directory structure: inhibitor_descriptor/modality_combination/scaler/affinity_type/scaling_config/
+        # Threshold and seed belong in the path. Without them two runs that differ
+        # only in --threshold or --seed resolve to the same directory and overwrite
+        # each other's raw_results.json, so a sweep over seeds silently yields one
+        # result per configuration instead of one per run. `pretrain_src` also lives
+        # under this directory, so omitting them additionally meant a checkpoint
+        # pretrained for one seed being reused for another.
+        raw_threshold = self.params.get("threshold", 7.0)
+        if isinstance(raw_threshold, (list, tuple)):
+            threshold_tag = "_".join(f"{float(t):g}" for t in raw_threshold)
+        else:
+            threshold_tag = f"{float(raw_threshold):g}"
+
+        # --output_dir was parsed and never read on this path; `Path("results")` was
+        # hardcoded, so results landed inside the checkout relative to the working
+        # directory rather than where the job asked for them.
+        root = Path(self.params.get("output_dir") or "results")
+
         base_results_dir = (
-            Path("results")
+            root
             / self.params["inhibitor_descriptor"]
             / modality_combination
             / scaler_name
             / self.params["affinity_type"]
             / scaling_suffix.lstrip("_")
+            / f"threshold_{threshold_tag}"
+            / f"seed_{self.params.get('seed', 42)}"
         )
         base_results_dir.mkdir(parents=True, exist_ok=True)
 
