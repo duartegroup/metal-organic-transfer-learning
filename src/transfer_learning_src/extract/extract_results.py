@@ -55,6 +55,19 @@ def _parse_path(base_path: Path, file_path_str: str) -> Optional[Dict]:
             affinity_type = parts[4]
             scaling_config = parts[5]
 
+            # threshold_<t>/seed_<n> are appended by create_results_base_dir. They are
+            # read by name rather than by position so the older, shallower layout
+            # (and the published sweep's, which had neither) still parses. Without
+            # them the three seeds of one configuration aggregate into a single
+            # indistinguishable group.
+            threshold = None
+            seed = None
+            for part in parts:
+                if part.startswith("threshold_"):
+                    threshold = part[len("threshold_") :]
+                elif part.startswith("seed_"):
+                    seed = part[len("seed_") :]
+
             cross_domain_scaling = "cross_domain" in scaling_config
             source_smote = (
                 "source_smote" in scaling_config
@@ -75,6 +88,8 @@ def _parse_path(base_path: Path, file_path_str: str) -> Optional[Dict]:
                 "cross_domain_scaling": cross_domain_scaling,
                 "source_smote": source_smote,
                 "target_smote": target_smote,
+                "threshold": threshold,
+                "seed": seed,
                 "filename": csv_file.name,
                 "relative_path": str(csv_file.relative_to(base_path)),
             }
