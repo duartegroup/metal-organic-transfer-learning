@@ -32,6 +32,90 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _require_test_loader(dataloaders: Dict[str, Any], val_loader: Any) -> Any:
+    """Return the held-out test loader, refusing to substitute the validation one.
+
+    The reported metric must come from the fold that played no part in early
+    stopping or checkpoint selection. Falling back to `val_loader` would report
+    the *selection* set as the test set, under the same `val/` metric names, and
+    nothing downstream could tell the two apart.
+    """
+    test_loader = dataloaders.get("tgt_test_loader")
+    if test_loader is None:
+        raise RuntimeError(
+            "No target test loader was built, so there is no held-out fold to "
+            "report. Refusing to fall back to the inner validation loader, "
+            "whose metrics selected the checkpoint and would be reported as "
+            f"test performance. Available loaders: {sorted(dataloaders)}"
+        )
+    if test_loader is val_loader:
+        raise RuntimeError(
+            "The target test loader and the inner validation loader are the "
+            "same object; the reported metric would be measured on the set used "
+            "for model selection."
+        )
+    return test_loader
+
+
+_REPORTED_METRICS = ("val/loss", "val/accuracy", "val/f1", "val/auroc", "val/mcc")
+
+
+def _metrics_from_best_checkpoint(
+    trainer: "pl.Trainer", dataloader: Any, phase_name: str
+) -> Dict[str, Any]:
+    """Evaluate the selected checkpoint on `dataloader` and return its metrics.
+
+    Every failure here is raised rather than absorbed. The previous version
+    logged a warning and returned either the last epoch's logged metrics -- which
+    are measured on the *validation* loader, not the one passed in -- or a dict of
+    zeros. Both were shaped exactly like a successful result and were written to
+    all_transfer_learning_results.csv indistinguishable from one, so a run whose
+    evaluation had failed still contributed a number to the fold mean. MCC 0.0 is
+    a legitimate value (chance performance), which is precisely why it must not
+    double as an error code.
+    """
+    checkpoint_callback = None
+    for callback in trainer.callbacks:
+        if isinstance(callback, PrintOnBestModelCheckpoint):
+            checkpoint_callback = callback
+            break
+
+    if checkpoint_callback is None:
+        raise RuntimeError(
+            f"{phase_name}: no PrintOnBestModelCheckpoint callback on the trainer, "
+            "so there is no selected checkpoint to evaluate."
+        )
+    if not checkpoint_callback.best_model_path:
+        raise RuntimeError(
+            f"{phase_name}: the checkpoint callback recorded no best_model_path. "
+            "Training produced no checkpoint to report -- check that the monitored "
+            f"metric ({checkpoint_callback.monitor!r}) was ever logged."
+        )
+
+    try:
+        model = trainer.lightning_module
+        checkpoint = torch.load(
+            checkpoint_callback.best_model_path, map_location="cpu", weights_only=True
+        )
+        model.load_state_dict(checkpoint["state_dict"])
+        val_results = trainer.validate(model, dataloaders=dataloader, verbose=False)
+    except Exception as e:
+        raise RuntimeError(
+            f"{phase_name}: could not evaluate the best checkpoint at "
+            f"{checkpoint_callback.best_model_path}: {e}"
+        ) from e
+
+    result = val_results[-1] if isinstance(val_results, list) and val_results else {}
+    missing = [k for k in _REPORTED_METRICS if k not in result]
+    if missing:
+        raise RuntimeError(
+            f"{phase_name}: evaluation of the best checkpoint did not produce "
+            f"{missing}. Got keys: {sorted(result)}"
+        )
+
+    return {k: float(result[k]) for k in _REPORTED_METRICS}
+
+
 class TrainingPhase:
     """
     Base class for training phases with common functionality.
@@ -546,7 +630,7 @@ class CCSAPhase(TrainingPhase):
         val_loader = dataloaders["tgt_val_loader"]
         # Reported metrics come from the held-out test fold, which played no
         # part in early stopping or checkpoint selection.
-        test_loader = dataloaders["tgt_test_loader"] or val_loader
+        test_loader = _require_test_loader(dataloaders, val_loader)
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -674,7 +758,7 @@ class CCSAPhase(TrainingPhase):
         val_loader = dataloaders["tgt_val_loader"]
         # Reported metrics come from the held-out test fold, which played no
         # part in early stopping or checkpoint selection.
-        test_loader = dataloaders["tgt_test_loader"] or val_loader
+        test_loader = _require_test_loader(dataloaders, val_loader)
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -801,7 +885,7 @@ class CCSAPhase(TrainingPhase):
         val_loader = dataloaders["tgt_val_loader"]
         # Reported metrics come from the held-out test fold, which played no
         # part in early stopping or checkpoint selection.
-        test_loader = dataloaders["tgt_test_loader"] or val_loader
+        test_loader = _require_test_loader(dataloaders, val_loader)
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -849,58 +933,7 @@ class CCSAPhase(TrainingPhase):
         Dict[str, Any]
             Dictionary of validation metrics including loss, accuracy, F1, AUROC, and MCC.
         """
-        checkpoint_callback = None
-        for callback in trainer.callbacks:
-            if isinstance(callback, PrintOnBestModelCheckpoint):
-                checkpoint_callback = callback
-                break
-
-        if checkpoint_callback and checkpoint_callback.best_model_path:
-            try:
-                model = trainer.lightning_module
-                checkpoint = torch.load(
-                    checkpoint_callback.best_model_path,
-                    map_location="cpu",
-                    weights_only=True,
-                )
-                model.load_state_dict(checkpoint["state_dict"])
-
-                val_results = trainer.validate(
-                    model, dataloaders=val_loader, verbose=False
-                )
-                result = (
-                    val_results[-1]
-                    if isinstance(val_results, list) and val_results
-                    else {}
-                )
-
-                return {
-                    "val/loss": float(result.get("val/loss", float("inf"))),
-                    "val/accuracy": float(result.get("val/accuracy", 0.0)),
-                    "val/f1": float(result.get("val/f1", 0.0)),
-                    "val/auroc": float(result.get("val/auroc", 0.0)),
-                    "val/mcc": float(result.get("val/mcc", 0.0)),
-                }
-            except Exception as e:
-                logger.warning(f"Could not load best checkpoint: {e}")
-
-        # Fallback
-        if trainer.logged_metrics:
-            return {
-                "val/loss": float(trainer.logged_metrics.get("val/loss", float("inf"))),
-                "val/accuracy": float(trainer.logged_metrics.get("val/accuracy", 0.0)),
-                "val/f1": float(trainer.logged_metrics.get("val/f1", 0.0)),
-                "val/auroc": float(trainer.logged_metrics.get("val/auroc", 0.0)),
-                "val/mcc": float(trainer.logged_metrics.get("val/mcc", 0.0)),
-            }
-
-        return {
-            "val/loss": float("inf"),
-            "val/accuracy": 0.0,
-            "val/f1": 0.0,
-            "val/auroc": 0.0,
-            "val/mcc": 0.0,
-        }
+        return _metrics_from_best_checkpoint(trainer, val_loader, type(self).__name__)
 
 
 class FinetunePhase(TrainingPhase):
@@ -1255,56 +1288,4 @@ class FinetunePhase(TrainingPhase):
         Dict[str, Any]
             Dictionary of validation metrics including loss, accuracy, F1, AUROC, and MCC.
         """
-        # Same implementation as CCSAPhase._extract_metrics
-        checkpoint_callback = None
-        for callback in trainer.callbacks:
-            if isinstance(callback, PrintOnBestModelCheckpoint):
-                checkpoint_callback = callback
-                break
-
-        if checkpoint_callback and checkpoint_callback.best_model_path:
-            try:
-                model = trainer.lightning_module
-                checkpoint = torch.load(
-                    checkpoint_callback.best_model_path,
-                    map_location="cpu",
-                    weights_only=True,
-                )
-                model.load_state_dict(checkpoint["state_dict"])
-
-                val_results = trainer.validate(
-                    model, dataloaders=val_loader, verbose=False
-                )
-                result = (
-                    val_results[-1]
-                    if isinstance(val_results, list) and val_results
-                    else {}
-                )
-
-                return {
-                    "val/loss": float(result.get("val/loss", float("inf"))),
-                    "val/accuracy": float(result.get("val/accuracy", 0.0)),
-                    "val/f1": float(result.get("val/f1", 0.0)),
-                    "val/auroc": float(result.get("val/auroc", 0.0)),
-                    "val/mcc": float(result.get("val/mcc", 0.0)),
-                }
-            except Exception as e:
-                logger.warning(f"Could not load best checkpoint: {e}")
-
-        # Fallback
-        if trainer.logged_metrics:
-            return {
-                "val/loss": float(trainer.logged_metrics.get("val/loss", float("inf"))),
-                "val/accuracy": float(trainer.logged_metrics.get("val/accuracy", 0.0)),
-                "val/f1": float(trainer.logged_metrics.get("val/f1", 0.0)),
-                "val/auroc": float(trainer.logged_metrics.get("val/auroc", 0.0)),
-                "val/mcc": float(trainer.logged_metrics.get("val/mcc", 0.0)),
-            }
-
-        return {
-            "val/loss": float("inf"),
-            "val/accuracy": 0.0,
-            "val/f1": 0.0,
-            "val/auroc": 0.0,
-            "val/mcc": 0.0,
-        }
+        return _metrics_from_best_checkpoint(trainer, val_loader, type(self).__name__)
