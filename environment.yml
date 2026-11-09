@@ -60,11 +60,20 @@ dependencies:
   # Biological data processing
   - biopython
   - h5py
+  # httpx is a dependency of esm.sdk (the Forge API client). pip does not pull
+  # it in, and src/data_src/__init__.py imports esm.sdk at module scope, which
+  # the training path reaches through data/__init__.py -- so without it
+  # `import main` fails outright and no job can start.
+  - httpx
+  - openpyxl  # data/excel/* is read with pandas.read_excel
 
   # Experiment tracking
   # train/phases.py imports wandb unconditionally and builds a WandbLogger, so a
   # run needs either `wandb login` or WANDB_MODE=offline/disabled in the job script.
   - wandb
+
+  # Testing (the repo ships a tests/ directory)
+  - pytest
 
   # Utilities
   - tqdm
