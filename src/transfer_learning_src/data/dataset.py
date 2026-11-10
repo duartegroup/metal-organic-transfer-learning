@@ -531,8 +531,14 @@ class BindingAffinitiesDatasetWithKeys(BindingAffinitiesDataset):
         # Get the original data from parent class
         data = super().__getitem__(index)
 
-        # Get the corresponding key for this index
-        key = self.index_to_key[index]
+        # SMOTE is applied after key_to_index is built (see __init__), so a
+        # SMOTE-balanced dataset is longer than its key map and every synthetic
+        # row raises KeyError here. Synthetic rows are real members of the
+        # training set but correspond to no deposited compound, so they get a
+        # reserved placeholder rather than a compound identifier.
+        key = self.index_to_key.get(index)
+        if key is None:
+            key = f'__synthetic_{index}'
 
         # Return key along with the data
         return (key,) + data
