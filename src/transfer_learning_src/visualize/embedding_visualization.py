@@ -595,11 +595,14 @@ class TSNEVisualizer:
     ) -> None:
         self.random_state = random_state
         self.pca_components = pca_components
+        # scikit-learn renamed TSNE's n_iter to max_iter in 1.5 and removed the old
+        # name in 1.7; this environment has 1.9. Keep the public argument name so
+        # callers are unaffected.
         self.tsne = TSNE(
             n_components=n_components,
             perplexity=perplexity,
             random_state=random_state,
-            n_iter=n_iter,
+            max_iter=n_iter,
             verbose=1,
         )
         self.pca = None
