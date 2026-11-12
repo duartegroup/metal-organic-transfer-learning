@@ -713,6 +713,7 @@ def load_all_models(
 def load_target_dataset_and_compute_fold_stats(
     dataset_name: str,
     affinity_type: str,
+    inhibitor_descriptor: str,
     modality: str,
     scaling_method: str,
     cross_domain_scaling: bool,
@@ -749,9 +750,13 @@ def load_target_dataset_and_compute_fold_stats(
     # Load the target dataset (same as training)
     data_path = f"./../../../data/hf5_dataset/{dataset_name}/{dataset_name}_{affinity_type}_dataset.h5"
 
-    # Load data using the same function as training
+    # Load data using the same function as training.
+    # The descriptor MUST match the one the models were trained with: these
+    # statistics fit the scaler that every prediction is normalised by, and a
+    # mismatch makes every fold fail on feature width. This was hard-coded to
+    # "SOAP", which silently restricted inference to SOAP models.
     target_data = load_data_hdf5(
-        dataset_name, "SOAP", affinity_type, percent_of_data=1.0
+        dataset_name, inhibitor_descriptor, affinity_type, percent_of_data=1.0
     )
 
     print(target_data.keys())
@@ -1257,6 +1262,7 @@ def main(args: argparse.Namespace) -> None:
     fold_stats = load_target_dataset_and_compute_fold_stats(
         dataset_name="caged",  # Target dataset name
         affinity_type=affinity_type,
+        inhibitor_descriptor=inhibitor_descriptor,
         modality=modality,
         scaling_method=data_scaler if data_scaler != "none" else None,
         cross_domain_scaling=cross_domain_scaling,
