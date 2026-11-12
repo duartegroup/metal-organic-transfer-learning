@@ -10,7 +10,13 @@ import json
 import pickle
 from ase.io import read, write
 from ase.optimize import BFGS
-from xtb.ase.calculator import XTB
+try:
+    from xtb.ase.calculator import XTB
+except ImportError:
+    # Optional: xtb is needed only to optimize a geometry. Callers that pass an
+    # already-optimized structure via --output_xyz hit the reuse-cache in
+    # optimize_with_gfn2_xtb and never construct the calculator.
+    XTB = None
 from ase import Atoms
 import subprocess
 import pandas as pd
@@ -270,6 +276,13 @@ def optimize_with_gfn2_xtb(
     atoms = read(xyz_in)
 
     # Attach the xTB calculator (ASE needs xtb installed in PATH)
+    if XTB is None:
+        raise RuntimeError(
+            "xtb is not installed in this environment, so no geometry can be "
+            "optimized here. Pass an already-optimized .xyz as --output_xyz "
+            "(its composition must match --xyz_file) so the cached geometry is "
+            "reused instead."
+        )
     atoms.calc = XTB(method="GFN2-xTB", charge=charge)
 
     # Run BFGS optimization
