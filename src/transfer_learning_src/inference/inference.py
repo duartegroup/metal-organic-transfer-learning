@@ -880,32 +880,25 @@ def prepare_input_with_fold_stats(
             pocket_embedding,
         )
 
-    # Convert to tensors
-    mol_tensor = (
-        torch.tensor(mol_scaled, dtype=torch.float32)
-        .detach()
-        .clone()
-        .unsqueeze(0)
-        .to(device)
-    )
-    protein_tensor = (
-        torch.as_tensor(protein_scaled, dtype=torch.float32)
-        .detach()
-        .clone()
-        .unsqueeze(0)
-        .to(device)
-    )
-
-    if pocket_scaled is not None:
-        pocket_tensor = (
-            torch.tensor(pocket_scaled, dtype=torch.float32)
+    # Convert to tensors. apply_scaling_like_training returns None for every
+    # component the modality leaves out, so each one needs the same guard: a
+    # molecule-only or molecule_pocket model has protein_scaled None, and passing
+    # that to torch.as_tensor raises "must be real number, not NoneType". An empty
+    # tensor is what the pocket branch already used for an absent component.
+    def _as_batch(value):
+        if value is None:
+            return torch.empty(0).to(device)
+        return (
+            torch.as_tensor(value, dtype=torch.float32)
             .detach()
             .clone()
             .unsqueeze(0)
             .to(device)
         )
-    else:
-        pocket_tensor = torch.empty(0).to(device)
+
+    mol_tensor = _as_batch(mol_scaled)
+    protein_tensor = _as_batch(protein_scaled)
+    pocket_tensor = _as_batch(pocket_scaled)
 
     # Dummy labels (not used in inference)
     labels = torch.tensor([0.0], dtype=torch.float32).to(device)
