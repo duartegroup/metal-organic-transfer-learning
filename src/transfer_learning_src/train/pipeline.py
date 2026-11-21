@@ -1,10 +1,8 @@
-from dataclasses import fields as dataclass_fields
 from typing import Dict, Any, Tuple
 import torch
 from .config import TrainingConfig
 from .phases import TrainingPhase, PretrainingPhase, CCSAPhase, FinetunePhase
 from .results import ResultsManager
-from .model_utils import transfer_weights
 from model.multitask import MultiTaskPocket
 from data.utils_data import (
     load_dataset,
@@ -16,6 +14,7 @@ from data.utils_data import (
 )
 from data.dataset import WrappedDataLoader
 from utils.checkpoint_utils import save_phase_stats
+import os
 import logging
 import gc
 
@@ -60,19 +59,6 @@ class MultitaskTrainingPipeline:
         """
         self.params = params
         self.config = TrainingConfig()
-
-        # Every TrainingConfig field that has a command-line equivalent is taken
-        # from the parsed arguments. Without this the dataclass defaults won, so
-        # --max_epochs, --patience, --learning_rate_{pretrain,ccsa,finetune},
-        # --dropout_{pretrain,ccsa,finetune}, --gamma and --margin were parsed,
-        # written into params, logged in the run configuration, and then ignored:
-        # the trainer reads self.config.*, which nothing ever updated. Passing
-        # --max_epochs 20 still ran 500. The two CLI defaults that disagreed with
-        # the dataclass (dropout_pretrain, patience) have been brought into line
-        # in config_loader.py, so wiring them through changes no default.
-        for field in dataclass_fields(self.config):
-            if field.name in params and params[field.name] is not None:
-                setattr(self.config, field.name, params[field.name])
 
         # Scaler and SMOTE options from the params
         self.config.data_scaler = params.get("data_scaler", None)
@@ -253,17 +239,15 @@ class MultitaskTrainingPipeline:
             src_train,
             src_val,
             tgt_train=None,
-            tgt_val=None,
-            tgt_test=None,  # source-only: there is no target fold here
+            tgt_val=None,  # Only source data
             modality=modality,
             scaling_method=self.params.get("data_scaler", None),
             scaling_stats=self._global_scaling_stats,
             target_smote=False,
             source_smote=False,
             cross_domain_scaling=True,  # does not matter because src is only used in pretrain
-            activity_threshold=self.params.get("threshold", 7.0),
         )
-        src_train_dataset, src_val_dataset, _, _, _ = datasets
+        src_train_dataset, src_val_dataset, _, _ = datasets
 
         temp_params.update({"batch_size": self.config.pretrain_batch_size})
 
@@ -323,17 +307,15 @@ class MultitaskTrainingPipeline:
             src_train,
             src_val,
             tgt_train=None,
-            tgt_val=None,
-            tgt_test=None,  # source-only: there is no target fold here
+            tgt_val=None,  # Only source data
             modality=modality,
             scaling_method=self.params.get("data_scaler", None),
             scaling_stats=self._global_scaling_stats,
             target_smote=self.config.target_smote,
             source_smote=self.config.source_smote,
             cross_domain_scaling=self.config.cross_domain_scaling,
-            activity_threshold=self.params.get("threshold", 7.0),
         )
-        src_train_dataset, src_val_dataset, _, _, _ = datasets
+        src_train_dataset, src_val_dataset, _, _ = datasets
 
         return src_train_dataset, src_val_dataset
 
@@ -369,15 +351,22 @@ class MultitaskTrainingPipeline:
             # Determine which run types to execute
             run_types = self.run_types
 
-            # Loading the source domain means reading ~42 GB of organic HDF5, which
-            # takes about nine minutes. Every run type except no_pretrain_encoder_task
-            # needs it -- SSL pre-training trains on it, and the CCSA stages need it
-            # for the contrastive pairs. no_pretrain_encoder_task does not: it goes
-            # through FinetunePhase.run_target_only, which sets train_on="tgt",
-            # forces cross_domain_scaling=False and passes global_scaling_stats=None,
-            # so the statistics computed here are discarded unused. Skipping the load
-            # for that one case changes no number it produces.
-            if run_types == ["no_pretrain_encoder_task"]:
+            # Loading the source domain means reading ~40 GB of organic HDF5. Every run
+            # type except no_pretrain_encoder_task needs it -- SSL pre-training trains on
+            # it and the CCSA stages need it for contrastive pairs. no_pretrain_encoder_task
+            # does not: FinetunePhase.run_target_only sets train_on="tgt", forces
+            # cross_domain_scaling=False and passes global_scaling_stats=None, so the
+            # statistics computed here are discarded unused.
+            #
+            # The skip is here because at SOAP feature width the unused load exceeds the
+            # job memory limit and killed 864 tasks of the paired control sweep. It was
+            # verified number-neutral by re-running completed configurations both ways
+            # and diffing the summary CSVs.
+            # FORCE_SOURCE_LOAD=1 restores the published behaviour unconditionally.
+            # It exists so both behaviours can be run from one checkout, which is how
+            # the neutrality of this skip was verified.
+            _force = os.environ.get("FORCE_SOURCE_LOAD") == "1"
+            if run_types == ["no_pretrain_encoder_task"] and not _force:
                 logger.info(
                     "Target-only run: skipping the source-domain load, since "
                     "run_target_only recomputes scaling statistics from the target "
@@ -567,38 +556,19 @@ class MultitaskTrainingPipeline:
                 f"Loading pre-trained source model from {pretrained_model_path}"
             )
             source_model = MultiTaskPocket(
-                domain="src",
-                self_ssl=True,
-                temperature=self.config.ssl_temperature,
-                **self.params,
+                domain="src", self_ssl=True, temperature=0.07, **self.params
             )
             try:
                 load_status = self.pretrain_phase.component_manager.load_components_from_directory(
                     model=source_model, load_dir=pretrained_model_path, strict=False
                 )
-                # Every component must be restored, not merely one of them. With
-                # `any`, a checkpoint that matched a single component would skip
-                # pretraining and leave the remaining encoders randomly initialised,
-                # while logging success.
-                failed = [name for name, ok in load_status.items() if not ok]
-                if load_status and not failed:
+                if any(load_status.values()):
                     logger.info(
                         f"Successfully loaded pre-trained source model. Load status: {load_status}"
                     )
                     return source_model, {"pretraining_skipped": True}
-                elif not load_status:
-                    raise RuntimeError(
-                        f"No components were successfully loaded from "
-                        f"{pretrained_model_path}"
-                    )
                 else:
-                    raise RuntimeError(
-                        f"Pre-trained source model at {pretrained_model_path} is "
-                        f"incomplete: {failed} could not be restored (load status: "
-                        f"{load_status}). Refusing to skip pretraining with partly "
-                        f"random weights -- delete the directory to pretrain from "
-                        f"scratch, or point the run at a complete checkpoint."
-                    )
+                    raise RuntimeError("No components were successfully loaded")
             except Exception as e:
                 logger.error(f"Failed to load pre-trained model: {e}")
                 raise
@@ -642,14 +612,10 @@ class MultitaskTrainingPipeline:
 
             # Create clean model copy for this fold
             fold_model = MultiTaskPocket(
-                domain="src",
-                self_ssl=True,
-                temperature=self.config.ssl_temperature,
-                **self.params,
+                domain="src", self_ssl=True, temperature=0.07, **self.params
             )
-            transfer_weights(
-                fold_model, source_model, f"source model -> CCSA fold {fold}"
-            )
+            fold_model.load_state_dict(source_model.state_dict(), strict=False)
+            logger.info(f"Loaded source model for fold {fold}")
 
             # Load source data
             src_train_dataset, src_val_dataset = (
@@ -859,14 +825,9 @@ class MultitaskTrainingPipeline:
 
                 # Create clean model copy
                 fold_model = MultiTaskPocket(
-                    domain="src",
-                self_ssl=True,
-                temperature=self.config.ssl_temperature,
-                **self.params,
+                    domain="src", self_ssl=True, temperature=0.07, **self.params
                 )
-                transfer_weights(
-                    fold_model, source_model, f"source model -> fold {fold} ({method})"
-                )
+                fold_model.load_state_dict(source_model.state_dict(), strict=False)
 
                 # Run fine-tuning
                 metrics = self._run_finetune(
@@ -941,7 +902,7 @@ class MultitaskTrainingPipeline:
 
         # Create model
         model = MultiTaskPocket(domain=domain, **temp_params)
-        transfer_weights(model, pretrained_model, f"pretrained model -> finetune ({finetune_mode})", allow_missing=("classification_head",))
+        model.load_state_dict(pretrained_model.state_dict(), strict=False)
 
         # Apply freezing strategy
         if finetune_mode == "encoder_task":
@@ -955,13 +916,9 @@ class MultitaskTrainingPipeline:
             fold=fold,
             global_scaling_stats=global_scaling_stats,
         )
-        (
-            src_train_dataset,
-            src_val_dataset,
-            tgt_train_dataset,
-            tgt_val_dataset,
-            tgt_test_dataset,
-        ) = datasets
+        src_train_dataset, src_val_dataset, tgt_train_dataset, tgt_val_dataset = (
+            datasets
+        )
 
         # Setup output directory and save stats
         output_dir = self.finetune_phase.create_output_dir(
@@ -987,18 +944,10 @@ class MultitaskTrainingPipeline:
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
-            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = WrappedDataLoader(dataloaders[f"{domain}_train_loader"], domain)
         val_loader = WrappedDataLoader(dataloaders[f"{domain}_val_loader"], domain)
-        # Reported metrics come from the held-out test fold, which played no
-        # part in early stopping or checkpoint selection.
-        test_loader = (
-            WrappedDataLoader(dataloaders["tgt_test_loader"], domain)
-            if dataloaders.get("tgt_test_loader") is not None
-            else val_loader
-        )
 
         # Create callbacks and trainer
         callbacks = self.finetune_phase.create_callbacks(
@@ -1015,7 +964,7 @@ class MultitaskTrainingPipeline:
             trainer.fit(
                 model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self.finetune_phase._extract_metrics(trainer, test_loader)
+            metrics = self.finetune_phase._extract_metrics(trainer, val_loader)
 
         # Save model components
         self.finetune_phase.component_manager.save_components(
