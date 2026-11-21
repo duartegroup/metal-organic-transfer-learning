@@ -35,11 +35,13 @@ This section maps each figure in the paper to the exact script and output file t
 
 | Figure | Description | Script | Key arguments | Output location |
 |--------|-------------|--------|---------------|-----------------|
-| Fig 3 | PCA scatter plot of dataset clusters | `data/data_comparison/dataset_split/clustering_affinity_distribution.py` | `--dim_reduction pca --output_dir ./mace_analysis` | `data/data_comparison/dataset_split/mace_analysis/` |
-| Fig 4 | Champion bar chart (B vs S1 vs TL, per threshold) | `src/statistical_tests/main.py` | `--champion` | `results/statistical_tests/champion/fig_champion_comparison_threshold_{N}_{mcc,accuracy,f1}.png` |
-| Fig 5 | Latent space visualisation | `src/transfer_learning_src/visualize/embedding_visualization.py` | `--model_path <path> --output_dir <path> --phase pretrain_ccsa_encoder_task` | `results/latent_space_analysis/threshold_{N}/{affinity_type}/` |
+| Fig 3 | PCA scatter plot of dataset clusters, compound (MACE) descriptors | `data/data_comparison/dataset_split/clustering_affinity_distribution.py` | `--dim_reduction pca --output_dir ./mace_analysis` | `data/data_comparison/dataset_split/mace_analysis/mace_pca_clustering_both_affinities_2x2.png` |
+| Fig 4 | PCA scatter plot of dataset clusters, protein descriptors | same run as Fig 3 | — | `data/data_comparison/dataset_split/mace_analysis/protein_pca_clustering_both_affinities_2x2.png` |
+| Fig 5 | Champion bar chart, per fold (B vs S1 vs TL vs Max, per threshold) | `src/statistical_tests/main.py` | `--champion` | `results/statistical_tests/champion/fig_champion_comparison_threshold_{N}_{mcc,accuracy,f1}.png` |
+| Fig 6 | Latent space visualisation | `src/transfer_learning_src/visualize/embedding_visualization.py` | `--model_path <path> --output_dir <path> --phase pretrain_ccsa_encoder_task` | `results/latent_space_analysis/threshold_{N}/{affinity_type}/` |
+| Fig S6 | PCA scatter plot of dataset clusters, binding-pocket descriptors | same run as Fig 3 | — | `data/data_comparison/dataset_split/mace_analysis/pocket_pca_clustering_both_affinities_2x2.png` |
 
-### Figure 3 — PCA clustering plot
+### Figures 3, 4 and S6 — PCA clustering plots
 
 Run from `data/data_comparison/dataset_split/`:
 
@@ -50,9 +52,19 @@ python clustering_affinity_distribution.py \
     --output_dir ./mace_analysis
 ```
 
-The PCA scatter plot is saved to `mace_analysis/`.
+A single run loops over all three descriptor types and writes one 2×2 panel each, with both
+endpoints in every panel:
 
-### Figure 4 — Champion comparison bar chart
+| Paper figure | Descriptor type | File |
+|--------------|-----------------|------|
+| Fig. 3 | compound (MACE) | `mace_pca_clustering_both_affinities_2x2.png` |
+| Fig. 4 | protein | `protein_pca_clustering_both_affinities_2x2.png` |
+| Fig. S6 | binding pocket | `pocket_pca_clustering_both_affinities_2x2.png` |
+
+All are saved to `mace_analysis/`, together with the per-descriptor elbow curves used to
+choose *k* and the `protein_counts_*.csv` cluster-composition tables.
+
+### Figure 5 — Champion comparison bar chart
 
 Run from `src/statistical_tests/`:
 
@@ -64,7 +76,8 @@ python main.py --champion
 
 One PNG per metric (MCC, accuracy, F1) per threshold is saved to `results/statistical_tests/champion/`. **All three thresholds must be loaded** — passing `--thresholds 6` alone will abort with a warning, because cross-threshold ranking is meaningless with a single threshold.
 
-Each panel carries up to four bars:
+Each panel plots one bar per arm per cross-validation fold, followed by a Mean column
+separated by a dashed line (`plot.py`, `_plot_champion_panel`). Up to four arms are drawn:
 
 | Bar | What it is |
 |-----|------------|
@@ -75,7 +88,7 @@ Each panel carries up to four bars:
 
 `S1` is the *matched sibling* rather than the best-ranked S1 model on purpose: it differs from the TL champion in exactly one factor, so the `TL − S1` gap is attributable to pretraining and domain adaptation alone. Without it, a `TL > B` result cannot distinguish "transfer learning helps" from "this descriptor and modality happen to be good". The arm is resolved automatically; if the champion is already an S1 model or the sibling was never run, it is skipped and the chart falls back to three bars.
 
-### Figure 5 — Latent space visualisation
+### Figure 6 — Latent space visualisation
 
 Run from `src/transfer_learning_src/visualize/`:
 
@@ -152,7 +165,7 @@ python fold_dist_mcs_analysis.py
 
 Outputs heatmaps to `mcs_analysis_pic50/`, `mcs_analysis_pk/`, `mcs_images_pic50/`, `mcs_images_pk/`.
 
-**Dataset clustering + PCA** (Figure 3, run from `data/data_comparison/dataset_split/`):
+**Dataset clustering + PCA** (Figures 3, 4 and S6, run from `data/data_comparison/dataset_split/`):
 
 ```bash
 python clustering_affinity_distribution.py --dataset caged --dim_reduction pca --output_dir ./mace_analysis
@@ -316,7 +329,7 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 │   │   ├── spectral_plot_split.py
 │   │   └── spectral_clustering_analysis/
 │   ├── data_comparison/
-│   │   ├── dataset_split/              # PCA/clustering analysis (→ Figure 3)
+│   │   ├── dataset_split/              # PCA/clustering analysis (→ Figures 3, 4, S6)
 │   │   │   ├── clustering_affinity_distribution.py
 │   │   │   └── mace_analysis/          # PCA plots, elbow curves
 │   │   └── fold_dist_mcs_analysis/     # MCS similarity across folds
@@ -339,14 +352,14 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 │   │   ├── extract/extract_results.py  # Aggregate TL results to CSV
 │   │   ├── inference/inference.py      # Inference on novel compounds
 │   │   └── visualize/
-│   │       ├── embedding_visualization.py   # Latent space plots (→ Figure 5)
+│   │       ├── embedding_visualization.py   # Latent space plots (→ Figure 6)
 │   │       ├── plot_loss_curves.py          # Training/validation loss curves
 │   │       └── misclassification_to_latex.py
 │   └── statistical_tests/              # Statistical analysis pipeline
 │       ├── main.py                     # Entry point — --scatter / --champion / --tables
 │       ├── analysis.py                 # MainAnalysisController; dynamic champion ranking
 │       ├── reporting.py                # LaTeX table output
-│       ├── plot.py                     # Figure generation (→ Figure 4)
+│       ├── plot.py                     # Figure generation (→ Figure 5)
 │       ├── io_utils.py                 # Atomic write / savefig helpers
 │       ├── statistical_tests.py        # Wilcoxon, Friedman, ModelRanker
 │       ├── data_loader.py
@@ -366,7 +379,7 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 │   ├── statistical_tests/
 │   │   ├── scatter/
 │   │   │   └── threshold_{5,6,7}/      # Mean-vs-std scatter plots (--scatter)
-│   │   ├── champion/                   # Figure 4 PNGs (--champion)
+│   │   ├── champion/                   # Figure 5 PNGs (--champion)
 │   │   │   ├── fig_champion_comparison_threshold_{N}_{mcc,accuracy,f1}.png
 │   │   │   └── champion_config.json    # Champion + S1 baseline configs
 │   │   └── tables/                     # LaTeX factor tables (--tables)
@@ -377,7 +390,7 @@ python src/transfer_learning_src/visualize/misclassification_to_latex.py
 │   │           ├── supervised/
 │   │           └── transfer/
 │   ├── latent_space_analysis/
-│   │   └── threshold_{5,6,7}/{pic50,pk}/           # Figure 5 plots
+│   │   └── threshold_{5,6,7}/{pic50,pk}/           # Figure 6 plots
 │   └── extrapolation_test/                          # Inference outputs
 │
 ├── environment.yml
