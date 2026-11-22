@@ -22,7 +22,7 @@ from data.utils_data import (
     create_dataloaders,
 )
 from .config import TrainingConfig
-from .model_utils import ModelComponentManager
+from .model_utils import ModelComponentManager, transfer_weights
 from model.multitask import MultiTaskPocket, CCSAFinetune
 from utils.checkpoint_utils import PrintOnBestModelCheckpoint, save_phase_stats
 
@@ -30,6 +30,110 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+def _require_test_loader(dataloaders: Dict[str, Any], val_loader: Any) -> Any:
+    """Return the held-out test loader, refusing to substitute the validation one.
+
+    The reported metric must come from the fold that played no part in early
+    stopping or checkpoint selection. Falling back to `val_loader` would report
+    the *selection* set as the test set, under the same `val/` metric names, and
+    nothing downstream could tell the two apart.
+    """
+    test_loader = dataloaders.get("tgt_test_loader")
+    if test_loader is None:
+        raise RuntimeError(
+            "No target test loader was built, so there is no held-out fold to "
+            "report. Refusing to fall back to the inner validation loader, "
+            "whose metrics selected the checkpoint and would be reported as "
+            f"test performance. Available loaders: {sorted(dataloaders)}"
+        )
+    if test_loader is val_loader:
+        raise RuntimeError(
+            "The target test loader and the inner validation loader are the "
+            "same object; the reported metric would be measured on the set used "
+            "for model selection."
+        )
+    return test_loader
+
+
+_REPORTED_METRICS = ("val/loss", "val/accuracy", "val/f1", "val/auroc", "val/mcc")
+
+
+def _metrics_from_best_checkpoint(
+    trainer: "pl.Trainer", dataloader: Any, phase_name: str
+) -> Dict[str, Any]:
+    """Evaluate the selected checkpoint on `dataloader` and return its metrics.
+
+    Every failure here is raised rather than absorbed. The previous version
+    logged a warning and returned either the last epoch's logged metrics -- which
+    are measured on the *validation* loader, not the one passed in -- or a dict of
+    zeros. Both were shaped exactly like a successful result and were written to
+    all_transfer_learning_results.csv indistinguishable from one, so a run whose
+    evaluation had failed still contributed a number to the fold mean. MCC 0.0 is
+    a legitimate value (chance performance), which is precisely why it must not
+    double as an error code.
+    """
+    checkpoint_callback = None
+    for callback in trainer.callbacks:
+        if isinstance(callback, PrintOnBestModelCheckpoint):
+            checkpoint_callback = callback
+            break
+
+    if checkpoint_callback is None:
+        raise RuntimeError(
+            f"{phase_name}: no PrintOnBestModelCheckpoint callback on the trainer, "
+            "so there is no selected checkpoint to evaluate."
+        )
+    if not checkpoint_callback.best_model_path:
+        raise RuntimeError(
+            f"{phase_name}: the checkpoint callback recorded no best_model_path. "
+            "Training produced no checkpoint to report -- check that the monitored "
+            f"metric ({checkpoint_callback.monitor!r}) was ever logged."
+        )
+
+    try:
+        model = trainer.lightning_module
+        checkpoint = torch.load(
+            checkpoint_callback.best_model_path, map_location="cpu", weights_only=True
+        )
+        model.load_state_dict(checkpoint["state_dict"])
+        val_results = trainer.validate(model, dataloaders=dataloader, verbose=False)
+    except Exception as e:
+        raise RuntimeError(
+            f"{phase_name}: could not evaluate the best checkpoint at "
+            f"{checkpoint_callback.best_model_path}: {e}"
+        ) from e
+
+    result = val_results[-1] if isinstance(val_results, list) and val_results else {}
+    missing = [k for k in _REPORTED_METRICS if k not in result]
+    if missing:
+        raise RuntimeError(
+            f"{phase_name}: evaluation of the best checkpoint did not produce "
+            f"{missing}. Got keys: {sorted(result)}"
+        )
+
+    metrics = {k: float(result[k]) for k in _REPORTED_METRICS}
+
+    # Carried through when the model logged it (MultiTaskPocket does; CCSAFinetune
+    # feeds probabilities and is not affected). This is the fraction of batches in
+    # *this* evaluation -- the one whose numbers are reported -- for which every
+    # logit fell inside [0, 1], and torchmetrics therefore thresholded the raw logit
+    # at 0.5 instead of mapping it through a sigmoid and thresholding at 0. Optional
+    # rather than required, so a model that does not log it still reports normally.
+    for optional in (
+        "val/logit_batches_in_unit_interval",
+        # Computed from sigmoid probabilities, so thresholded at p = 0.5 whatever the
+        # logits happen to be. Reported alongside the originals rather than replacing
+        # them, so the nested-versus-published comparison stays clean.
+        "val/accuracy_from_probs",
+        "val/f1_from_probs",
+        "val/mcc_from_probs",
+    ):
+        if optional in result:
+            metrics[optional] = float(result[optional])
+
+    return metrics
 
 
 class TrainingPhase:
@@ -111,14 +215,32 @@ class TrainingPhase:
         )
         scaling_suffix += f"_{source_smote_status}_{target_smote_status}"
 
-        # Create directory structure: inhibitor_descriptor/modality_combination/scaler/affinity_type/scaling_config/
+        # Threshold and seed belong in the path. Without them two runs that differ
+        # only in --threshold or --seed resolve to the same directory and overwrite
+        # each other's raw_results.json, so a sweep over seeds silently yields one
+        # result per configuration instead of one per run. `pretrain_src` also lives
+        # under this directory, so omitting them additionally meant a checkpoint
+        # pretrained for one seed being reused for another.
+        raw_threshold = self.params.get("threshold", 7.0)
+        if isinstance(raw_threshold, (list, tuple)):
+            threshold_tag = "_".join(f"{float(t):g}" for t in raw_threshold)
+        else:
+            threshold_tag = f"{float(raw_threshold):g}"
+
+        # --output_dir was parsed and never read on this path; `Path("results")` was
+        # hardcoded, so results landed inside the checkout relative to the working
+        # directory rather than where the job asked for them.
+        root = Path(self.params.get("output_dir") or "results")
+
         base_results_dir = (
-            Path("results")
+            root
             / self.params["inhibitor_descriptor"]
             / modality_combination
             / scaler_name
             / self.params["affinity_type"]
             / scaling_suffix.lstrip("_")
+            / f"threshold_{threshold_tag}"
+            / f"seed_{self.params.get('seed', 42)}"
         )
         base_results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -492,7 +614,7 @@ class CCSAPhase(TrainingPhase):
 
         # Create base model and CCSA wrapper
         base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        base_model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(base_model, pretrained_model, f"pretrained model -> CCSA base (fold {fold})", allow_missing=("classification_head",))
 
         ccsa_model = CCSAFinetune(
             base_model=base_model,
@@ -511,7 +633,7 @@ class CCSAPhase(TrainingPhase):
             fold=fold,
             global_scaling_stats=global_scaling_stats,
         )
-        _, _, tgt_train_dataset, tgt_val_dataset = datasets
+        _, _, tgt_train_dataset, tgt_val_dataset, tgt_test_dataset = datasets
 
         # Save the appropriate scaling stats based on the mode
         if temp_params.get("cross_domain_scaling", False):
@@ -533,6 +655,7 @@ class CCSAPhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         # Combine cached source loaders with new target loaders
@@ -543,6 +666,9 @@ class CCSAPhase(TrainingPhase):
             }
         )
         val_loader = dataloaders["tgt_val_loader"]
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = _require_test_loader(dataloaders, val_loader)
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -555,15 +681,15 @@ class CCSAPhase(TrainingPhase):
             trainer.fit(
                 ccsa_model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(ccsa_model, output_dir, "ccsa")
 
         # Return the best base model for chaining
         best_base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        best_base_model.load_state_dict(
-            ccsa_model.base_model.state_dict(), strict=False
+        transfer_weights(
+            best_base_model, ccsa_model.base_model, f"CCSA base -> chained model (fold {fold})"
         )
 
         logger.info(
@@ -635,7 +761,7 @@ class CCSAPhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params_tgt, fold=fold, global_scaling_stats=global_scaling_stats
         )
-        _, _, tgt_train_dataset, tgt_val_dataset = datasets
+        _, _, tgt_train_dataset, tgt_val_dataset, tgt_test_dataset = datasets
 
         # Save the appropriate scaling stats based on the mode
         if scaling_stats_dict.get("cross_domain"):
@@ -657,6 +783,7 @@ class CCSAPhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         # Combine cached source loaders with new target loaders
@@ -667,6 +794,9 @@ class CCSAPhase(TrainingPhase):
             }
         )
         val_loader = dataloaders["tgt_val_loader"]
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = _require_test_loader(dataloaders, val_loader)
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -679,7 +809,7 @@ class CCSAPhase(TrainingPhase):
             trainer.fit(
                 ccsa_model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(
@@ -688,8 +818,8 @@ class CCSAPhase(TrainingPhase):
 
         # Return the best base model for chaining
         best_base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        best_base_model.load_state_dict(
-            ccsa_model.base_model.state_dict(), strict=False
+        transfer_weights(
+            best_base_model, ccsa_model.base_model, f"CCSA base -> chained model (fold {fold})"
         )
 
         logger.info(
@@ -740,7 +870,7 @@ class CCSAPhase(TrainingPhase):
 
         # Create base model and CCSA wrapper
         base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        base_model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(base_model, pretrained_model, f"pretrained model -> CCSA base (fold {fold})", allow_missing=("classification_head",))
 
         ccsa_model = CCSAFinetune(
             base_model=base_model,
@@ -755,9 +885,13 @@ class CCSAPhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=global_scaling_stats
         )
-        src_train_dataset, src_val_dataset, tgt_train_dataset, tgt_val_dataset = (
-            datasets
-        )
+        (
+            src_train_dataset,
+            src_val_dataset,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            tgt_test_dataset,
+        ) = datasets
 
         # Save the appropriate scaling stats based on the mode
         if temp_params.get("cross_domain_scaling", False):
@@ -777,6 +911,7 @@ class CCSAPhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = CombinedLoader(
@@ -786,6 +921,9 @@ class CCSAPhase(TrainingPhase):
             }
         )
         val_loader = dataloaders["tgt_val_loader"]
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = _require_test_loader(dataloaders, val_loader)
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -798,15 +936,15 @@ class CCSAPhase(TrainingPhase):
             trainer.fit(
                 ccsa_model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(ccsa_model, output_dir, "ccsa")
 
         # Return the best base model for chaining
         best_base_model = MultiTaskPocket(domain="tgt", **temp_params)
-        best_base_model.load_state_dict(
-            ccsa_model.base_model.state_dict(), strict=False
+        transfer_weights(
+            best_base_model, ccsa_model.base_model, f"CCSA base -> chained model (fold {fold})"
         )
 
         logger.info(
@@ -833,58 +971,7 @@ class CCSAPhase(TrainingPhase):
         Dict[str, Any]
             Dictionary of validation metrics including loss, accuracy, F1, AUROC, and MCC.
         """
-        checkpoint_callback = None
-        for callback in trainer.callbacks:
-            if isinstance(callback, PrintOnBestModelCheckpoint):
-                checkpoint_callback = callback
-                break
-
-        if checkpoint_callback and checkpoint_callback.best_model_path:
-            try:
-                model = trainer.lightning_module
-                checkpoint = torch.load(
-                    checkpoint_callback.best_model_path,
-                    map_location="cpu",
-                    weights_only=True,
-                )
-                model.load_state_dict(checkpoint["state_dict"])
-
-                val_results = trainer.validate(
-                    model, dataloaders=val_loader, verbose=False
-                )
-                result = (
-                    val_results[-1]
-                    if isinstance(val_results, list) and val_results
-                    else {}
-                )
-
-                return {
-                    "val/loss": float(result.get("val/loss", float("inf"))),
-                    "val/accuracy": float(result.get("val/accuracy", 0.0)),
-                    "val/f1": float(result.get("val/f1", 0.0)),
-                    "val/auroc": float(result.get("val/auroc", 0.0)),
-                    "val/mcc": float(result.get("val/mcc", 0.0)),
-                }
-            except Exception as e:
-                logger.warning(f"Could not load best checkpoint: {e}")
-
-        # Fallback
-        if trainer.logged_metrics:
-            return {
-                "val/loss": float(trainer.logged_metrics.get("val/loss", float("inf"))),
-                "val/accuracy": float(trainer.logged_metrics.get("val/accuracy", 0.0)),
-                "val/f1": float(trainer.logged_metrics.get("val/f1", 0.0)),
-                "val/auroc": float(trainer.logged_metrics.get("val/auroc", 0.0)),
-                "val/mcc": float(trainer.logged_metrics.get("val/mcc", 0.0)),
-            }
-
-        return {
-            "val/loss": float("inf"),
-            "val/accuracy": 0.0,
-            "val/f1": 0.0,
-            "val/auroc": 0.0,
-            "val/mcc": 0.0,
-        }
+        return _metrics_from_best_checkpoint(trainer, val_loader, type(self).__name__)
 
 
 class FinetunePhase(TrainingPhase):
@@ -952,7 +1039,7 @@ class FinetunePhase(TrainingPhase):
 
         # Create model
         model = MultiTaskPocket(domain=domain, **temp_params)
-        model.load_state_dict(pretrained_model.state_dict(), strict=False)
+        transfer_weights(model, pretrained_model, f"pretrained model -> finetune ({finetune_mode})", allow_missing=("classification_head",))
 
         # Apply freezing strategy
         if finetune_mode == "encoder_task":
@@ -967,9 +1054,13 @@ class FinetunePhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=global_scaling_stats
         )
-        src_train_dataset, src_val_dataset, tgt_train_dataset, tgt_val_dataset = (
-            datasets
-        )
+        (
+            src_train_dataset,
+            src_val_dataset,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            tgt_test_dataset,
+        ) = datasets
 
         # Save the appropriate scaling stats based on the mode
         if temp_params.get("cross_domain_scaling", False):
@@ -989,10 +1080,18 @@ class FinetunePhase(TrainingPhase):
             tgt_train_dataset,
             tgt_val_dataset,
             temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = WrappedDataLoader(loaders[f"{domain}_train_loader"], domain)
         val_loader = WrappedDataLoader(loaders[f"{domain}_val_loader"], domain)
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = (
+            WrappedDataLoader(loaders["tgt_test_loader"], domain)
+            if loaders.get("tgt_test_loader") is not None
+            else val_loader
+        )
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -1007,7 +1106,7 @@ class FinetunePhase(TrainingPhase):
             trainer.fit(
                 model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(model, output_dir, finetune_mode)
@@ -1090,7 +1189,7 @@ class FinetunePhase(TrainingPhase):
         datasets, scaling_stats_dict = get_datasets(
             temp_params, fold=fold, global_scaling_stats=None
         )
-        _, _, tgt_train_dataset, tgt_val_dataset = datasets
+        _, _, tgt_train_dataset, tgt_val_dataset, tgt_test_dataset = datasets
 
         # Save the correctly computed target-specific scaling stats.
         stats_to_save = scaling_stats_dict.get("target_stats")
@@ -1100,11 +1199,23 @@ class FinetunePhase(TrainingPhase):
             logger.warning(f"No target scaling stats found to save for {output_dir}")
 
         loaders = create_dataloaders(
-            None, None, tgt_train_dataset, tgt_val_dataset, temp_params
+            None,
+            None,
+            tgt_train_dataset,
+            tgt_val_dataset,
+            temp_params,
+            tgt_test_dataset=tgt_test_dataset,
         )
 
         train_loader = WrappedDataLoader(loaders["tgt_train_loader"], "tgt")
         val_loader = WrappedDataLoader(loaders["tgt_val_loader"], "tgt")
+        # Reported metrics come from the held-out test fold, which played no
+        # part in early stopping or checkpoint selection.
+        test_loader = (
+            WrappedDataLoader(loaders["tgt_test_loader"], "tgt")
+            if loaders.get("tgt_test_loader") is not None
+            else val_loader
+        )
 
         # Create callbacks and trainer
         callbacks = self.create_callbacks(
@@ -1121,7 +1232,7 @@ class FinetunePhase(TrainingPhase):
             trainer.fit(
                 model, train_dataloaders=train_loader, val_dataloaders=val_loader
             )
-            metrics = self._extract_metrics(trainer, val_loader)
+            metrics = self._extract_metrics(trainer, test_loader)
 
         # Save model components
         self.component_manager.save_components(
@@ -1215,56 +1326,4 @@ class FinetunePhase(TrainingPhase):
         Dict[str, Any]
             Dictionary of validation metrics including loss, accuracy, F1, AUROC, and MCC.
         """
-        # Same implementation as CCSAPhase._extract_metrics
-        checkpoint_callback = None
-        for callback in trainer.callbacks:
-            if isinstance(callback, PrintOnBestModelCheckpoint):
-                checkpoint_callback = callback
-                break
-
-        if checkpoint_callback and checkpoint_callback.best_model_path:
-            try:
-                model = trainer.lightning_module
-                checkpoint = torch.load(
-                    checkpoint_callback.best_model_path,
-                    map_location="cpu",
-                    weights_only=True,
-                )
-                model.load_state_dict(checkpoint["state_dict"])
-
-                val_results = trainer.validate(
-                    model, dataloaders=val_loader, verbose=False
-                )
-                result = (
-                    val_results[-1]
-                    if isinstance(val_results, list) and val_results
-                    else {}
-                )
-
-                return {
-                    "val/loss": float(result.get("val/loss", float("inf"))),
-                    "val/accuracy": float(result.get("val/accuracy", 0.0)),
-                    "val/f1": float(result.get("val/f1", 0.0)),
-                    "val/auroc": float(result.get("val/auroc", 0.0)),
-                    "val/mcc": float(result.get("val/mcc", 0.0)),
-                }
-            except Exception as e:
-                logger.warning(f"Could not load best checkpoint: {e}")
-
-        # Fallback
-        if trainer.logged_metrics:
-            return {
-                "val/loss": float(trainer.logged_metrics.get("val/loss", float("inf"))),
-                "val/accuracy": float(trainer.logged_metrics.get("val/accuracy", 0.0)),
-                "val/f1": float(trainer.logged_metrics.get("val/f1", 0.0)),
-                "val/auroc": float(trainer.logged_metrics.get("val/auroc", 0.0)),
-                "val/mcc": float(trainer.logged_metrics.get("val/mcc", 0.0)),
-            }
-
-        return {
-            "val/loss": float("inf"),
-            "val/accuracy": 0.0,
-            "val/f1": 0.0,
-            "val/auroc": 0.0,
-            "val/mcc": 0.0,
-        }
+        return _metrics_from_best_checkpoint(trainer, val_loader, type(self).__name__)

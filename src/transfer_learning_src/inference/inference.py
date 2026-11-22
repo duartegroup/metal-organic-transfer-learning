@@ -10,7 +10,13 @@ import json
 import pickle
 from ase.io import read, write
 from ase.optimize import BFGS
-from xtb.ase.calculator import XTB
+try:
+    from xtb.ase.calculator import XTB
+except ImportError:
+    # Optional: xtb is needed only to optimize a geometry. Callers that pass an
+    # already-optimized structure via --output_xyz hit the reuse-cache in
+    # optimize_with_gfn2_xtb and never construct the calculator.
+    XTB = None
 from ase import Atoms
 import subprocess
 import pandas as pd
@@ -270,6 +276,13 @@ def optimize_with_gfn2_xtb(
     atoms = read(xyz_in)
 
     # Attach the xTB calculator (ASE needs xtb installed in PATH)
+    if XTB is None:
+        raise RuntimeError(
+            "xtb is not installed in this environment, so no geometry can be "
+            "optimized here. Pass an already-optimized .xyz as --output_xyz "
+            "(its composition must match --xyz_file) so the cached geometry is "
+            "reused instead."
+        )
     atoms.calc = XTB(method="GFN2-xTB", charge=charge)
 
     # Run BFGS optimization
@@ -700,6 +713,7 @@ def load_all_models(
 def load_target_dataset_and_compute_fold_stats(
     dataset_name: str,
     affinity_type: str,
+    inhibitor_descriptor: str,
     modality: str,
     scaling_method: str,
     cross_domain_scaling: bool,
@@ -736,9 +750,13 @@ def load_target_dataset_and_compute_fold_stats(
     # Load the target dataset (same as training)
     data_path = f"./../../../data/hf5_dataset/{dataset_name}/{dataset_name}_{affinity_type}_dataset.h5"
 
-    # Load data using the same function as training
+    # Load data using the same function as training.
+    # The descriptor MUST match the one the models were trained with: these
+    # statistics fit the scaler that every prediction is normalised by, and a
+    # mismatch makes every fold fail on feature width. This was hard-coded to
+    # "SOAP", which silently restricted inference to SOAP models.
     target_data = load_data_hdf5(
-        dataset_name, "SOAP", affinity_type, percent_of_data=1.0
+        dataset_name, inhibitor_descriptor, affinity_type, percent_of_data=1.0
     )
 
     print(target_data.keys())
@@ -862,32 +880,25 @@ def prepare_input_with_fold_stats(
             pocket_embedding,
         )
 
-    # Convert to tensors
-    mol_tensor = (
-        torch.tensor(mol_scaled, dtype=torch.float32)
-        .detach()
-        .clone()
-        .unsqueeze(0)
-        .to(device)
-    )
-    protein_tensor = (
-        torch.as_tensor(protein_scaled, dtype=torch.float32)
-        .detach()
-        .clone()
-        .unsqueeze(0)
-        .to(device)
-    )
-
-    if pocket_scaled is not None:
-        pocket_tensor = (
-            torch.tensor(pocket_scaled, dtype=torch.float32)
+    # Convert to tensors. apply_scaling_like_training returns None for every
+    # component the modality leaves out, so each one needs the same guard: a
+    # molecule-only or molecule_pocket model has protein_scaled None, and passing
+    # that to torch.as_tensor raises "must be real number, not NoneType". An empty
+    # tensor is what the pocket branch already used for an absent component.
+    def _as_batch(value):
+        if value is None:
+            return torch.empty(0).to(device)
+        return (
+            torch.as_tensor(value, dtype=torch.float32)
             .detach()
             .clone()
             .unsqueeze(0)
             .to(device)
         )
-    else:
-        pocket_tensor = torch.empty(0).to(device)
+
+    mol_tensor = _as_batch(mol_scaled)
+    protein_tensor = _as_batch(protein_scaled)
+    pocket_tensor = _as_batch(pocket_scaled)
 
     # Dummy labels (not used in inference)
     labels = torch.tensor([0.0], dtype=torch.float32).to(device)
@@ -1244,6 +1255,7 @@ def main(args: argparse.Namespace) -> None:
     fold_stats = load_target_dataset_and_compute_fold_stats(
         dataset_name="caged",  # Target dataset name
         affinity_type=affinity_type,
+        inhibitor_descriptor=inhibitor_descriptor,
         modality=modality,
         scaling_method=data_scaler if data_scaler != "none" else None,
         cross_domain_scaling=cross_domain_scaling,

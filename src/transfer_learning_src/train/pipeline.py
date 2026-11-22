@@ -14,6 +14,7 @@ from data.utils_data import (
 )
 from data.dataset import WrappedDataLoader
 from utils.checkpoint_utils import save_phase_stats
+import os
 import logging
 import gc
 
@@ -347,11 +348,32 @@ class MultitaskTrainingPipeline:
         all_results = {}
 
         try:
-            # Always compute global scaling stats for consistency
-            self._compute_global_scaling_stats()
-
             # Determine which run types to execute
             run_types = self.run_types
+
+            # Loading the source domain means reading ~40 GB of organic HDF5. Every run
+            # type except no_pretrain_encoder_task needs it -- SSL pre-training trains on
+            # it and the CCSA stages need it for contrastive pairs. no_pretrain_encoder_task
+            # does not: FinetunePhase.run_target_only sets train_on="tgt", forces
+            # cross_domain_scaling=False and passes global_scaling_stats=None, so the
+            # statistics computed here are discarded unused.
+            #
+            # The skip is here because at SOAP feature width the unused load exceeds the
+            # job memory limit and killed 864 tasks of the paired control sweep. It was
+            # verified number-neutral by re-running completed configurations both ways
+            # and diffing the summary CSVs.
+            # FORCE_SOURCE_LOAD=1 restores the published behaviour unconditionally.
+            # It exists so both behaviours can be run from one checkout, which is how
+            # the neutrality of this skip was verified.
+            _force = os.environ.get("FORCE_SOURCE_LOAD") == "1"
+            if run_types == ["no_pretrain_encoder_task"] and not _force:
+                logger.info(
+                    "Target-only run: skipping the source-domain load, since "
+                    "run_target_only recomputes scaling statistics from the target "
+                    "training fold and ignores the global ones."
+                )
+            else:
+                self._compute_global_scaling_stats()
 
             if "full_pipeline" in run_types:
                 # Run ALL training approaches for comprehensive comparison

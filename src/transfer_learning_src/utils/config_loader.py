@@ -109,10 +109,14 @@ def parse_args() -> argparse.Namespace:
 
     # === PARAMS PRETRAIN ===#
     parser.add_argument("--learning_rate_pretrain", type=float, default=1e-4)
-    parser.add_argument("--dropout_pretrain", type=float, default=0.4)
+    # Default matches TrainingConfig.dropout_pretrain. It used to read 0.4 while
+    # the dataclass said 0.05; since the trainer read the dataclass, 0.05 is what
+    # every run actually used.
+    parser.add_argument("--dropout_pretrain", type=float, default=0.05)
     parser.add_argument("--ssl_temperature", type=float, default=0.07)
-    parser.add_argument("--ssl_noise_scale", type=float, default=0.02)
-    parser.add_argument("--ssl_node_drop_prob", type=float, default=0.2)
+    # Defaults match the values in force (see TrainingConfig).
+    parser.add_argument("--ssl_noise_scale", type=float, default=0.3)
+    parser.add_argument("--ssl_node_drop_prob", type=float, default=0.3)
 
     # === PARAMS CCSA ===#
     parser.add_argument("--learning_rate_ccsa", type=float, default=1e-4)
@@ -128,7 +132,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dropout_finetune", type=float, default=0.4)
 
     parser.add_argument("--gradient_clip_val", type=float, default=1.0)
-    parser.add_argument("--patience", type=int, default=15)
+    # Default matches TrainingConfig.patience, which is the value the trainer has
+    # always used; the command line said 15 and was ignored.
+    parser.add_argument("--patience", type=int, default=35)
     parser.add_argument("--min_delta", type=float, default=0.001)
 
     parser.add_argument("--n_folds", type=int, default=5)
@@ -156,6 +162,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--classes", type=int, default=2)
     parser.add_argument("--enable_progress_bar", default=False, action="store_true")
     parser.add_argument("--output_dir", type=str, default="results")
+    parser.add_argument(
+        "--run_types",
+        type=str,
+        default="full_pipeline",
+        help="Comma-separated training approaches to run. 'full_pipeline' runs "
+        "all nine. Narrow it to e.g. no_pretrain_encoder_task to run one.",
+    )
 
     parser.add_argument(
         "--source_smote",
@@ -239,7 +252,15 @@ def build_params_from_args(args: argparse.Namespace) -> dict:
     else:
         raise ValueError(f"Invalid modality: all of modalities are set to False")
 
+    # Comma-separated on the command line, a list in params -- which is what
+    # MultitaskTrainingPipeline.run_types expects.
+    args.run_types = [t.strip() for t in args.run_types.split(",") if t.strip()]
+
     return {
+        "run_types": args.run_types,
+        "ssl_temperature": args.ssl_temperature,
+        "ssl_noise_scale": args.ssl_noise_scale,
+        "ssl_node_drop_prob": args.ssl_node_drop_prob,
         "max_epochs": args.max_epochs,
         "batch_size": args.batch_size,
         "batch_size_source": args.batch_size_source,

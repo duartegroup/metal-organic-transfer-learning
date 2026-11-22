@@ -595,11 +595,14 @@ class TSNEVisualizer:
     ) -> None:
         self.random_state = random_state
         self.pca_components = pca_components
+        # scikit-learn renamed TSNE's n_iter to max_iter in 1.5 and removed the old
+        # name in 1.7; this environment has 1.9. Keep the public argument name so
+        # callers are unaffected.
         self.tsne = TSNE(
             n_components=n_components,
             perplexity=perplexity,
             random_state=random_state,
-            n_iter=n_iter,
+            max_iter=n_iter,
             verbose=1,
         )
         self.pca = None
@@ -948,7 +951,7 @@ class EmbeddingVisualizer:
             else:
                 datasets, _ = get_datasets(temp_params, fold=None)
 
-            src_train, _, _, _ = datasets
+            src_train, _, _, _, _ = datasets
             loaders = create_dataloaders(src_train, None, None, None, temp_params)
             self._cached_source_dataloaders = loaders
 
@@ -1136,9 +1139,11 @@ class EmbeddingVisualizer:
         datasets, _ = get_datasets(
             temp_params, fold=fold, global_scaling_stats=norm_stats
         )
-        _, _, tgt_train, tgt_val = datasets
+        _, _, tgt_train, tgt_val, tgt_test = datasets
 
-        tgt_loaders = create_dataloaders(None, None, tgt_train, tgt_val, temp_params)
+        tgt_loaders = create_dataloaders(
+            None, None, tgt_train, tgt_val, temp_params, tgt_test_dataset=tgt_test
+        )
         tgt_loaders["src_train_loader"] = self._cached_source_dataloaders[
             "src_train_loader"
         ]
@@ -1307,7 +1312,7 @@ class EmbeddingVisualizer:
         data_splits = {
             "src_train": ("src_train_loader", "src"),
             "tgt_train": ("tgt_train_loader", "tgt"),
-            "tgt_test": ("tgt_val_loader", "tgt"),
+            "tgt_test": ("tgt_test_loader", "tgt"),
         }
 
         for name, (loader_key, domain) in data_splits.items():
@@ -2691,6 +2696,16 @@ class EmbeddingVisualizer:
 
             except Exception as e:
                 logger.error(f"Failed to process fold {fold}: {e}", exc_info=True)
+
+        # A run that processed no fold at all has produced nothing, and must not
+        # report success: every caller so far - Slurm included - has read exit 0
+        # as 'the analysis ran'. One or more folds failing is still tolerated and
+        # logged, as before.
+        if not all_fold_data:
+            raise RuntimeError(
+                f"all {n_folds} folds failed for phase {phase}; see the logged "
+                f"tracebacks above. No output was written."
+            )
 
         if len(all_fold_data) > 1:
             logger.info("--- Creating final combined plots for all folds ---")

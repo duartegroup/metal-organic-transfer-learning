@@ -1,8 +1,19 @@
 name: metal-transfer-learning
+# Build this on a machine with no GPU (a cluster login node, say) with:
+#
+#     CONDA_OVERRIDE_CUDA=12.4 conda env create -f environment.yml
+#
+# conda detects CUDA through the `__cuda` virtual package, which comes from the
+# NVIDIA driver. A login node has no driver, so every CUDA build of pytorch is
+# judged uninstallable and the solve fails with
+# "nothing provides __cuda needed by pytorch-...-cuda...". The override states
+# the CUDA version the *compute* nodes provide.
+#
+# The `pytorch` and `cuda` channels are deliberately absent: mixing them with
+# conda-forge is what produced a CPU-only build below. Everything here resolves
+# from conda-forge.
 channels:
   - conda-forge
-  - pytorch
-  - cuda
   - pyg
   - bioconda
   - defaults
@@ -12,17 +23,30 @@ dependencies:
   - python=3.11
 
   # Core ML/DL frameworks
-  - pytorch
+  #
+  # pytorch-gpu, NOT pytorch: on conda-forge, plain `pytorch` resolves to a
+  # cpu_mkl_* build, and the old `pytorch-cuda` pin did not prevent that. It is a
+  # pin package for the pytorch channel's own builds, so the solver was free to
+  # satisfy it alongside a CPU pytorch. The result imported and ran, with
+  # torch.cuda.is_available() == False -- every job would have fallen back to CPU.
+  - pytorch-gpu
+  #
+  # torchvision must come from conda-forge so it links the same libtorch. `esm`
+  # declares it as a dependency, so if it is absent here pip installs a wheel built
+  # against a different libtorch and torchmetrics/lightning then fail to import with
+  # "operator torchvision::nms does not exist".
+  - torchvision
   - pytorch-lightning
+  - lightning  # train/phases.py imports `lightning`, which pytorch-lightning does not provide
   - torchmetrics
-  # - torch-geometric  # Uncomment if needed
-  - pytorch-cuda  # Adjust CUDA version as needed
+  - torch-geometric  # required: data/dataset.py imports it unconditionally
 
   # Scientific computing
   - numpy
   - scipy
   - scikit-learn
   - pandas
+  - imbalanced-learn  # SMOTE oversampling in data/dataset.py
 
   # Visualization
   - matplotlib
@@ -36,11 +60,32 @@ dependencies:
   # Biological data processing
   - biopython
   - h5py
+  # httpx is a dependency of esm.sdk (the Forge API client). pip does not pull
+  # it in, and src/data_src/__init__.py imports esm.sdk at module scope, which
+  # the training path reaches through data/__init__.py -- so without it
+  # `import main` fails outright and no job can start.
+  - httpx
+  - openpyxl  # data/excel/* is read with pandas.read_excel
+
+  # Experiment tracking
+  # train/phases.py imports wandb unconditionally and builds a WandbLogger, so a
+  # run needs either `wandb login` or WANDB_MODE=offline/disabled in the job script.
+  - wandb
+
+  # Testing (the repo ships a tests/ directory)
+  - pytest
 
   # Utilities
   - tqdm
   - termcolor
-  - pathlib
+  - prettytable  # result tables in train/phases.py and train/results.py
+
+  # Analysis and inference only, not needed to train:
+  #   rich      statistical_tests/
+  #   tabulate  supervised_learning_src/
+  #   xtb       inference/ (conda-forge: xtb-python)
+  - rich
+  - tabulate
 
   # pip dependencies (for packages not available via conda)
   - pip
@@ -48,4 +93,5 @@ dependencies:
     - dscribe
     - esm
     - mace-torch
+    - pytorch_optimizer  # model/multitask.py
 
