@@ -2698,7 +2698,7 @@ class EmbeddingVisualizer:
                 logger.error(f"Failed to process fold {fold}: {e}", exc_info=True)
 
         # A run that processed no fold at all has produced nothing, and must not
-        # report success: every caller so far - Slurm included - has read exit 0
+        # report success: a caller, including any job scheduler, reads exit 0
         # as 'the analysis ran'. One or more folds failing is still tolerated and
         # logged, as before.
         if not all_fold_data:
