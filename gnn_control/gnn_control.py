@@ -1,4 +1,4 @@
-"""GNN control experiment requested by Reviewer 1 (comment 2).
+"""Architecture control for the from-scratch baseline.
 
 Trains a 3D message-passing network (SchNet-style continuous-filter convolutions) from
 scratch on the metal-organic dataset alone, replacing only the molecular representation
@@ -30,16 +30,18 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score, f1_score, matthews_corrcoef
 
-REPO = Path(__file__).resolve().parents[2] / "metal-organic-transfer-learning"
+REPO = Path(__file__).resolve().parents[1]
 METADATA = REPO / "data" / "excel" / "metadata.xlsx"
 SDF_DIR = REPO / "data" / "caged_structures" / "sdf"
 # Per-residue ESM-C embeddings, keyed by entry_name. The pipeline represents a protein
 # by the CLS token -- the first row -- see dataset.py::_compute_fixed_vectors, which the
 # protein branch below reproduces exactly so the control differs from S1 in the MOLECULAR
 # representation only.
-H5 = {"pIC50": REPO.parent / "caged" / "caged_pic50_dataset.h5",
-      "pKi": REPO.parent / "caged" / "caged_pk_dataset.h5"}
-OUT = Path(__file__).resolve().parents[1] / "results"
+# Built by data/hf5_dataset/caged/create_caged_h5.py; override with --h5-dir if they
+# live elsewhere. They are not in the repository (*.h5 is gitignored).
+H5_DIR = REPO / "data" / "hf5_dataset" / "caged"
+H5_NAME = {"pIC50": "caged_pic50_dataset.h5", "pKi": "caged_pk_dataset.h5"}
+OUT = REPO / "results" / "gnn_control"
 
 # Elements present in the dataset (SI Section S1.2).
 SPECIES = ["H", "C", "N", "O", "F", "P", "S", "Cl", "Se", "Br", "I", "Ru"]
@@ -75,11 +77,16 @@ def read_sdf(path: Path) -> tuple[list[str], np.ndarray] | None:
     return symbols, np.asarray(coords, dtype=np.float32)
 
 
-def load_protein_cls(endpoint: str, entry_names) -> dict:
+def load_protein_cls(endpoint: str, entry_names, h5_dir: Path = H5_DIR) -> dict:
     """{entry_name: CLS vector}. Same reduction the descriptor pipeline uses."""
     import h5py
+    path = Path(h5_dir) / H5_NAME[endpoint]
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{path} not found. Build it with "
+            f"data/hf5_dataset/caged/create_caged_h5.py, or pass --h5-dir.")
     out = {}
-    with h5py.File(H5[endpoint], "r") as f:
+    with h5py.File(path, "r") as f:
         for name in entry_names:
             if name not in f or "protein_embeddings" not in f[name]:
                 continue
@@ -323,6 +330,9 @@ def run_fold(train_rows, val_rows, test_rows, geometries, threshold, args, devic
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--endpoint", choices=["pIC50", "pKi"], default="pKi")
+    p.add_argument("--h5-dir", type=Path, default=H5_DIR,
+                   help="Directory holding caged_{pic50,pk}_dataset.h5 "
+                        "(default: data/hf5_dataset/caged).")
     p.add_argument("--thresholds", type=float, nargs="+", default=[5.0, 6.0, 7.0])
     p.add_argument("--hidden", type=int, default=64)
     p.add_argument("--interactions", type=int, default=3)
@@ -366,7 +376,8 @@ def main() -> None:
 
     if args.use_protein:
 
-        protein = load_protein_cls(args.endpoint, data["entry_name"].unique())
+        protein = load_protein_cls(args.endpoint, data["entry_name"].unique(),
+                                   args.h5_dir)
 
         missing = set(data["entry_name"]) - set(protein)
 
